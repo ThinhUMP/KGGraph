@@ -55,16 +55,16 @@ class JTConstruct:
         """
         if fragment_type == 'smotif':
             cliques, edges = SMotifDecomposition().defragment(mol)
-            print(cliques)
+            # print(cliques)
         elif fragment_type == 'brics':
             cliques, edges = BRCISDecomposition().defragment(mol)
-            print(cliques)
+            # print(cliques)
         elif fragment_type == 'motif':
             cliques, edges = MotifDecomposition().defragment(mol)
-            print(cliques)
+            # print(cliques)
         elif fragment_type == 'jin':
             cliques, edges = TreeDecomposition().defragment(mol)
-            print(cliques)
+            # print(cliques)
         return list(cliques), edges
 
     @staticmethod

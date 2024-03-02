@@ -1,3 +1,3 @@
 from .chemutils import *
-from .MotitDcp imoport *
+from .MotitDcp import *
 from .JunctionTree import *

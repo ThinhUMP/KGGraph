@@ -1,0 +1,3 @@
+rdkit==2023.9.5
+networkx==3.2.1
+joblib==1.3.2

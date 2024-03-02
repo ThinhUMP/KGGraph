@@ -16,6 +16,22 @@ KGGraph is a cutting-edge toolkit designed for scientists and researchers in com
 - **Molecular Property Prediction**: Develop predictive models for various molecular properties, leveraging the power of graph neural networks.
 
 ## Installation
+
+1. **Creating a Virtual Environment (Optional but Recommended):**
+It's recommended to use a virtual environment to avoid conflicts with other projects or system-wide packages. Use the following commands to create and activate a virtual environment:
+
+```bash
+python -m venv kggraph-env
+source kggraph-env/bin/activate  # On Windows use `synrbl-env\Scripts\activate`
+```
+Or Conda
+
+```bash
+conda create --name kggraph-env python=3.11
+conda activate kggraph-env
+  ```
+2. **Cloning and Installing KGGraph:**
+
 Clone the KGGraph repository and install it using the `setup.py` file:
 
 ```bash

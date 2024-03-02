@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: KGGraph
+Version: 0.1.0
+Summary: Knowledge Guided Graph for molecular representation
+Home-page: https://github.com/ThinhUMP/KGGraph
+Author: Van-Thinh-To
+Author-email: tvthinh.d19@ump.edu.vn
+Requires-Python: ==3.11
+License-File: LICENSE
+Requires-Dist: rdkit==2023.9.5
+Requires-Dist: networkx==3.2.1
+Requires-Dist: joblib==1.3.2

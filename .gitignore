@@ -6,3 +6,13 @@ dist/
 KGGraph.egg-info/
 saved_model/
 __pycache__/
+finetune/
+data/
+chemutils.ipynb
+chemutils.py
+data_utils.py
+decoder.py
+gnn_model.py
+pretrain.py
+test.ipynb
+treeEx.ipynb

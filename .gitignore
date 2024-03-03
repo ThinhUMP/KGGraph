@@ -9,7 +9,6 @@ __pycache__/
 finetune/
 data/
 chemutils.ipynb
-chemutils.py
 data_utils.py
 decoder.py
 gnn_model.py

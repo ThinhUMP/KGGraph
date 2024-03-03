@@ -1,13 +1,13 @@
 from typing import Union
 from rdkit import Chem
 from rdkit.Chem import Lipinski, Crippen, rdMolDescriptors, rdPartialCharges
-from mendeleev import element
+import json
 import numpy as np
 import sys
 import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.chemutils import *
+from KGGraph.Chemistry.chemutils import *
 ELECTRONEGATIVITY = {
     'H': 2.20, 'He': 0.0,
     'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98,
@@ -16,10 +16,16 @@ ELECTRONEGATIVITY = {
     'Fe': 1.83, 'Co': 1.88, 'Ni': 1.91, 'Cu': 1.90, 'Zn': 1.65, 'Ga': 1.81, 'Ge': 2.01, 'As': 2.18,
     'Se': 2.55, 'Br': 2.96, 'Kr': 3.00, 'Rb': 0.82, 'Sr': 0.95, 'Y': 1.22, 'Zr': 1.33, 'Nb': 1.6,
     'Mo': 2.16, 'Tc': 1.9, 'Ru': 2.2, 'Rh': 2.28, 'Pd': 2.20, 'Ag': 1.93, 'Cd': 1.69, 'In': 1.78,
-    'Sn': 1.96, 'Sb': 2.05, 'Te': 2.1, 'I': 2.66, 'Xe': 2.6,
-    # Continue adding more
+    'Sn': 1.96, 'Sb': 2.05, 'Te': 2.1, 'I': 2.66, 'Xe': 2.60, 'Cs': 0.79, 'Ba': 0.89, 'La': 1.10,
+    'Hf': 1.30, 'Ta': 1.50, 'W': 2.36, 'Re': 1.90, 'Os': 2.20, 'Ir': 2.20, 'Pt': 2.28, 'Au': 2.54,
+    'Hg': 2.00, 'Tl': 1.62, 'Pb': 2.33, 'Bi': 2.02, 'Po': 2.0, 'At': 2.2, 'Rn': 0.0, 'Fr': 0.7,
+    'Ra': 0.9, 'Ac': 1.1, 'Rf': 0.0, 'Db': 0.0, 'Sg': 0.0, 'Bh': 0.0, 'Hs': 0.0, 'Mt': 0.0,
+    'Ds': 0.0, 'Rg': 0.0, 'Cn': 0.0, 'Nh': 0.0, 'Fl': 0.0, 'Mc': 0.0, 'Lv': 0.0, 'Ts': 0.0, 'Og': 0.0,
 }
 
+
+with open('period_table.json', 'r') as f:
+    period_table = json.load(f)
 
 ### Atom type
 def get_symbol(atom: Chem.Atom) -> str:
@@ -28,13 +34,13 @@ def get_symbol(atom: Chem.Atom) -> str:
 
 def get_period(atom: Chem.Atom) -> int:
     """Get the period of the atom."""
-    atom_mendeleev = element(atom.GetSymbol())
-    return atom_mendeleev.period
+    atom_information = period_table(atom.GetSymbol())
+    return atom_information['period']
 
 def get_group(atom: Chem.Atom) -> str:
     """Get the period of the atom."""
-    atom_mendeleev = element(atom.GetSymbol())
-    return atom_mendeleev.group
+    atom_information = period_table(atom.GetSymbol())
+    return atom_information['group']
 
 def get_hybridization(atom: Chem.Atom) -> str:
     """Get the hybridization type of the atom."""

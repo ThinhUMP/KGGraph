@@ -94,13 +94,13 @@ class HybridizationFeaturize(AtomFeature):
         (1,3): [1,2,0,1,3], #AX1E3 => sp3 => Ex: R-X (X is halogen)
         (2,2): [1,3,0,2,2], #AX2E2 => sp3 => Ex: O of R-O-R'
         (3,1): [1,2,0,3,1], #AX3E1 => sp3 => Ex: N of NR3
-        (4,0): [1,3,0,4,0], #AX1E1 => sp3 => Ex: C of CR4
-        (3,2): [1,3,1,3,2], #AX1E1 => sp5 
-        (4,1): [1,3,1,4,1], #AX1E1 => sp5 
-        (5,0): [1,3,1,5,0], #AX1E1 => sp5 => Ex: P of PCl5
-        (4,2): [1,3,2,4,2], #AX1E1 => sp6 
-        (5,1): [1,3,2,5,1], #AX1E1 => sp6 
-        (6,0): [1,3,2,6,0], #AX1E1 => sp6 => Ex: S of SF6
+        (4,0): [1,3,0,4,0], #AX1E0 => sp3 => Ex: C of CR4
+        (3,2): [1,3,1,3,2], #AX1E2 => sp3d 
+        (4,1): [1,3,1,4,1], #AX1E1 => sp3d 
+        (5,0): [1,3,1,5,0], #AX1E0 => sp3d => Ex: P of PCl5
+        (4,2): [1,3,2,4,2], #AX1E2 => sp3d2 
+        (5,1): [1,3,2,5,1], #AX1E1 => sp3d2 
+        (6,0): [1,3,2,6,0], #AX1E0 => sp3d2 => Ex: S of SF6
     }
 
     def __init__(self, data, smile_col: str):

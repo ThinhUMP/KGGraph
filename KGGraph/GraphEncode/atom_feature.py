@@ -70,7 +70,7 @@ class AtomFeature():
         """
         Compute a one-hot encoding of the atomic number for each atom in each molecule.
         """
-        atom_types = get_atom_types(self.smiles)
+        atom_types = get_atom_types(self.smiles) #get all types of atom in the dataset
         atomic_number_mols = []
         for mol in self.molecules:
             atomic_number = np.zeros((mol.GetNumAtoms(), len(atom_types)))
@@ -85,22 +85,22 @@ class HybridizationFeaturize(AtomFeature):
     """
     Class to compute hybridization features for a given dataset of molecules.
     """
+    #five features are in the order of (number of orbital s, number of orbital p, number of orbital d, total single bond, number of lone pairs)
     HYBRDIZATION = {
-        (1,1): [1,1,0,1,1],
-        (2,0): [1,1,0,2,0],
-        (2,1): [1,2,0,2,1],
-        (1,2): [1,2,0,1,2],
-        (3,0): [1,2,0,3,0],
-        (1,3): [1,2,0,1,3],
-        (2,2): [1,3,0,2,2],
-        (3,1): [1,2,0,3,1],
-        (4,0): [1,3,0,4,0],
-        (3,2): [1,3,1,3,2],
-        (4,1): [1,3,1,4,1],
-        (5,0): [1,3,1,5,0],
-        (4,2): [1,3,2,4,2],
-        (5,1): [1,3,2,5,1],
-        (6,0): [1,3,2,6,0],
+        (1,1): [1,1,0,1,1], #AX1E1 => sp => Ex: N of HCN
+        (2,1): [1,2,0,2,1], #AX2E1 => sp2 => Ex: N of Pyrimidine
+        (1,2): [1,2,0,1,2], #AX1E2 => sp2 => Ex: O of C=O
+        (3,0): [1,2,0,3,0], #AX1E1 => sp2 => Ex: N of pyrrole
+        (1,3): [1,2,0,1,3], #AX1E3 => sp3 => Ex: R-X (X is halogen)
+        (2,2): [1,3,0,2,2], #AX2E2 => sp3 => Ex: O of R-O-R'
+        (3,1): [1,2,0,3,1], #AX3E1 => sp3 => Ex: N of NR3
+        (4,0): [1,3,0,4,0], #AX1E1 => sp3 => Ex: C of CR4
+        (3,2): [1,3,1,3,2], #AX1E1 => sp5 
+        (4,1): [1,3,1,4,1], #AX1E1 => sp5 
+        (5,0): [1,3,1,5,0], #AX1E1 => sp5 => Ex: P of PCl5
+        (4,2): [1,3,2,4,2], #AX1E1 => sp6 
+        (5,1): [1,3,2,5,1], #AX1E1 => sp6 
+        (6,0): [1,3,2,6,0], #AX1E1 => sp6 => Ex: S of SF6
     }
 
     def __init__(self, data, smile_col: str):
@@ -118,7 +118,8 @@ class HybridizationFeaturize(AtomFeature):
     @staticmethod
     def num_bond_hybridization(atom: Chem.Atom) -> int:
         """
-        Compute the number of bonds involved in hybridization for a given atom."""
+        Compute the number of bonds involved in hybridization for a given atom.
+        """
         max_bond_hybridization = {
             'SP3D2': 6,
             'SP3D': 5,

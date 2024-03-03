@@ -1,7 +1,12 @@
 from typing import Union
 from rdkit import Chem
 from rdkit.Chem import Lipinski, Crippen, rdMolDescriptors, rdPartialCharges
-import math
+import numpy as np
+import sys
+import pathlib
+root_dir = str(pathlib.Path(__file__).resolve().parents[2])
+sys.path.append(root_dir)
+from KGGraph.chemutils import *
 ELECTRONEGATIVITY = {
     'H': 2.20, 'He': 0.0,
     'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98,

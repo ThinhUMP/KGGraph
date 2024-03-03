@@ -1,6 +1,7 @@
 from typing import Union
 from rdkit import Chem
 from rdkit.Chem import Lipinski, Crippen, rdMolDescriptors, rdPartialCharges
+from mendeleev import element
 import numpy as np
 import sys
 import pathlib
@@ -24,6 +25,16 @@ ELECTRONEGATIVITY = {
 def get_symbol(atom: Chem.Atom) -> str:
     """Get the symbol of the atom."""
     return atom.GetSymbol()
+
+def get_period(atom: Chem.Atom) -> int:
+    """Get the period of the atom."""
+    atom_mendeleev = element(atom.GetSymbol())
+    return atom_mendeleev.period
+
+def get_group(atom: Chem.Atom) -> str:
+    """Get the period of the atom."""
+    atom_mendeleev = element(atom.GetSymbol())
+    return atom_mendeleev.group
 
 def get_hybridization(atom: Chem.Atom) -> str:
     """Get the hybridization type of the atom."""

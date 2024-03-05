@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import sys
 import pathlib
+from mendeleev import element
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.chemutils import *

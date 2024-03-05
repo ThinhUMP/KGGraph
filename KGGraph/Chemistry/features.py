@@ -3,11 +3,13 @@ from rdkit import Chem
 from rdkit.Chem import Lipinski, Crippen, rdMolDescriptors, rdPartialCharges
 from mendeleev import element
 import numpy as np
+import pandas as pd
 import sys
 import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.chemutils import *
+periodic_table = pd.read_csv('.\data\PubChemElements_all.csv')
 ELECTRONEGATIVITY = {
     'H': 2.20, 'He': 0.0,
     'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98,
@@ -26,15 +28,39 @@ def get_symbol(atom: Chem.Atom) -> str:
     """Get the symbol of the atom."""
     return atom.GetSymbol()
 
+def get_atomic_number(atom: Chem.Atom) -> int:
+    """Get the atomic number of the atom."""
+    return atom.GetAtomicNum()
+
 def get_period(atom: Chem.Atom) -> int:
     """Get the period of the atom."""
     atom_mendeleev = element(atom.GetSymbol())
     return atom_mendeleev.period
 
+def get_group(atom: Chem.Atom) -> int:
+    """Get the group of the atom."""
+    atom_mendeleev = element(atom.GetSymbol())
+    return atom_mendeleev.group_id
+
+def get_atomicweight(atom: Chem.Atom) -> float:
+    """Get the atomic weight of the atom."""
+    atom_mendeleev = element(atom.GetSymbol())
+    return atom_mendeleev.mass
+
+def get_num_valence_e(atom: Chem.Atom) -> int:
+    """Get the number of valence electrons of the atom."""
+    pt = Chem.GetPeriodicTable()
+    return pt.GetNOuterElecs(get_symbol(atom))
+
 def get_group(atom: Chem.Atom) -> str:
     """Get the period of the atom."""
     atom_mendeleev = element(atom.GetSymbol())
-    return atom_mendeleev.group
+    return atom_mendeleev.group_id
+
+def get_chemical_group_block(atom: Chem.Atom) -> str:
+    """Get the chemical group block of the atom."""
+    return periodic_table.loc[get_atomic_number(atom)-1, 'GroupBlock']
+    
 
 def get_hybridization(atom: Chem.Atom) -> str:
     """Get the hybridization type of the atom."""

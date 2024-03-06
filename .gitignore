@@ -14,3 +14,4 @@ gnn_model.py
 pretrain.py
 test.ipynb
 treeEx.ipynb
+chemutils.py

@@ -8,7 +8,7 @@ import sys
 import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.Chemistry.chemutils import *
+from KGGraph.Chemistry.chemutils import get_atom_types, get_mol
 from KGGraph.Chemistry.features import *
 
 class AtomFeature():
@@ -48,6 +48,10 @@ class AtomFeature():
         """
         features = [
             get_period(atom),
+            get_group(atom),
+            get_atomicweight(atom),
+            get_num_valence_e(atom),
+            # get_chemical_group_block(atom)
             is_chiral_center(atom),
             get_formal_charge(atom),
             get_total_num_hs(atom),
@@ -85,7 +89,8 @@ class HybridizationFeaturize(AtomFeature):
     """
     Class to compute hybridization features for a given dataset of molecules.
     """
-    #five features are in the order of (number of orbital s, number of orbital p, number of orbital d, total single bond, number of lone pairs)
+    #five features are in the order of (number of orbital s, number of orbital p, 
+    # number of orbital d, total neighbors including Hydrogens, number of lone pairs)
     HYBRDIZATION = {
         (1,1): [1,1,0,1,1], #AX1E1 => sp => Ex: N of HCN
         (2,1): [1,2,0,2,1], #AX2E1 => sp2 => Ex: N of Pyrimidine
@@ -180,7 +185,7 @@ if __name__=='__main__':
     import pathlib
     root_dir = str(pathlib.Path(__file__).resolve().parents[2])
     sys.path.append(root_dir)
-    data = pd.read_csv('data/check.csv')
+    data = pd.read_csv('data/testcase_featurize.csv')
     atom_feature_obj = AtomFeaturize(data=data, smile_col='SMILES')
     atom_features = atom_feature_obj.feature()
     print(atom_features[0].shape)

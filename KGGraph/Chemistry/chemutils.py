@@ -8,6 +8,25 @@ lg.setLevel(rdkit.RDLogger.CRITICAL)
 
 idxfunc = lambda a : a.GetAtomMapNum() - 1
 
+def get_atom_types(smiles: List[str]) -> List[int]:
+    """
+    Returns a list of unique atomic numbers present in the molecules represented by the given SMILES strings.
+    
+    Args:
+        smiles (str): The list of SMILES strings representing the molecules.
+        
+    Returns:
+        List[int]: A sorted list of unique atomic numbers present in the molecules.
+    """
+    mols = [get_mol(smile) for smile in smiles]
+    atom_types = []
+    for mol in mols:
+        for atom in mol.GetAtoms():
+            if atom.GetAtomicNum() not in atom_types:
+                atom_types.append(atom.GetAtomicNum())
+    atom_types.sort()
+    return atom_types
+
 def set_atommap(mol: Chem.Mol, num: int = 0) -> Chem.Mol:
     """
     Set the atom map number for all atoms in the molecule to the specified number.

@@ -9,8 +9,10 @@ import pathlib
 from mendeleev import element
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.chemutils import *
-periodic_table = pd.read_csv('.\data\PubChemElements_all.csv')
+# from KGGraph.Chemistry.chemutils import *
+with open('./data/periodic_table.json', 'r') as f:
+    periodic_table = json.load(f)
+
 ELECTRONEGATIVITY = {
     'H': 2.20, 'He': 0.0,
     'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98,
@@ -24,11 +26,11 @@ ELECTRONEGATIVITY = {
     'Hg': 2.00, 'Tl': 1.62, 'Pb': 2.33, 'Bi': 2.02, 'Po': 2.0, 'At': 2.2, 'Rn': 0.0, 'Fr': 0.7,
     'Ra': 0.9, 'Ac': 1.1, 'Rf': 0.0, 'Db': 0.0, 'Sg': 0.0, 'Bh': 0.0, 'Hs': 0.0, 'Mt': 0.0,
     'Ds': 0.0, 'Rg': 0.0, 'Cn': 0.0, 'Nh': 0.0, 'Fl': 0.0, 'Mc': 0.0, 'Lv': 0.0, 'Ts': 0.0, 'Og': 0.0,
-}
+} #TODO: add this dictionary to periodic_table.json
 
 
-with open('period_table.json', 'r') as f:
-    period_table = json.load(f)
+# with open('./period_table.json', 'r') as f: 
+#     period_table = json.load(f) #TODO: install mendeleev (pip install mendeleev) to use function get_period
 
 ### Atom type
 def get_symbol(atom: Chem.Atom) -> str:
@@ -41,8 +43,8 @@ def get_atomic_number(atom: Chem.Atom) -> int:
 
 def get_period(atom: Chem.Atom) -> int:
     """Get the period of the atom."""
-    atom_information = period_table(atom.GetSymbol())
-    return atom_information['period']
+    atom_mendeleev = element(atom.GetSymbol())
+    return atom_mendeleev.period
 
 def get_group(atom: Chem.Atom) -> int:
     """Get the group of the atom."""
@@ -59,15 +61,9 @@ def get_num_valence_e(atom: Chem.Atom) -> int:
     pt = Chem.GetPeriodicTable()
     return pt.GetNOuterElecs(get_symbol(atom))
 
-def get_group(atom: Chem.Atom) -> str:
-    """Get the period of the atom."""
-    atom_mendeleev = element(atom.GetSymbol())
-    return atom_mendeleev.group_id
-
 def get_chemical_group_block(atom: Chem.Atom) -> str:
     """Get the chemical group block of the atom."""
-    return periodic_table.loc[get_atomic_number(atom)-1, 'GroupBlock']
-    
+    return periodic_table['Table']['Row'][get_atomic_number(atom)-1]['Cell'][-2]
 
 def get_hybridization(atom: Chem.Atom) -> str:
     """Get the hybridization type of the atom."""

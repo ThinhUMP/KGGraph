@@ -5,7 +5,8 @@ root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from rdkit import Chem
 from KGGraph.Chemistry.features import (
-    get_symbol, get_hybridization, get_cip_code, is_chiral_center,
+    get_symbol, get_atomic_number, get_period, get_group, get_atomicweight, get_num_valence_e, 
+    get_chemical_group_block, get_hybridization, get_cip_code, is_chiral_center,
     get_formal_charge, get_total_num_hs, get_total_valence, get_num_radical_electrons,
     get_degree, is_aromatic, is_hetero, is_hydrogen_donor, is_hydrogen_acceptor,
     get_ring_size, is_in_ring, get_ring_membership_count, is_in_aromatic_ring, get_electronegativity,
@@ -23,15 +24,33 @@ class TestMolecularFeatures(unittest.TestCase):
     # Atom tests
     def test_get_symbol(self):
         self.assertEqual(get_symbol(self.atom), 'C')
+        
+    def test_get_period(self):
+        self.assertEqual(get_period(self.atom), 2)
+        
+    def test_get_group(self):
+        self.assertEqual(get_group(self.atom), 14)
+        
+    def test_get_atomicweight(self):
+        self.assertEqual(get_atomicweight(self.atom), 12.011)
+        
+    def test_get_num_valence_e(self):
+        self.assertEqual(get_num_valence_e(self.atom), 4)
+        
+    def test_get_chemical_group_block(self):
+        self.assertEqual(get_chemical_group_block(self.atom), 'Nonmetal')
+    
+    def test_get_atomic_number(self):
+        self.assertEqual(get_atomic_number(self.atom), 6)
 
     def test_get_hybridization(self):
         self.assertEqual(get_hybridization(self.atom), 'SP3')
 
     def test_get_cip_code(self):
-        # This molecule doesn't have chiral centers
         self.assertIsNone(get_cip_code(self.atom))
 
     def test_is_chiral_center(self):
+        # This molecule doesn't have chiral centers
         self.assertFalse(is_chiral_center(self.atom))
 
     def test_get_formal_charge(self):
@@ -62,7 +81,7 @@ class TestMolecularFeatures(unittest.TestCase):
         self.assertFalse(is_hydrogen_acceptor(self.atom))
 
     def test_get_ring_size(self):
-        # Atom is not in a ring
+        # Atom is not a part of ring
         self.assertEqual(get_ring_size(self.atom), 0)
 
     def test_is_in_ring(self):

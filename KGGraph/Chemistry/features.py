@@ -1,17 +1,18 @@
-from typing import Union
+from typing import Union, List
 from rdkit import Chem
 from rdkit.Chem import Lipinski, Crippen, rdMolDescriptors, rdPartialCharges
 import json
 import numpy as np
 import pandas as pd
+import torch
 import sys
 import pathlib
 from mendeleev import element
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 # from KGGraph.Chemistry.chemutils import *
-with open('./data/periodic_table.json', 'r') as f:
-    periodic_table = json.load(f)
+with open('./data/group_block_onehot.json', 'r') as f:
+    group_block_onehot = json.load(f)
 
 ELECTRONEGATIVITY = {
     'H': 2.20, 'He': 0.0,
@@ -36,16 +37,16 @@ ELECTRONEGATIVITY = {
 def get_symbol(atom: Chem.Atom) -> str:
     """Get the symbol of the atom."""
     return atom.GetSymbol()
-
+    
 def get_atomic_number(atom: Chem.Atom) -> int:
     """Get the atomic number of the atom."""
     return atom.GetAtomicNum()
-
+    
 def get_period(atom: Chem.Atom) -> int:
     """Get the period of the atom."""
     atom_mendeleev = element(atom.GetSymbol())
     return atom_mendeleev.period
-
+    
 def get_group(atom: Chem.Atom) -> int:
     """Get the group of the atom."""
     atom_mendeleev = element(atom.GetSymbol())
@@ -61,9 +62,11 @@ def get_num_valence_e(atom: Chem.Atom) -> int:
     pt = Chem.GetPeriodicTable()
     return pt.GetNOuterElecs(get_symbol(atom))
 
-def get_chemical_group_block(atom: Chem.Atom) -> str:
-    """Get the chemical group block of the atom."""
-    return periodic_table['Table']['Row'][get_atomic_number(atom)-1]['Cell'][-2]
+def get_chemical_group_block(atom: Chem.Atom) -> List:
+    """Retrieve the chemical group block of the atom, excluding the first value."""
+    atomic_index = get_atomic_number(atom) - 1
+    group_block_values = list(group_block_onehot[atomic_index].values())
+    return torch.tensor(group_block_values[1:], dtype=torch.float64)
 
 def get_hybridization(atom: Chem.Atom) -> str:
     """Get the hybridization type of the atom."""

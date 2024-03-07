@@ -46,7 +46,7 @@ class BondFeaturize:
         A list of tensors, each representing bond features for a molecule.
         """
         feature_mols = []
-        for molecule in self.molecules:
+        for molecule in tqdm(self.molecules):
             bond_features = [self.compute_features(bond) for bond in molecule.GetBonds()]
             feature_mols.append(torch.stack(bond_features))
         return feature_mols

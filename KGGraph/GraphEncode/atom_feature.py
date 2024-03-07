@@ -10,7 +10,7 @@ sys.path.append(root_dir)
 from KGGraph.Chemistry.chemutils import get_atom_types, get_mol
 from KGGraph.Chemistry.features import *
 
-class AtomFeature():
+class GetFeature():
     """
     Class to compute atom features for a given dataset of molecules.
     """
@@ -35,7 +35,7 @@ class AtomFeature():
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
         feature_mols = []
-        for molecule in self.molecules:
+        for molecule in tqdm(self.molecules):
             feature_mol = torch.stack([self.compute_features(atom) for atom in molecule.GetAtoms()])
             feature_mols.append(feature_mol)
         return feature_mols
@@ -93,7 +93,7 @@ class AtomFeature():
             atomic_number_mols.append(atomic_number)
         return atomic_number_mols
 
-class HybridizationFeaturize(AtomFeature):
+class HybridizationFeaturize(GetFeature):
     """
     Class to compute hybridization features for a given dataset of molecules.
     """
@@ -175,7 +175,7 @@ class HybridizationFeaturize(AtomFeature):
         
         return hybri_mols       
         
-class AtomFeaturize(AtomFeature):
+class AtomFeature(GetFeature):
     """
     Class to compute a combined feature vector for a given dataset of molecules.
     """
@@ -197,7 +197,7 @@ class AtomFeaturize(AtomFeature):
         group_block_mols = self.chemical_group()
         hybri_mols = HybridizationFeaturize(self.data, self.smiles_col).feature()
         
-        for i in tqdm(range(len(self.smiles))):
+        for i in range(len(self.smiles)):
             combined_features = torch.cat((feature_mols[i], atomic_number_mols[i], hybri_mols[i], group_block_mols[i]), dim=1)
             atom_feature.append(combined_features)
 
@@ -213,7 +213,7 @@ if __name__=='__main__':
     root_dir = str(pathlib.Path(__file__).resolve().parents[2])
     sys.path.append(root_dir)
     data = pd.read_csv('data/testcase_featurize.csv')
-    atom_feature_obj = AtomFeaturize(data=data, smile_col='SMILES')
+    atom_feature_obj = AtomFeature(data=data, smile_col='SMILES')
     atom_features = atom_feature_obj.feature()
     print(atom_features[0].shape)
     print(len(atom_features))

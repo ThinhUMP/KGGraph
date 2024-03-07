@@ -20,7 +20,7 @@ with open('./data/bond_dict.json', 'r') as f:
 with open('./data/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 
-class BondFeaturize:
+class BondFeature:
     """
     This class computes various bond features for a dataset of molecules.
     """
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     root_dir = str(pathlib.Path(__file__).resolve().parents[2])
     sys.path.append(root_dir)
     data = pd.read_csv('data/testcase_featurize.csv')
-    atom_feature_obj = BondFeaturize(data=data, smile_col='SMILES')
+    atom_feature_obj = BondFeature(data=data, smile_col='SMILES')
     atom_features = atom_feature_obj.feature()
     print(atom_features[0].shape)
     print(len(atom_features))

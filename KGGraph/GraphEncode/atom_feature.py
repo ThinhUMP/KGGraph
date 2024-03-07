@@ -3,14 +3,11 @@ import numpy as np
 from tqdm import tqdm
 import time
 from typing import List
-from rdkit.Chem.rdchem import Mol, Atom
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from multiprocessing import Pool
 import sys
 import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.Chemistry.chemutils import get_atom_types, get_mol, get_smiles
+from KGGraph.Chemistry.chemutils import get_atom_types, get_mol
 from KGGraph.Chemistry.features import *
 
 class AtomFeature():

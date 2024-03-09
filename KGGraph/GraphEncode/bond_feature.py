@@ -6,6 +6,8 @@ from typing import List
 import sys
 import pathlib
 import json
+from rdkit import Chem
+from rdkit.Chem import Mol
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.Chemistry.chemutils import get_mol
@@ -20,12 +22,12 @@ with open('./data/bond_dict.json', 'r') as f:
 with open('./data/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 
-class BondFeature:
+class EdgeFeature:
     """
     This class computes various bond features for a dataset of molecules.
     """
 
-    def __init__(self, data, smile_col: str):
+    def __init__(self, mol: Chem.Mol):
         """
         Initialize the class with molecule data and the column containing SMILES representations.
 
@@ -33,10 +35,7 @@ class BondFeature:
         - data: DataFrame containing the dataset.
         - smile_col: String name of the column containing the SMILES data.
         """
-        self.data = data
-        self.smile_col = smile_col
-        self.smiles = data[smile_col].tolist()
-        self.molecules = [get_mol(smile) for smile in self.smiles]
+        self.mol = mol
 
     def get_feature(self):
         """
@@ -45,11 +44,8 @@ class BondFeature:
         Returns:
         A list of tensors, each representing bond features for a molecule.
         """
-        feature_mols = []
-        for molecule in tqdm(self.molecules):
-            bond_features = [self.compute_features(bond) for bond in molecule.GetBonds()]
-            feature_mols.append(torch.stack(bond_features))
-        return feature_mols
+        bond_features = [self.compute_features(bond) for bond in self.mol.GetBonds()]
+        return bond_features
 
     def compute_features(self, bond):
         """
@@ -69,31 +65,34 @@ class BondFeature:
         ]
         return torch.tensor(features, dtype=torch.float64)
 
-    def bond_type(self):
+    def edge_type(self):
         """
         Get one-hot encoded vectors representing the types of bonds in each molecule.
 
         Returns:
         A list of tensors with one-hot encoded bond types.
         """
-        bond_mols = []
-        for molecule in self.molecules:
-            bond_mol = [torch.tensor(bond_dict.get(get_bond_type(bond), None), dtype=torch.float64) for bond in molecule.GetBonds()]
-            bond_mols.append(torch.stack(bond_mol))
-        return bond_mols
+        bond_mol = [torch.tensor(bond_dict.get(get_bond_type(bond), None), dtype=torch.float64) for bond in self.mol.GetBonds()]
+        return bond_mol
 
-    def bond_stereo(self):
+    def edge_stereo(self):
         """
         Get one-hot encoded vectors representing the stereochemistry of bonds in each molecule.
 
         Returns:
         A list of tensors with one-hot encoded bond stereochemistry.
         """
-        stereo_mols = []
-        for molecule in self.molecules:
-            stereo_mol = [torch.tensor(bond_stereo_dict.get(get_stereo(bond), None), dtype=torch.float64) for bond in molecule.GetBonds()]
-            stereo_mols.append(torch.stack(stereo_mol))
-        return stereo_mols
+        stereo_mol = [torch.tensor(bond_stereo_dict.get(get_stereo(bond), None), dtype=torch.float64) for bond in self.mol.GetBonds()]
+        return stereo_mol
+    
+    def get_edge_index(self):
+        edges_list = []
+        for bond in self.mol.GetBonds():
+            i = bond.GetBeginAtomIdx()
+            j = bond.GetEndAtomIdx()
+            edges_list.append([i, j], [j, i])
+        edge_index = torch.tensor(np.array(edges_list).T, dtype=torch.float)
+        return edge_index
 
     def feature(self):
         """
@@ -105,19 +104,18 @@ class BondFeature:
         start_time = time.time()
 
         # Get individual feature components
-        feature_mols = self.get_feature()
-        bond_mols = self.bond_type()
-        stereo_mols = self.bond_stereo()
+        feature_mol = self.get_feature()
+        bond_mol = self.edge_type()
+        stereo_mol = self.edge_stereo()
 
         # Combine features for each molecule
-        combined_features = []
-        for i in range(len(self.smiles)):
-            combined = torch.cat((feature_mols[i], bond_mols[i], stereo_mols[i]), dim=1)
-            combined_features.append(combined)
+
+        for i in range(len(mol.GetBonds())):
+            edge_attr = torch.cat((feature_mol[i], bond_mol[i], stereo_mol[i]), dim=0)
 
         elapsed_time = time.time() - start_time
         print(f"Elapsed time: {elapsed_time} seconds")
-        return combined_features
+        return edge_attr
     
 if __name__ == '__main__':
     import pandas as pd
@@ -126,7 +124,9 @@ if __name__ == '__main__':
     root_dir = str(pathlib.Path(__file__).resolve().parents[2])
     sys.path.append(root_dir)
     data = pd.read_csv('data/testcase_featurize.csv')
-    atom_feature_obj = BondFeature(data=data, smile_col='SMILES')
-    atom_features = atom_feature_obj.feature()
-    print(atom_features[0].shape)
-    print(len(atom_features))
+    smile = data['SMILES'][0]
+    mol = get_mol(smile)
+    edge_feature = EdgeFeature(mol)
+    edge_attr = edge_feature.feature()
+    print(edge_attr.shape)
+    print(edge_attr)

@@ -67,7 +67,7 @@ class BondFeature:
             get_bond_polarity(bond),
             is_bond_in_ring(bond)
         ]
-        return torch.tensor(features, dtype=torch.float)
+        return torch.tensor(features, dtype=torch.float64)
 
     def bond_type(self):
         """
@@ -78,7 +78,7 @@ class BondFeature:
         """
         bond_mols = []
         for molecule in self.molecules:
-            bond_mol = [torch.tensor(bond_dict.get(get_bond_type(bond), None), dtype=torch.float) for bond in molecule.GetBonds()]
+            bond_mol = [torch.tensor(bond_dict.get(get_bond_type(bond), None), dtype=torch.float64) for bond in molecule.GetBonds()]
             bond_mols.append(torch.stack(bond_mol))
         return bond_mols
 
@@ -91,7 +91,7 @@ class BondFeature:
         """
         stereo_mols = []
         for molecule in self.molecules:
-            stereo_mol = [torch.tensor(bond_stereo_dict.get(get_stereo(bond), None), dtype=torch.float) for bond in molecule.GetBonds()]
+            stereo_mol = [torch.tensor(bond_stereo_dict.get(get_stereo(bond), None), dtype=torch.float64) for bond in molecule.GetBonds()]
             stereo_mols.append(torch.stack(stereo_mol))
         return stereo_mols
 

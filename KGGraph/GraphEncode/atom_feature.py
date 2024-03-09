@@ -1,50 +1,71 @@
 import torch
 import numpy as np
-from tqdm import tqdm
-import time
-from typing import List
+from rdkit import Chem
+from pathlib import Path
 import sys
-import pathlib
-root_dir = str(pathlib.Path(__file__).resolve().parents[2])
-sys.path.append(root_dir)
-from KGGraph.Chemistry.chemutils import get_atom_types, get_mol
-from KGGraph.Chemistry.features import *
+import os
+import pandas as pd
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
 
-class GetFeature():
+from KGGraph.Chemistry.chemutils import get_atom_types
+from KGGraph.Chemistry.features import (
+    get_chemical_group_block, get_atomic_number, get_period, get_group, get_atomicweight,
+    get_num_valence_e, get_num_radical_electrons, get_degree, is_aromatic, is_hetero,
+    is_chiral_center, get_ring_size, is_in_ring, get_ring_membership_count, 
+    get_electronegativity, get_formal_charge, get_total_num_hs, get_total_valence,
+    is_hydrogen_donor, is_hydrogen_acceptor, get_hybridization, get_symbol, get_stereo,
+    is_in_aromatic_ring,
+)
+
+# Load data and get atom types
+#TODO: Modify atom_types when adding MoleculeDataset class
+data = pd.read_csv('data/testcase_featurize.csv')
+smiles = data['SMILES'].tolist()
+atom_types = get_atom_types(smiles)
+
+class AtomFeature:
     """
     Class to compute atom features for a given dataset of molecules.
     """
-    def __init__(self, data, smile_col: str):
+    def __init__(self, mol: Chem.Mol):
         """
-        Initializes the class with the given data and smile column.
+        Initializes the class with the given molecule.
         
         Parameters:
-            data: The input data for the class.
-            smile_col: The name of the column containing smiles.
-            
-        Returns:
-            None
+            mol: The input molecule for the class.
         """
-        self.data = data
-        self.smiles_col = smile_col
-        self.smiles = data[smile_col].tolist()
-        self.molecules = [get_mol(smile) for smile in self.smiles]
+        self.mol = mol
         
-    def get_feature(self):
+    def feature(self):
         """
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
-        feature_mols = []
-        for molecule in tqdm(self.molecules):
-            feature_mol = torch.stack([self.compute_features(atom) for atom in molecule.GetAtoms()])
-            feature_mols.append(feature_mol)
-        return feature_mols
+        atomic_number = np.zeros((self.mol.GetNumAtoms(), len(atom_types)))
+        x_node_atom = []
+        for index, atom in enumerate(self.mol.GetAtoms()):
+            basic_features = self.compute_basic_features(atom)
+            chemical_group = get_chemical_group_block(atom)
+            atomic_number[index] = get_atomic_number(atom)
+            atomic_number = np.where(atomic_number == np.tile(atom_types, (self.mol.GetNumAtoms(), 1)), 1, 0)
+            
+            total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
+            num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
+            hybri_feat = HybridizationFeaturize.HYBRDIZATION.get((total_single_bonds, num_lone_pairs), None)
+            if hybri_feat is None:
+                raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
+            
+            combined_features = basic_features + chemical_group + atomic_number[index].tolist() + hybri_feat
+            x_node_atom.append(combined_features)
+        return torch.tensor(x_node_atom, dtype=torch.float64)
     
-    def compute_features(self, atom) -> torch.Tensor:
+    def compute_basic_features(self, atom) -> torch.Tensor:
         """
-        Compute features for the given atom and return a tensor of features.
+        Compute basic features for the given atom and return a tensor of features.
         """
-        features = [
+        basic_features = [
             get_period(atom),
             get_group(atom),
             get_atomicweight(atom),
@@ -55,45 +76,19 @@ class GetFeature():
             get_total_valence(atom),
             get_num_radical_electrons(atom),
             get_degree(atom),
-            is_aromatic(atom),
-            is_hetero(atom),
-            is_hydrogen_donor(atom),
-            is_hydrogen_acceptor(atom),
+            int(is_aromatic(atom)),
+            int(is_hetero(atom)),
+            int(is_hydrogen_donor(atom)),
+            int(is_hydrogen_acceptor(atom)),
             get_ring_size(atom),
-            is_in_ring(atom),
+            int(is_in_ring(atom)),
             get_ring_membership_count(atom),
-            is_in_aromatic_ring(atom),
+            int(is_in_aromatic_ring(atom)),
             get_electronegativity(atom),
         ]
-        return torch.tensor(features, dtype=torch.float64)
-    
-    def chemical_group(self) -> List[torch.Tensor]:
-        """
-        This function iterates through the molecules in the class instance and retrieves the chemical group block for each atom in each molecule. It returns a list of chemical group blocks for all atoms in all molecules as tensors.
-        """
-        group_block_mols = []
-        for mol in self.molecules:
-            group_blocks = [get_chemical_group_block(atom) for atom in mol.GetAtoms()]
-            group_blocks = torch.stack(group_blocks)
-            group_block_mols.append(group_blocks)
-        return group_block_mols
+        return basic_features
 
-    def atomic_number(self) -> List[List[float]]:
-        """
-        Compute a one-hot encoding of the atomic number for each atom in each molecule.
-        """
-        atom_types = get_atom_types(self.smiles) #get all types of atom in the dataset
-        atomic_number_mols = []
-        for mol in self.molecules:
-            atomic_number = np.zeros((mol.GetNumAtoms(), len(atom_types)))
-            for index, atom in enumerate(mol.GetAtoms()):
-                atomic_number[index] = atom.GetAtomicNum()
-            atomic_number = np.where(atomic_number == np.tile(atom_types, (mol.GetNumAtoms(), 1)), 1, 0)
-            atomic_number = torch.tensor(atomic_number, dtype=torch.float64)        
-            atomic_number_mols.append(atomic_number)
-        return atomic_number_mols
-
-class HybridizationFeaturize(GetFeature):
+class HybridizationFeaturize:
     """
     Class to compute hybridization features for a given dataset of molecules.
     """
@@ -117,11 +112,6 @@ class HybridizationFeaturize(GetFeature):
         (6,0): [1,3,2,6,0], #AX1E0 => sp3d2 => Ex: S of SF6
     }
 
-    def __init__(self, data, smile_col: str):
-        """
-        Initialize with a dataset and the column name for SMILES strings.
-        """
-        super().__init__(data, smile_col)
     @staticmethod
     def total_single_bond(atom: Chem.Atom) -> int:
         """
@@ -131,7 +121,7 @@ class HybridizationFeaturize(GetFeature):
         return total_single_bonds
 
     @staticmethod
-    def num_bond_hybridization(atom: Chem.Atom) -> int: #including hydrogens
+    def num_bond_hybridization(atom: Chem.Atom) -> int:
         """
         Compute the number of bonds involved in hybridization for a given atom.
         """
@@ -153,67 +143,12 @@ class HybridizationFeaturize(GetFeature):
         Compute the number of lone pairs for a given atom.
         """
         num_lone_pairs = HybridizationFeaturize.num_bond_hybridization(atom) - HybridizationFeaturize.total_single_bond(atom)
-        return num_lone_pairs
-
-    def feature(self):
-        """
-        Compute the hybridization feature vector for each atom in each molecule.
-        """
-        hybri_mols = []
-        for mol in self.molecules:
-            hybri_mol = []
-            for atom in mol.GetAtoms():
-                total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
-                num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
-                hybri_feat = HybridizationFeaturize.HYBRDIZATION.get((total_single_bonds, num_lone_pairs), None)
-                if hybri_feat is None:
-                    raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
-                hybri_feat = torch.tensor(hybri_feat, dtype=torch.float64)
-                hybri_mol.append(hybri_feat)
-            hybri_mol = torch.stack(hybri_mol)
-            hybri_mols.append(hybri_mol)
-        
-        return hybri_mols       
-        
-class AtomFeature(GetFeature):
-    """
-    Class to compute a combined feature vector for a given dataset of molecules.
-    """
-    def __init__(self, data, smile_col: str):
-        """
-        Initialize with a dataset and the column name for SMILES strings.
-        """
-        super().__init__(data, smile_col)
-
-    def feature(self) -> List[torch.Tensor]:
-        """
-        Compute the combined feature vector for each atom in each molecule.
-        """
-        start_time = time.time()
-
-        atom_feature = []
-        feature_mols = self.get_feature()
-        atomic_number_mols = self.atomic_number()
-        group_block_mols = self.chemical_group()
-        hybri_mols = HybridizationFeaturize(self.data, self.smiles_col).feature()
-        
-        for i in range(len(self.smiles)):
-            combined_features = torch.cat((feature_mols[i], atomic_number_mols[i], hybri_mols[i], group_block_mols[i]), dim=1)
-            atom_feature.append(combined_features)
-
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"Elapsed time: {elapsed_time} seconds")
-        return atom_feature
+        return num_lone_pairs     
 
 if __name__=='__main__':
-    import pandas as pd
-    import sys
-    import pathlib
-    root_dir = str(pathlib.Path(__file__).resolve().parents[2])
-    sys.path.append(root_dir)
-    data = pd.read_csv('data/testcase_featurize.csv')
-    atom_feature_obj = AtomFeature(data=data, smile_col='SMILES')
+    smile = data['SMILES'][0]
+    mol = Chem.MolFromSmiles(smile)
+    atom_feature_obj = AtomFeature(mol = mol)
     atom_features = atom_feature_obj.feature()
-    print(atom_features[0].shape)
-    print(len(atom_features))
+    print(atom_features.shape)
+    print(atom_features)

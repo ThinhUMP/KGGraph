@@ -65,8 +65,8 @@ def get_num_valence_e(atom: Chem.Atom) -> int:
 def get_chemical_group_block(atom: Chem.Atom) -> List:
     """Retrieve the chemical group block of the atom, excluding the first value."""
     atomic_index = get_atomic_number(atom) - 1
-    group_block_values = list(group_block_onehot[atomic_index].values())
-    return torch.tensor(group_block_values[1:], dtype=torch.float64)
+    group_block_values = list(group_block_onehot[atomic_index].values())[1:]
+    return group_block_values
 
 def get_hybridization(atom: Chem.Atom) -> str:
     """Get the hybridization type of the atom."""

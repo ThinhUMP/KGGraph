@@ -3,20 +3,19 @@ import numpy as np
 from rdkit import Chem
 from pathlib import Path
 import sys
-import os
 import pandas as pd
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
 
-from KGGraph.Chemistry.chemutils import get_atom_types
+from KGGraph.Chemistry.chemutils import get_atom_types, get_mol
 from KGGraph.Chemistry.features import (
     get_chemical_group_block, get_atomic_number, get_period, get_group, get_atomicweight,
     get_num_valence_e, get_num_radical_electrons, get_degree, is_aromatic, is_hetero,
     is_chiral_center, get_ring_size, is_in_ring, get_ring_membership_count, 
     get_electronegativity, get_formal_charge, get_total_num_hs, get_total_valence,
-    is_hydrogen_donor, is_hydrogen_acceptor, get_hybridization, get_symbol, get_stereo,
+    is_hydrogen_donor, is_hydrogen_acceptor, get_hybridization, get_symbol,
     is_in_aromatic_ring,
 )
 
@@ -48,8 +47,11 @@ class AtomFeature:
         for index, atom in enumerate(self.mol.GetAtoms()):
             basic_features = self.compute_basic_features(atom)
             chemical_group = get_chemical_group_block(atom)
+            
             atomic_number[index] = get_atomic_number(atom)
             atomic_number = np.where(atomic_number == np.tile(atom_types, (self.mol.GetNumAtoms(), 1)), 1, 0)
+            # Add two zeros to represent the motif and supernode atomic number
+            atomic_number_super = np.concatenate((atomic_number, np.zeros((self.mol.GetNumAtoms(), 2))), axis=1)
             
             total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
             num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
@@ -57,8 +59,9 @@ class AtomFeature:
             if hybri_feat is None:
                 raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
             
-            combined_features = basic_features + chemical_group + atomic_number[index].tolist() + hybri_feat
+            combined_features = basic_features + chemical_group + hybri_feat + atomic_number_super[index].tolist()
             x_node_atom.append(combined_features)
+        
         return torch.tensor(x_node_atom, dtype=torch.float64)
     
     def compute_basic_features(self, atom) -> torch.Tensor:
@@ -146,8 +149,9 @@ class HybridizationFeaturize:
         return num_lone_pairs     
 
 if __name__=='__main__':
+    data = pd.read_csv(root_dir / 'data/testcase_featurize.csv')
     smile = data['SMILES'][0]
-    mol = Chem.MolFromSmiles(smile)
+    mol = get_mol(smile)
     atom_feature_obj = AtomFeature(mol = mol)
     atom_features = atom_feature_obj.feature()
     print(atom_features.shape)

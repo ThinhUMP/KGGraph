@@ -143,7 +143,7 @@ def x_feature(mol: Chem.Mol):
 def main():
     from joblib import Parallel, delayed
     import time
-    data = pd.read_csv('data/Secfp_alk.csv')
+    data = pd.read_csv('./data/Secfp_alk.csv')
     smiles = data['Canomicalsmiles'].tolist()
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()

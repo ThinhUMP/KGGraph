@@ -12,7 +12,7 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
     
 # Import necessary modules and functions
-from KGGraph.Chemistry.chemutils import get_mol
+from KGGraph.Chemistry.chemutils import get_mol, get_smiles
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.features import (
     get_bond_type, is_conjugated, is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring
@@ -99,11 +99,10 @@ class EdgeFeature:
         """
         _, edge_index_node = self.get_edge_node_feature(mol)
 
-        # Initialize the motif_edge_index list
-        motif_edge_index = []
-
         # If there are motifs, create edges between atoms and motifs
         if self.num_motif > 0:
+            # Initialize the motif_edge_index list
+            motif_edge_index = []
             for k, motif_nodes in enumerate(self.cliques):
                 motif_edge_index.extend([[i, self.num_atoms + k] for i in motif_nodes])
 
@@ -116,6 +115,7 @@ class EdgeFeature:
             # Concatenate all edges
             edge_index = torch.cat((edge_index_node, motif_edge_index, super_edge_index), dim=1)
         else:
+            motif_edge_index = torch.empty((0, 0), dtype=torch.long)
             # Create edges between atoms and the supernode
             super_edge_index = [[i, self.num_atoms] for i in range(self.num_atoms)]
             super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(edge_index_node.device)
@@ -151,18 +151,24 @@ class EdgeFeature:
             super_edge_attr = torch.zeros((self.num_motif, 32))
             super_edge_attr[:, -1] = 1  # Set bond type for the edge between motifs and supernode, 
             # we can access this feature via bond_dict json with key value 'MOTIFSUPERNODE'
+            # Ensure that all tensors are of the same type and device
+            motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
+            super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
+
+            # Concatenate edge attributes for the entire graph
+            edge_attr = torch.cat((edge_attr_node, motif_edge_attr, super_edge_attr), dim=0)
+        
         else:
+            motif_edge_attr = torch.empty((0, 0), dtype=torch.float64)
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((self.num_atoms, 32))
             super_edge_attr[:, -3] = 1  # Set bond type for the edge between nodes and supernode, 
             # we can access this feature via bond_dict json with key value 'NODESUPERNODE'
+            super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
-        # Ensure that all tensors are of the same type and device
-        motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
-        super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
-
-        # Concatenate edge attributes for the entire graph
-        edge_attr = torch.cat((edge_attr_node, motif_edge_attr, super_edge_attr), dim=0)
+            # Concatenate edge attributes for the entire graph
+            edge_attr = torch.cat((edge_attr_node, super_edge_attr), dim=0)
+        
 
         return motif_edge_attr, super_edge_attr, edge_attr
 
@@ -176,7 +182,7 @@ def main():
     import time
     from joblib import Parallel, delayed
     data = pd.read_csv('./data/Secfp_alk.csv')
-    smiles = data['Canomicalsmiles'].tolist()[:10]
+    smiles = data['Canomicalsmiles'].tolist()
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
     edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols)

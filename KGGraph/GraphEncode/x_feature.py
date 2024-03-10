@@ -9,7 +9,7 @@ root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
 
-from KGGraph.Chemistry.chemutils import get_atom_types, get_mol
+from KGGraph.Chemistry.chemutils import get_atom_types, get_mol, get_smiles
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.hybridization import HybridizationFeaturize
 from KGGraph.Chemistry.features import (
@@ -21,6 +21,7 @@ from KGGraph.Chemistry.features import (
     is_in_aromatic_ring,
 )
 
+atom_types = list(range(1, 121))  # Atomic numbers from 1 to 118, 119 for motif and 120 for supernode
 class AtomFeature:
     """
     Class to compute atom features for a given dataset of molecules.
@@ -38,6 +39,7 @@ class AtomFeature:
         """
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
+        print(get_smiles(self.mol))
         atomic_number = np.zeros((self.mol.GetNumAtoms(), len(atom_types)))
         x_node = []
         for index, atom in enumerate(self.mol.GetAtoms()):
@@ -87,7 +89,7 @@ class AtomFeature:
         ]
         return basic_features
 
-def motif_supernode_feature(mol: Chem.Mol, atom_types):
+def motif_supernode_feature(mol: Chem.Mol):
     """
     Compute motif and supernode features for a given molecule.
     
@@ -98,14 +100,16 @@ def motif_supernode_feature(mol: Chem.Mol, atom_types):
     Returns:
         A tuple of tensors representing motif and supernode features.
     """
-    number_atom_node_attr = 42
+    number_atom_node_attr = 156
     motif = MotifDecomposition()
     cliques = motif.defragment(mol)
     num_motif = len(cliques)
 
     # Pre-define tensor templates for atomic number of motif and supernode
-    supernode_template = [0] * len(atom_types) + [0, 1] + [0] * (number_atom_node_attr - len(atom_types) - 2)
-    motif_node_template = [0] * len(atom_types) + [1, 0] + [0] * (number_atom_node_attr - len(atom_types) - 2)
+    # 120 for supernode in the atomic number onehot encoding
+    supernode_template =[0] * (number_atom_node_attr - 2) + [0, 1] 
+    # 119 for motif in the atomic number onehot encoding
+    motif_node_template =[0] * (number_atom_node_attr - 2) + [1, 0]
 
     # Create tensors based on the number of motifs
     x_supernode = torch.tensor([supernode_template], dtype=torch.long)
@@ -116,7 +120,7 @@ def motif_supernode_feature(mol: Chem.Mol, atom_types):
 
     return x_motif, x_supernode
 
-def x_feature(mol: Chem.Mol, atom_types):
+def x_feature(mol: Chem.Mol):
     """
     Compute the feature vector for a given molecule.
     
@@ -129,19 +133,26 @@ def x_feature(mol: Chem.Mol, atom_types):
     """
     atom_feature = AtomFeature(mol=mol)
     x_node = atom_feature.feature()
-    x_motif, x_supernode = motif_supernode_feature(mol, atom_types)
+    x_motif, x_supernode = motif_supernode_feature(mol)
 
     # Concatenate features
+    # print(x_node.size(), x_motif.size(), x_supernode.size())
     x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
     return x
 
+def main():
+    from joblib import Parallel, delayed
+    import time
+    data = pd.read_csv('data/Secfp_alk.csv')
+    smiles = data['Canomicalsmiles'].tolist()
+    mols = [get_mol(smile) for smile in smiles]
+    t1 = time.time()
+    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol) for mol in mols)
+    t2 = time.time()
+    print(t2-t1)
+    # x = x_feature(mol)
+    print(x[0])
+    print(x[0].size())  # Print the size of the feature vector
+
 if __name__=='__main__':
-    # Load data and get atom types
-    #TODO: Modify atom_types when adding MoleculeDataset class
-    data = pd.read_csv('data/testcase_featurize.csv')
-    smiles = data['SMILES'].tolist()
-    atom_types = get_atom_types(smiles)
-    mol = get_mol(smiles[0])
-    x = x_feature(mol, atom_types)
-    print(x)
-    print(x.size())  # Print the size of the feature vector
+    main()

@@ -166,19 +166,27 @@ class EdgeFeature:
 
         return motif_edge_attr, super_edge_attr, edge_attr
 
-    def feature(self):
-        _, _, edge_index = self.get_edge_index(self.mol)
-        _, _, edge_attr = self.get_edge_attr(self.mol)
-        return edge_index, edge_attr
+def edge_feature(mol):
+    obj = EdgeFeature(mol)
+    _, _, edge_index = obj.get_edge_index(mol)
+    _, _, edge_attr = obj.get_edge_attr(mol)
+    return edge_index, edge_attr
+
+def main():
+    import time
+    from joblib import Parallel, delayed
+    data = pd.read_csv('./data/Secfp_alk.csv')
+    smiles = data['Canomicalsmiles'].tolist()[:10]
+    mols = [get_mol(smile) for smile in smiles]
+    t1 = time.time()
+    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols)
+    t2 = time.time()
+    print(t2-t1)
+    # Print the results
+    print(edges[0][0].size())
+    print(edges[0][0])
+    print(edges[0][1].size())
+    print(edges[0][1])
 
 if __name__ == '__main__':
-    data = pd.read_csv(root_dir / 'data/testcase_featurize.csv')
-    smile = data['SMILES'][0]
-    mol = get_mol(smile)
-    edge_feature = EdgeFeature(mol)
-    edge_index, edge_attr = edge_feature.feature()
-    # Print the results
-    print(edge_index)
-    print(edge_index.size())
-    print(edge_attr)
-    print(edge_attr.size())
+    main()

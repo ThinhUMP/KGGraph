@@ -61,8 +61,8 @@ class EdgeFeature:
                 basic_features = [
                     is_conjugated(bond),
                     is_rotatable(bond),
-                    get_bond_polarity(bond),
-                    is_bond_in_ring(bond)
+                    get_bond_polarity(bond), #TODO: xtb => density
+                    is_bond_in_ring(bond) #TODO: remove
                 ]
                 
                 # Get bond type and stereo features from the dictionaries
@@ -182,7 +182,7 @@ def main():
     import time
     from joblib import Parallel, delayed
     data = pd.read_csv('./data/Secfp_alk.csv')
-    smiles = data['Canomicalsmiles'].tolist()
+    smiles = data['Canomicalsmiles'].tolist()[:10]
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
     edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols)

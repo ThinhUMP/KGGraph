@@ -39,7 +39,7 @@ class AtomFeature:
         """
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
-        print(get_smiles(self.mol))
+        # print(get_smiles(self.mol))
         atomic_number = np.zeros((self.mol.GetNumAtoms(), len(atom_types)))
         x_node = []
         for index, atom in enumerate(self.mol.GetAtoms()):
@@ -144,7 +144,7 @@ def main():
     from joblib import Parallel, delayed
     import time
     data = pd.read_csv('./data/Secfp_alk.csv')
-    smiles = data['Canomicalsmiles'].tolist()
+    smiles = data['Canomicalsmiles'].tolist()[:10]
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
     x = Parallel(n_jobs=-1)(delayed(x_feature)(mol) for mol in mols)

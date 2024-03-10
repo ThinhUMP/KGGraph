@@ -39,7 +39,7 @@ class AtomFeature:
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
         atomic_number = np.zeros((self.mol.GetNumAtoms(), len(atom_types)))
-        x_node_atom = []
+        x_node = []
         for index, atom in enumerate(self.mol.GetAtoms()):
             basic_features = self.compute_basic_features(atom)
             chemical_group = get_chemical_group_block(atom)
@@ -56,9 +56,9 @@ class AtomFeature:
                 raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
             
             combined_features = basic_features + chemical_group + hybri_feat + atomic_number_super[index].tolist()
-            x_node_atom.append(combined_features)
+            x_node.append(combined_features)
         
-        return torch.tensor(x_node_atom, dtype=torch.float64)
+        return torch.tensor(x_node, dtype=torch.float64)
     
     def compute_basic_features(self, atom) -> torch.Tensor:
         """
@@ -128,11 +128,11 @@ def x_feature(mol: Chem.Mol, atom_types):
         A tensor representing the feature vector.
     """
     atom_feature = AtomFeature(mol=mol)
-    x_node_atom = atom_feature.feature()
+    x_node = atom_feature.feature()
     x_motif, x_supernode = motif_supernode_feature(mol, atom_types)
 
     # Concatenate features
-    x = torch.cat((x_node_atom, x_motif.to(x_node_atom.device), x_supernode.to(x_node_atom.device)), dim=0)
+    x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
     return x
 
 if __name__=='__main__':

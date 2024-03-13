@@ -5,7 +5,7 @@ import sys
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-
+from KGGraph.Chemistry.chemutils import get_smiles
 from KGGraph.Chemistry.features import (
     get_degree, get_total_num_hs, get_hybridization,
 )
@@ -18,6 +18,7 @@ class HybridizationFeaturize:
     #five features are in the order of (numbers of orbital s, numbers of orbital p, 
     # number of orbital d, total neighbors including Hydrogens, number of lone pairs)
     HYBRDIZATION = {
+        (0,0): [1,0,0,0,0], #AX0E0 => s => Ex: Zn2+
         (1,1): [1,1,0,1,1], #AX1E1 => sp => Ex: N of HCN
         (2,0): [1,1,0,2,0], #AX2E0 => sp => Ex: C#C
         (2,1): [1,2,0,2,1], #AX2E1 => sp2 => Ex: N of Pyrimidine
@@ -27,11 +28,13 @@ class HybridizationFeaturize:
         (2,2): [1,3,0,2,2], #AX2E2 => sp3 => Ex: O of R-O-R'
         (3,1): [1,2,0,3,1], #AX3E1 => sp3 => Ex: N of NR3
         (4,0): [1,3,0,4,0], #AX1E0 => sp3 => Ex: C of CR4
+        (0,4): [1,2,0,0,4], #AX0E4 => sp3 => Ex: X- (X is halogen) (KI)
         (3,2): [1,3,1,3,2], #AX1E2 => sp3d 
         (4,1): [1,3,1,4,1], #AX1E1 => sp3d 
         (5,0): [1,3,1,5,0], #AX1E0 => sp3d => Ex: P of PCl5
         (4,2): [1,3,2,4,2], #AX1E2 => sp3d2 
-        (5,1): [1,3,2,5,1], #AX1E1 => sp3d2 
+        (5,1): [1,3,2,5,1], #AX1E1 => sp3d2
+        (1,5): [1,3,2,1,5], #AX1E5 => sp3d2 => Ex:CuI
         (6,0): [1,3,2,6,0], #AX1E0 => sp3d2 => Ex: S of SF6
     }
 
@@ -69,6 +72,7 @@ class HybridizationFeaturize:
         return num_lone_pairs
     
     def feature(atom: Chem.Atom) -> list:
+        print(get_smiles(atom.GetOwningMol()))
         total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
         num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
         hybri_feat = HybridizationFeaturize.HYBRDIZATION.get((total_single_bonds, num_lone_pairs), None)

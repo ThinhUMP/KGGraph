@@ -1,111 +1,110 @@
-from rdkit import Chem
 from rdkit.Chem import BRICS
-from typing import List, Tuple
-
+from rdkit import Chem
+from KGGraph.Chemistry.chemutils import get_clique_mol
+import pathlib
+import sys
+root_dir = str(pathlib.Path(__file__).resolve().parents[2])
+sys.path.append(root_dir)
 class MotifDecomposition:
-    @staticmethod
-    def create_initial_cliques(mol: Chem.Mol) -> List[List[int]]:
+    def __init__(self, mol):
         """
-        Create initial cliques for each bond in the molecule.
+        Initialize the MotifDecomposition class with a molecule.
 
         Parameters:
-        mol (Chem.Mol): RDKit molecule object.
+        mol (rdkit.Chem.Mol): The molecule to be decomposed.
+        """
+        self.mol = mol
+        self.n_atoms = mol.GetNumAtoms()
+
+    def defragment(self):
+        """
+        Perform motif decomposition on the molecule.
 
         Returns:
-        List[List[int]]: Initial list of cliques.
+        list: A list of atom indices representing the decomposed motifs.
         """
-        cliques = []
-        for bond in mol.GetBonds():
-            a1 = bond.GetBeginAtom().GetIdx()
-            a2 = bond.GetEndAtom().GetIdx()
-            cliques.append([a1, a2])
+        if self.n_atoms == 1:
+            return [[0]]
+
+        cliques = self._initial_cliques()
+        cliques = self._apply_brics_breaks(cliques)
+        cliques = self._merge_cliques(cliques)
+        cliques = self._refine_cliques(cliques)
         return cliques
 
-    @staticmethod
-    def apply_brics_breaks(mol: Chem.Mol, cliques: List[List[int]]) -> List[List[int]]:
+    def _initial_cliques(self):
         """
-        Apply BRICS breaks to the molecule and update cliques.
-
-        Parameters:
-        mol (Chem.Mol): RDKit molecule object.
-        cliques (List[List[int]]): Existing list of cliques.
+        Create initial cliques based on the bonds of the molecule.
 
         Returns:
-        List[List[int]]: Updated list of cliques after BRICS breaks.
+        list: A list of initial cliques.
         """
-        res = list(BRICS.FindBRICSBonds(mol))
-        if len(res) != 0:
-            for bond in res:
-                try:
-                    cliques.remove([bond[0][0], bond[0][1]])
-                except ValueError:
-                    cliques.remove([bond[0][1], bond[0][0]])
-                cliques.extend([[bond[0][0]], [bond[0][1]]])
+        cliques = [[bond.GetBeginAtom().GetIdx(), bond.GetEndAtom().GetIdx()] for bond in self.mol.GetBonds()]
         return cliques
 
-    @staticmethod
-    def merge_cliques(cliques: List[List[int]], n_atoms: int) -> List[List[int]]:
+    def _apply_brics_breaks(self, cliques):
         """
-        Merge cliques with common elements.
+        Apply BRICS rules to break bonds and update cliques.
 
         Parameters:
-        cliques (List[List[int]]): List of cliques.
-        n_atoms (int): Number of atoms in the molecule.
+        cliques (list): The current list of cliques.
 
         Returns:
-        List[List[int]]: Merged list of cliques.
+        list: Updated list of cliques after applying BRICS breaks.
+        """
+        res = list(BRICS.FindBRICSBonds(self.mol))
+        for bond in res:
+            bond_indices = [bond[0][0], bond[0][1]]
+            if bond_indices in cliques:
+                cliques.remove(bond_indices)
+            else:
+                cliques.remove(bond_indices[::-1])  # Reverse indices if not found in order
+            cliques.extend([[bond[0][0]], [bond[0][1]]])
+        return cliques
+
+    def _merge_cliques(self, cliques):
+        """
+        Merge overlapping cliques.
+
+        Parameters:
+        cliques (list): The current list of cliques.
+
+        Returns:
+        list: Updated list of cliques after merging.
         """
         for i in range(len(cliques) - 1):
+            if i >= len(cliques):
+                break
             for j in range(i + 1, len(cliques)):
-                if set(cliques[i]) & set(cliques[j]):  # Check for intersection
-                    cliques[i] = list(set(cliques[i]) | set(cliques[j]))  # Merge cliques
+                if j >= len(cliques):
+                    break
+                if set(cliques[i]) & set(cliques[j]):  # Intersection is not empty
+                    cliques[i] = list(set(cliques[i]) | set(cliques[j]))  # Union
                     cliques[j] = []
+            cliques = [c for c in cliques if c]
+        return cliques
 
-        # Remove empty cliques and cliques with all atoms
-        return [c for c in cliques if 0 < len(c) < n_atoms]
-
-    @staticmethod
-    def refine_cliques(mol: Chem.Mol, cliques: List[List[int]]) -> List[List[int]]:
+    def _refine_cliques(self, cliques):
         """
-        Refine cliques based on ring structures.
+        Refine cliques to consider symmetrically equivalent substructures.
 
         Parameters:
-        mol (Chem.Mol): RDKit molecule object.
-        cliques (List[List[int]]): List of cliques.
+        cliques (list): The current list of cliques.
 
         Returns:
-        List[List[int]]: Refined list of cliques.
+        list: Refined list of cliques.
         """
-        ssr_mol = Chem.GetSymmSSSR(mol)
-        n_atoms = mol.GetNumAtoms()
-        for i, c in enumerate(cliques):
-            cmol = Chem.PathToSubmol(mol, c)
+        refined_cliques = []
+        ssr_mol = Chem.GetSymmSSSR(self.mol)
+        for c in cliques:
+            cmol = get_clique_mol(self.mol, c)
             ssr = Chem.GetSymmSSSR(cmol)
             if len(ssr) > 1:
                 for ring in ssr_mol:
-                    if set(list(ring)) <= set(c):
-                        cliques.append(list(ring))
-                cliques[i] = []
-
-        # Remove empty cliques and cliques with all atoms
-        return [c for c in cliques if 0 < len(c) < n_atoms]
-
-    def defragment(self, mol: Chem.Mol) -> List[List[int]]:
-        """
-        Perform motif decomposition on a molecule.
-
-        Parameters:
-        mol (Chem.Mol): RDKit molecule object.
-
-        Returns:
-        List[List[int]]: List of cliques representing motif decomposition.
-        """
-        n_atoms = mol.GetNumAtoms()
-        if n_atoms == 1:
-            return [[0]]
-
-        cliques = self.create_initial_cliques(mol)
-        cliques = self.apply_brics_breaks(mol, cliques)
-        cliques = self.merge_cliques(cliques, n_atoms)
-        cliques = self.refine_cliques(mol, cliques)
+                    if set(ring) <= set(c):
+                        refined_cliques.append(list(ring))
+                        c = list(set(c) - set(ring))
+            if c:
+                refined_cliques.append(c)
+        cliques = [c for c in refined_cliques if 0 < len(c) < self.n_atoms]
         return cliques

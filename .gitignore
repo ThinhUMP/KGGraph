@@ -19,3 +19,5 @@ period_table.json
 check.py
 data/Cora/
 data/alk/
+data/tox21/processed/
+data/tox21/raw/

@@ -1,0 +1,10 @@
+ID,SMILES
+a,CCc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2cc1N1CCNCC1
+b,CCc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2cc1N1CCC(N2CCN(C)CC2)CC1
+a,CCc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2cc1N1CCN(C(C)C)CC1
+b,CCCc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2cc1N1CCN(C)CC1
+a,CCc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2cc1C1CCNCC1
+b,C#Cc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2cc1N1CCN(C)CC1
+a,CCc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2cc1C1CCN(CCO)CC1
+b,COc1cc2c(=O)c3c4ccc(C#N)cc4[nH]c3n(C(C)C)c2c(F)c1C1CCN(C)CC1
+a,COc1cc(N2CCN(C)CC2)c2cc1Nc1ncc(Cl)c(n1)Nc1cc(ccc1N(C)S(C)(=O)=O)CC2

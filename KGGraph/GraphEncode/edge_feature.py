@@ -20,7 +20,7 @@ from KGGraph.Chemistry.features import (
 from KGGraph.Chemistry.bond_type import GetBondTypeFeature
 
 # Load bond dictionaries for process of feature extraction: bond stereo.
-with open(root_dir / 'data/bond_stereo_dict.json', 'r') as f:
+with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 
 class EdgeFeature:
@@ -33,8 +33,8 @@ class EdgeFeature:
         """
         self.mol = mol
         self.num_bond_features = 19
-        motif = MotifDecomposition()
-        self.cliques = motif.defragment(mol)
+        motif = MotifDecomposition(mol)
+        self.cliques = motif.defragment()
         self.num_motif = len(self.cliques)
         self.num_atoms = mol.GetNumAtoms()
         

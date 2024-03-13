@@ -7,7 +7,7 @@ root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.Chemistry.features import get_formal_charge, get_bond_type
     
-with open('./data/bond_dict.json', 'r') as f:
+with open('./data/feature/bond_dict.json', 'r') as f:
     bond_dict = json.load(f)
 
 class GetBondTypeFeature:

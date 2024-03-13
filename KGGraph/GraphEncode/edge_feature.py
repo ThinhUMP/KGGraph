@@ -12,11 +12,12 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
     
 # Import necessary modules and functions
-from KGGraph.Chemistry.chemutils import get_mol, get_smiles
+from KGGraph.Chemistry.chemutils import get_mol
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.features import (
-    get_bond_type, is_conjugated, is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, GetBondTypeFeature,
+    is_conjugated, is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
 )
+from KGGraph.Chemistry.bond_type import GetBondTypeFeature
 
 # Load bond dictionaries for process of feature extraction: bond stereo.
 with open(root_dir / 'data/bond_stereo_dict.json', 'r') as f:

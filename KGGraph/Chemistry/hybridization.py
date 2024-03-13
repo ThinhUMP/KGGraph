@@ -66,4 +66,10 @@ class HybridizationFeaturize:
         Compute the number of lone pairs for a given atom.
         """
         num_lone_pairs = HybridizationFeaturize.num_bond_hybridization(atom) - HybridizationFeaturize.total_single_bond(atom)
-        return num_lone_pairs 
+        return num_lone_pairs
+    
+    def feature(atom: Chem.Atom) -> list:
+        total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
+        num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
+        hybri_feat = HybridizationFeaturize.HYBRDIZATION.get((total_single_bonds, num_lone_pairs), None)
+        return total_single_bonds, num_lone_pairs, hybri_feat

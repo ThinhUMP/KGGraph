@@ -1,10 +1,7 @@
 from typing import Union, List
 from rdkit import Chem
-from rdkit.Chem import Lipinski, Crippen, rdMolDescriptors, rdPartialCharges
+from rdkit.Chem import Lipinski
 import json
-import numpy as np
-import pandas as pd
-import torch
 import sys
 import pathlib
 from mendeleev import element
@@ -31,10 +28,7 @@ ELECTRONEGATIVITY = {
     'Ra': 0.9, 'Ac': 1.1, 'Rf': 0.0, 'Db': 0.0, 'Sg': 0.0, 'Bh': 0.0, 'Hs': 0.0, 'Mt': 0.0,
     'Ds': 0.0, 'Rg': 0.0, 'Cn': 0.0, 'Nh': 0.0, 'Fl': 0.0, 'Mc': 0.0, 'Lv': 0.0, 'Ts': 0.0, 'Og': 0.0,
 } #TODO: add this dictionary to periodic_table.json
-
-
-# with open('./period_table.json', 'r') as f: 
-#     period_table = json.load(f) #TODO: install mendeleev (pip install mendeleev) to use function get_period
+#TODO: install mendeleev (pip install mendeleev) to use function get_period
 
 ### Atom type
 def get_symbol(atom: Chem.Atom) -> str:
@@ -142,7 +136,6 @@ def get_ring_membership_count(atom: Chem.Atom) -> int:
     ring_info = mol.GetRingInfo()
     return len([ring for ring in ring_info.AtomRings() if atom.GetIdx() in ring])
 
-
 def is_in_aromatic_ring(atom: Chem.Atom) -> bool:
     """Check if the atom is part of an aromatic ring."""
     return atom.GetIsAromatic()
@@ -160,65 +153,6 @@ def get_electronegativity(atom: Chem.Atom) -> float:
 def get_bond_type(bond: Chem.Bond) -> str:
     """Get the type of the bond."""
     return bond.GetBondType().name
-
-class GetBondTypeFeature:
-    """
-    A class to determine bond type features based on the bond and its connected atoms.
-    """
-
-    @staticmethod
-    def is_conjugated_atom(atom):
-        """
-        Determine if an atom could be a part of conjugated system (Ex: C=CN, N is conjugated to pi).
-
-        Parameters:
-        atom (rdkit.Chem.rdchem.Atom): The atom to check.
-
-        Returns:
-        bool: True if the atom is N, O, or S and has a negative or neutral formal charge.
-        """
-        return atom.GetSymbol() in ['N', 'O', 'S'] and get_formal_charge(atom) <= 0
-
-    @staticmethod
-    def has_multiple_bond(atom):
-        """
-        Check if an atom is involved in a multiple bond (double or triple).
-
-        Parameters:
-        atom (rdkit.Chem.rdchem.Atom): The atom to check.
-
-        Returns:
-        bool: True if the atom has a double or triple bond, False otherwise.
-        """
-        return any(b.GetBondType() in (Chem.rdchem.BondType.DOUBLE, Chem.rdchem.BondType.TRIPLE) for b in atom.GetBonds())
-
-    @staticmethod
-    def feature(bond):
-        """
-        Determine the feature of a bond based on its type and the atoms it connects.
-
-        Parameters:
-        bond (rdkit.Chem.rdchem.Bond): The bond to analyze.
-
-        Returns:
-        list: A list representing the bond type feature.
-        """
-        # Directly return the feature if the bond is not single
-        if bond.GetBondType() != Chem.rdchem.BondType.SINGLE:
-            return bond_dict.get(get_bond_type(bond), [0] * (len(bond_dict) - 1) + [1])
-        else: # If the bond is single
-            begin_atom = bond.GetBeginAtom()
-            end_atom = bond.GetEndAtom()
-
-            # Determine if the bond is conjugated based on the connected atoms. Ex: C=C-N or N-C=C
-            if (GetBondTypeFeature.is_conjugated_atom(begin_atom) and GetBondTypeFeature.has_multiple_bond(end_atom)) or \
-            (GetBondTypeFeature.is_conjugated_atom(end_atom) and GetBondTypeFeature.has_multiple_bond(begin_atom)):
-                bond_type_feature = bond_dict.get('CONJUGATE')
-            else:
-                # Additional check for multiple bonds to determine if the bond is conjugated. Ex: C=C-C=C
-                bond_type_feature = bond_dict.get('CONJUGATE') if GetBondTypeFeature.has_multiple_bond(begin_atom) and GetBondTypeFeature.has_multiple_bond(end_atom) else bond_dict.get('SINGLE')
-
-        return bond_type_feature
 
 def is_conjugated(bond: Chem.Bond) -> bool:
     """Check if the bond is conjugated."""

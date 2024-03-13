@@ -15,13 +15,10 @@ sys.path.append(str(root_dir))
 from KGGraph.Chemistry.chemutils import get_mol, get_smiles
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.features import (
-    get_bond_type, is_conjugated, is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring
+    get_bond_type, is_conjugated, is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, GetBondTypeFeature,
 )
 
-# Load bond dictionaries for process of feature extraction: bond types and bond stereo..
-with open(root_dir / 'data/bond_dict.json', 'r') as f:
-    bond_dict = json.load(f)
-
+# Load bond dictionaries for process of feature extraction: bond stereo.
 with open(root_dir / 'data/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 
@@ -34,7 +31,7 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 32
+        self.num_bond_features = 19
         motif = MotifDecomposition()
         self.cliques = motif.defragment(mol)
         self.num_motif = len(self.cliques)
@@ -66,7 +63,7 @@ class EdgeFeature:
                 ]
                 
                 # Get bond type and stereo features from the dictionaries
-                bond_type_feature = bond_dict.get(get_bond_type(bond), [0] * len(bond_dict))
+                bond_type_feature = GetBondTypeFeature.feature(bond)
                 bond_stereo_feature = bond_stereo_dict.get(get_stereo(bond), [0] * len(bond_stereo_dict))
                 
                 # Combine all features into a single list
@@ -78,13 +75,13 @@ class EdgeFeature:
                 # Add the indices and features to the respective lists
                 edges_index_list.extend([[i, j], [j, i]])
                 edge_attr_list.extend([combined_features, combined_features])
+            # Convert the lists to tensors
             edge_attr_node = torch.tensor(edge_attr_list, dtype=torch.float64)
             edges_index_node = torch.tensor(edges_index_list, dtype=torch.long).t().contiguous()
         else:  
             edges_index_node = torch.empty((2, 0), dtype=torch.long)
             edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.float64)
-
-        # Convert the lists to tensors and return
+        
         return edge_attr_node, edges_index_node
 
     def get_edge_index(self, mol: Chem.Mol) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -143,12 +140,12 @@ class EdgeFeature:
             motif_edge_index, _, _ = self.get_edge_index(mol)
             
             # Initialize motif edge attributes
-            motif_edge_attr = torch.zeros((motif_edge_index.size(1), 32))
+            motif_edge_attr = torch.zeros((motif_edge_index.size(1), self.num_bond_features))
             motif_edge_attr[:, -2] = 1  # Set bond type for the edge between atoms and motif, 
             # we can access this feature via bond_dict json with key value 'NODEMOTIF'
 
             # Initialize super edge attributes
-            super_edge_attr = torch.zeros((self.num_motif, 32))
+            super_edge_attr = torch.zeros((self.num_motif, self.num_bond_features))
             super_edge_attr[:, -1] = 1  # Set bond type for the edge between motifs and supernode, 
             # we can access this feature via bond_dict json with key value 'MOTIFSUPERNODE'
             # Ensure that all tensors are of the same type and device
@@ -161,7 +158,7 @@ class EdgeFeature:
         else:
             motif_edge_attr = torch.empty((0, 0), dtype=torch.float64)
             # Initialize super edge attributes when there are no motifs
-            super_edge_attr = torch.zeros((self.num_atoms, 32))
+            super_edge_attr = torch.zeros((self.num_atoms, self.num_bond_features))
             super_edge_attr[:, -3] = 1  # Set bond type for the edge between nodes and supernode, 
             # we can access this feature via bond_dict json with key value 'NODESUPERNODE'
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
@@ -182,7 +179,7 @@ def main():
     import time
     from joblib import Parallel, delayed
     data = pd.read_csv('./data/Secfp_alk.csv')
-    smiles = data['Canomicalsmiles'].tolist()[:10]
+    smiles = data['Canomicalsmiles'].tolist()
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
     edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols)

@@ -8,7 +8,7 @@ from mendeleev import element
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 # from KGGraph.Chemistry.chemutils import *
-with open('./data/feature/group_block_onehot.json', 'r') as f:
+with open(root_dir+'/data/feature/group_block_onehot.json', 'r') as f:
     group_block_onehot = json.load(f)
 
 ELECTRONEGATIVITY = {

@@ -1,11 +1,17 @@
 import networkx as nx
 from rdkit import Chem
 from typing import Tuple, List, Dict, Set
-from MotifGraph.chemutils import get_inter_label, set_atommap, get_smiles, get_assm_cands
-from MotifGraph.MotitDcp.smotif_decompose import SMotifDecomposition
-from MotifGraph.MotitDcp.jin_decompose import TreeDecomposition
-from MotifGraph.MotitDcp.brics_decompose import BRCISDecomposition
-from MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
+from pathlib import Path
+import sys
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
+from KGGraph.Chemistry.chemutils import get_inter_label, set_atommap, get_smiles, get_assm_cands
+from KGGraph.MotifGraph.MotitDcp.smotif_decompose import SMotifDecomposition
+from KGGraph.MotifGraph.MotitDcp.jin_decompose import TreeDecomposition
+from KGGraph.MotifGraph.MotitDcp.brics_decompose import BRCISDecomposition
+from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 class JTConstruct:
     def __init__(self, mol: Chem.Mol,
                  fragment_type: str = 'smotif'):

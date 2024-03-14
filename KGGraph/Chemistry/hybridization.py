@@ -18,12 +18,14 @@ class HybridizationFeaturize:
     #five features are in the order of (numbers of orbital s, numbers of orbital p, 
     # number of orbital d, total neighbors including Hydrogens, number of lone pairs)
     HYBRDIZATION = {
+        (1,-1): [1,0,0,1,-1], #AX1E-1 => s => Ex: Na in NaI
         (0,0): [1,0,0,0,0], #AX0E0 => s => Ex: Zn2+
         (1,1): [1,1,0,1,1], #AX1E1 => sp => Ex: N of HCN
         (2,0): [1,1,0,2,0], #AX2E0 => sp => Ex: C#C
         (2,1): [1,2,0,2,1], #AX2E1 => sp2 => Ex: N of Pyrimidine
         (1,2): [1,2,0,1,2], #AX1E2 => sp2 => Ex: O of C=O
         (3,0): [1,2,0,3,0], #AX1E1 => sp2 => Ex: N of pyrrole
+        (0,3): [1,2,0,0,3], #AX0E3 => sp2 => Ex: Fe2+
         (1,3): [1,2,0,1,3], #AX1E3 => sp3 => Ex: R-X (X is halogen)
         (2,2): [1,3,0,2,2], #AX2E2 => sp3 => Ex: O of R-O-R'
         (3,1): [1,2,0,3,1], #AX3E1 => sp3 => Ex: N of NR3
@@ -73,8 +75,8 @@ class HybridizationFeaturize:
         return num_lone_pairs
     
     def feature(atom: Chem.Atom) -> list:
-        print(get_smiles(atom.GetOwningMol()))
+        # print(get_smiles(atom.GetOwningMol()))
         total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
         num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
-        hybri_feat = HybridizationFeaturize.HYBRDIZATION.get((total_single_bonds, num_lone_pairs), None)
+        hybri_feat = HybridizationFeaturize.HYBRDIZATION.get((total_single_bonds, num_lone_pairs), [0,0,0,0,0])
         return total_single_bonds, num_lone_pairs, hybri_feat

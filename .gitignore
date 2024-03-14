@@ -16,3 +16,4 @@ data/tox21/processed/
 data/tox21/raw/
 finetune/dataset/esol/
 finetune/dataset/tox21/
+saved_moedl/

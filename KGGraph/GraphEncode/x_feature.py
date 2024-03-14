@@ -48,10 +48,13 @@ class AtomFeature:
             
             atomic_number = get_atomic_number(atom)
             atomic_number_vector = list((np.array(atom_types) == atomic_number).astype(int))
+            if atomic_number_vector is None:
+                atomic_number_vector = np.zeros(len(atom_types))
 
             total_single_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
-            if hybri_feat is None:
-                raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
+            if hybri_feat == [0,0,0,0,0]:
+                print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
+                # raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
             
             combined_features = basic_features + chemical_group + hybri_feat + atomic_number_vector
             x_node.append(combined_features)
@@ -140,11 +143,11 @@ def main():
     from joblib import Parallel, delayed
     import time
     from tqdm import tqdm
-    data = pd.read_csv('./data/alk/alk.csv')
-    smiles = data['Canomicalsmiles'].tolist()[:10]
+    data = pd.read_csv('./finetune/dataset/tox21/raw/tox21.csv')
+    smiles = data['smiles'].tolist()
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
-    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol) for mol in mols)
+    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol) for mol in tqdm(mols))
     t2 = time.time()
     print(t2-t1)
     print(x[0])

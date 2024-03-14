@@ -61,7 +61,6 @@ def train_reg(args, model, device, loader, optimizer):
         loss.backward()
         optimizer.step()
 
-
 def eval(args, model, device, loader):
     model.eval()
     y_true = []

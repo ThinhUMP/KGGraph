@@ -21,13 +21,15 @@ from chemutils import get_mol, get_clique_mol
 from pathlib import Path
 import sys
 import pandas as pd
-import time
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[1]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
 from KGGraph.GraphEncode.x_feature import x_feature
 from KGGraph.GraphEncode.edge_feature import edge_feature
+from joblib import Parallel, delayed
+import torch
+from tqdm import tqdm
 
 # allowable node and edge features
 allowable_features = {
@@ -62,178 +64,10 @@ allowable_features = {
     'possible_bond_inring': [None, False, True]
 }
 
-# def mol_to_graph_data_obj_simple(mol):
-#     """
-#     Converts rdkit mol object to graph Data object required by the pytorch
-#     geometric package. NB: Uses simplified atom and bond features, and represent
-#     as indices
-#     :param mol: rdkit mol object
-#     :return: graph data object with the attributes: x, edge_index, edge_attr
-#     """
-#     # atoms
-#     num_atom_features = 2   # atom type,  chirality tag
-#     atom_features_list = []
-#     for atom in mol.GetAtoms():
-#         atom_feature = [allowable_features['possible_atomic_num_list'].index(
-#             atom.GetAtomicNum())] + [allowable_features[
-#             'possible_chirality_list'].index(atom.GetChiralTag())]
-#         # atom_feature = [allowable_features['possible_atomic_num_list'].index(
-#         #         atom.GetAtomicNum())] + [allowable_features[
-#         #                                  'possible_degree_list'].index(atom.GetDegree())]
-#         atom_features_list.append(atom_feature)
-#     x_nosuper = torch.tensor(np.array(atom_features_list), dtype=torch.long)
-
-#     # bonds
-#     num_bond_features = 2   # bond type, bond direction
-#     if len(mol.GetBonds()) > 0: # mol has bonds
-#         edges_list = []
-#         edge_features_list = []
-#         for bond in mol.GetBonds():
-#             i = bond.GetBeginAtomIdx()
-#             j = bond.GetEndAtomIdx()
-#             edge_feature = [allowable_features['possible_bonds'].index(
-#                 bond.GetBondType())] + [allowable_features[
-#                                             'possible_bond_dirs'].index(
-#                 bond.GetBondDir())]
-#             # edge_feature = [allowable_features['possible_bonds'].index(
-#             #      bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
-#             #      bond.IsInRing())]
-#             edges_list.append((i, j))
-#             edge_features_list.append(edge_feature)
-#             edges_list.append((j, i))
-#             edge_features_list.append(edge_feature)
-
-#         # data.edge_index: Graph connectivity in COO format with shape [2, num_edges]
-#         edge_index_nosuper = torch.tensor(np.array(edges_list).T, dtype=torch.long)
-
-#         # data.edge_attr: Edge feature matrix with shape [num_edges, num_edge_features]
-#         edge_attr_nosuper = torch.tensor(np.array(edge_features_list),
-#                                  dtype=torch.long)
-#     else:   # mol has no bonds
-#         edge_index_nosuper = torch.empty((2, 0), dtype=torch.long)
-#         edge_attr_nosuper = torch.empty((0, num_bond_features), dtype=torch.long)
-
-#     # add super node and edge
-#     num_atoms = x_nosuper.size(0)
-#     super_x = torch.tensor([[119, 3]]).to(x_nosuper.device)
-#     #super_x = torch.tensor([[119, 0]]).to(x_nosuper.device)
-#     x = torch.cat((x_nosuper, super_x), dim=0)
-
-#     # super_edge_index = [[num_atoms, i] for i in range(num_atoms)]
-#     super_edge_index = [[i, num_atoms] for i in range(num_atoms)]
-#     super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(edge_index_nosuper.device)
-#     edge_index = torch.cat((edge_index_nosuper, super_edge_index), dim=1)
-
-#     super_edge_attr = torch.zeros(num_atoms, 2)
-#     super_edge_attr[:,0] = 5 #bond type for self-loop edge
-#     super_edge_attr = super_edge_attr.to(edge_attr_nosuper.dtype).to(edge_attr_nosuper.device)
-#     edge_attr = torch.cat((edge_attr_nosuper, super_edge_attr), dim = 0)
-
-
-#     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
-#     #print('x_nosuper',x_nosuper.size()[0])
-
-#     return data
-
-
-
 def mol_to_graph_data_obj_simple(mol):
-    # """
-    # Converts rdkit mol object to graph Data object required by the pytorch
-    # geometric package. NB: Uses simplified atom and bond features, and represent
-    # as indices
-    # :param mol: rdkit mol object
-    # :return: graph data object with the attributes: x, edge_index, edge_attr
-    # """
-    # # atoms
-    # num_atom_features = 2   # atom type,  chirality tag
-    # atom_features_list = []
-    # for atom in mol.GetAtoms():
-
-    #     atom_feature = [allowable_features['possible_atomic_num_list'].index(
-    #             atom.GetAtomicNum())] + [allowable_features[
-    #                                      'possible_degree_list'].index(atom.GetDegree())]
-
-
-    #     atom_features_list.append(atom_feature)
-    # x_nosuper = torch.tensor(np.array(atom_features_list), dtype=torch.long)
-
-    # # bonds
-    # num_bond_features = 2   # bond type, bond direction
-    # if len(mol.GetBonds()) > 0: # mol has bonds
-    #     edges_list = []
-    #     edge_features_list = []
-    #     for bond in mol.GetBonds():
-    #         i = bond.GetBeginAtomIdx()
-    #         j = bond.GetEndAtomIdx()
-
-    #         edge_feature = [allowable_features['possible_bonds'].index(
-    #              bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
-    #              bond.IsInRing())]
-
-    #         edges_list.append((i, j))
-    #         edge_features_list.append(edge_feature)
-    #         edges_list.append((j, i))
-    #         edge_features_list.append(edge_feature)
-
-    #     # data.edge_index: Graph connectivity in COO format with shape [2, num_edges]
-    #     edge_index_nosuper = torch.tensor(np.array(edges_list).T, dtype=torch.long)
-
-    #     # data.edge_attr: Edge feature matrix with shape [num_edges, num_edge_features]
-    #     edge_attr_nosuper = torch.tensor(np.array(edge_features_list),
-    #                              dtype=torch.long)
-    # else:   # mol has no bonds
-    #     edge_index_nosuper = torch.empty((2, 0), dtype=torch.long)
-    #     edge_attr_nosuper = torch.empty((0, num_bond_features), dtype=torch.long)
-
-    # num_atoms = x_nosuper.size(0)
-    # super_x = torch.tensor([[119, 0]]).to(x_nosuper.device)
-    # #add motif 
-    # cliques = motif_decomp(mol)
-    # num_motif = len(cliques)
-    # if num_motif > 0:
-    #     motif_x = torch.tensor([[120, 0]]).repeat_interleave(num_motif, dim=0).to(x_nosuper.device)
-    #     x = torch.cat((x_nosuper, motif_x, super_x), dim=0)
-
-    #     motif_edge_index = []
-    #     for k, motif in enumerate(cliques):
-    #         motif_edge_index = motif_edge_index + [[i, num_atoms+k] for i in motif]
-    #     motif_edge_index = torch.tensor(np.array(motif_edge_index).T, dtype=torch.long).to(edge_index_nosuper.device)
-
-    #     super_edge_index = [[num_atoms+i, num_atoms+num_motif] for i in range(num_motif)]
-    #     super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(edge_index_nosuper.device)
-    #     edge_index = torch.cat((edge_index_nosuper, motif_edge_index, super_edge_index), dim=1)
-
-    #     motif_edge_attr = torch.zeros(motif_edge_index.size()[1], 2)
-    #     motif_edge_attr[:,0] = 6 
-    #     motif_edge_attr = motif_edge_attr.to(edge_attr_nosuper.dtype).to(edge_attr_nosuper.device)
-
-    #     super_edge_attr = torch.zeros(num_motif, 2)
-    #     super_edge_attr[:,0] = 5 
-    #     super_edge_attr = super_edge_attr.to(edge_attr_nosuper.dtype).to(edge_attr_nosuper.device)
-    #     edge_attr = torch.cat((edge_attr_nosuper, motif_edge_attr, super_edge_attr), dim = 0)
-
-    #     num_part = (num_atoms, num_motif, 1)
-
-    # else:
-    #     x = torch.cat((x_nosuper, super_x), dim=0)
-
-    #     super_edge_index = [[i, num_atoms] for i in range(num_atoms)]
-    #     super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(edge_index_nosuper.device)
-    #     edge_index = torch.cat((edge_index_nosuper, super_edge_index), dim=1)
-
-    #     super_edge_attr = torch.zeros(num_atoms, 2)
-    #     super_edge_attr[:,0] = 5 #bond type for self-loop edge
-    #     super_edge_attr = super_edge_attr.to(edge_attr_nosuper.dtype).to(edge_attr_nosuper.device)
-    #     edge_attr = torch.cat((edge_attr_nosuper, super_edge_attr), dim = 0)
-
-    #     num_part = (num_atoms, 0, 1)
     x = x_feature(mol)
-    print(x.size())
     edge_index, edge_attr = edge_feature(mol)
-    print(edge_index.size(), edge_attr.size())
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
-
     return data
 
 
@@ -635,20 +469,33 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'tox21':
             smiles_list, rdkit_mol_objs, labels = \
                 _load_tox21_dataset(self.raw_paths[0])
-            for i in range(len(smiles_list)):
-                print(i)
+            # for i in range(len(smiles_list)):
+            #     print(i)
+            #     rdkit_mol = rdkit_mol_objs[i]
+            #     ## convert aromatic bonds to double bonds
+            #     #Chem.SanitizeMol(rdkit_mol,
+            #                      #sanitizeOps=Chem.SanitizeFlags.SANITIZE_KEKULIZE)
+            #     data = mol_to_graph_data_obj_simple(rdkit_mol)
+            #     # manually add mol id
+            #     data.id = torch.tensor(
+            #         [i])  # id here is the index of the mol in
+            #     # the dataset
+            #     data.y = torch.tensor(labels[i, :])
+            #     data_list.append(data)
+            #     data_smiles_list.append(smiles_list[i])
+            # Define the function to be executed in parallel
+            def process_data(i):
                 rdkit_mol = rdkit_mol_objs[i]
-                ## convert aromatic bonds to double bonds
-                #Chem.SanitizeMol(rdkit_mol,
-                                 #sanitizeOps=Chem.SanitizeFlags.SANITIZE_KEKULIZE)
                 data = mol_to_graph_data_obj_simple(rdkit_mol)
-                # manually add mol id
-                data.id = torch.tensor(
-                    [i])  # id here is the index of the mol in
-                # the dataset
+                data.id = torch.tensor([i])
                 data.y = torch.tensor(labels[i, :])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[i])
+                return data, smiles_list[i]
+
+            # Use joblib to run the function in parallel
+            results = Parallel(n_jobs=-1)(delayed(process_data)(i) for i in tqdm(range(len(smiles_list))))
+
+            # Split the results into data_list and data_smiles_list
+            data_list, data_smiles_list = zip(*results)
 
         elif self.dataset == 'hiv':
             smiles_list, rdkit_mol_objs, labels = \

@@ -34,32 +34,49 @@ def get_symbol(atom: Chem.Atom) -> str:
     
 def get_atomic_number(atom: Chem.Atom) -> int:
     """Get the atomic number of the atom."""
-    return atom.GetAtomicNum()
+    atomic_number = atom.GetAtomicNum()
+    if atomic_number is None:
+        atomic_number = 0
+    return atomic_number
     
 def get_period(atom: Chem.Atom) -> int:
     """Get the period of the atom."""
     atom_mendeleev = element(atom.GetSymbol())
-    return atom_mendeleev.period
+    period = atom_mendeleev.period
+    if period is None:
+        period = 0
+    return period
     
 def get_group(atom: Chem.Atom) -> int:
     """Get the group of the atom."""
     atom_mendeleev = element(atom.GetSymbol())
-    return atom_mendeleev.group_id
+    groupid = atom_mendeleev.group_id
+    if groupid is None:
+        groupid = 0
+    return groupid
 
 def get_atomicweight(atom: Chem.Atom) -> float:
     """Get the atomic weight of the atom."""
     atom_mendeleev = element(atom.GetSymbol())
-    return atom_mendeleev.mass
+    mass = atom_mendeleev.mass
+    if mass is None:
+        mass = 0.0
+    return mass
 
 def get_num_valence_e(atom: Chem.Atom) -> int:
     """Get the number of valence electrons of the atom."""
     pt = Chem.GetPeriodicTable()
-    return pt.GetNOuterElecs(get_symbol(atom))
+    NumValE = pt.GetNOuterElecs(get_symbol(atom))
+    if NumValE is None:
+        NumValE = 0
+    return NumValE
 
 def get_chemical_group_block(atom: Chem.Atom) -> List:
     """Retrieve the chemical group block of the atom, excluding the first value."""
     atomic_index = get_atomic_number(atom) - 1
     group_block_values = list(group_block_onehot[atomic_index].values())[1:]
+    if group_block_values is None:
+        group_block_values = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
     return group_block_values
 
 def get_hybridization(atom: Chem.Atom) -> str:
@@ -74,23 +91,38 @@ def get_cip_code(atom: Chem.Atom) -> Union[None, str]:
 
 def is_chiral_center(atom: Chem.Atom) -> bool:
     """Determine if the atom is a chiral center."""
-    return atom.HasProp("_ChiralityPossible")
+    chiral_center = atom.HasProp("_ChiralityPossible")
+    if chiral_center is None:
+        chiral_center = False
+    return chiral_center
 
 def get_formal_charge(atom: Chem.Atom) -> int:
     """Get the formal charge of the atom."""
-    return atom.GetFormalCharge()
+    formal_charge = atom.GetFormalCharge()
+    if formal_charge is None:
+        formal_charge = 0
+    return formal_charge
 
 def get_total_num_hs(atom: Chem.Atom) -> int:
     """Get the total number of hydrogen atoms connected to the atom."""
-    return atom.GetTotalNumHs()
+    NumHs = atom.GetTotalNumHs()
+    if NumHs is None:
+        NumHs = 0
+    return NumHs
 
 def get_total_valence(atom: Chem.Atom) -> int:
     """Get the total valence of the atom."""
-    return atom.GetTotalValence()
+    ToVal = atom.GetTotalValence()
+    if ToVal is None:
+        ToVal = 0
+    return ToVal
 
 def get_num_radical_electrons(atom: Chem.Atom) -> int:
     """Get the number of radical electrons of the atom."""
-    return atom.GetNumRadicalElectrons()
+    NumRadiE = atom.GetNumRadicalElectrons()
+    if NumRadiE is None:
+        NumRadiE = 0
+    return NumRadiE
 
 def get_degree(atom: Chem.Atom) -> int:
     """Get the degree of the atom (number of bonded neighbors)."""
@@ -98,7 +130,10 @@ def get_degree(atom: Chem.Atom) -> int:
 
 def is_aromatic(atom: Chem.Atom) -> bool:
     """Check if the atom is part of an aromatic system."""
-    return atom.GetIsAromatic()
+    is_aromatic = atom.GetIsAromatic()
+    if is_aromatic is None:
+        is_aromatic = False
+    return is_aromatic
 
 def is_hetero(atom: Chem.Atom) -> bool:
     """Check if the atom is a heteroatom."""
@@ -125,7 +160,10 @@ def get_ring_size(atom: Chem.Atom) -> int:
 
 def is_in_ring(atom: Chem.Atom) -> bool:
     """Check if the atom is part of any ring."""
-    return atom.IsInRing()
+    is_in_ring = atom.IsInRing()
+    if is_in_ring is None:
+        is_in_ring = False
+    return is_in_ring
 
 def get_ring_membership_count(atom: Chem.Atom) -> int:
     """Get the number of rings the atom is a part of."""
@@ -135,7 +173,10 @@ def get_ring_membership_count(atom: Chem.Atom) -> int:
 
 def is_in_aromatic_ring(atom: Chem.Atom) -> bool:
     """Check if the atom is part of an aromatic ring."""
-    return atom.GetIsAromatic()
+    is_in_aromatic_ring = atom.GetIsAromatic()
+    if is_in_aromatic_ring is None:
+        is_in_aromatic_ring = False
+    return is_in_aromatic_ring
 
 def get_electronegativity(atom: Chem.Atom) -> float:
     """Get the electronegativity of the atom from the ELECTRONEGATIVITY table."""

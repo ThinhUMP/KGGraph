@@ -469,6 +469,11 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'tox21':
             smiles_list, rdkit_mol_objs, labels = \
                 _load_tox21_dataset(self.raw_paths[0])
+            data_list = Parallel(n_jobs=-1)(delayed(mol_to_graph_data_obj_simple)(rdkit_mol) for rdkit_mol in tqdm(rdkit_mol_objs))
+            for i, data in enumerate(data_list):
+                data.id = torch.tensor([i])
+                data.y = torch.tensor(labels[i, :])
+                data_smiles_list.append(smiles_list[i])
             # for i in range(len(smiles_list)):
             #     print(i)
             #     rdkit_mol = rdkit_mol_objs[i]
@@ -484,18 +489,18 @@ class MoleculeDataset(InMemoryDataset):
             #     data_list.append(data)
             #     data_smiles_list.append(smiles_list[i])
             # Define the function to be executed in parallel
-            def process_data(i):
-                rdkit_mol = rdkit_mol_objs[i]
-                data = mol_to_graph_data_obj_simple(rdkit_mol)
-                data.id = torch.tensor([i])
-                data.y = torch.tensor(labels[i, :])
-                return data, smiles_list[i]
+            # def process_data(i):
+            #     rdkit_mol = rdkit_mol_objs[i]
+            #     data = mol_to_graph_data_obj_simple(rdkit_mol)
+            #     data.id = torch.tensor([i])
+            #     data.y = torch.tensor(labels[i, :])
+            #     return data, smiles_list[i]
 
-            # Use joblib to run the function in parallel
-            results = Parallel(n_jobs=-1)(delayed(process_data)(i) for i in tqdm(range(len(smiles_list))))
+            # # Use joblib to run the function in parallel
+            # results = Parallel(n_jobs=-1)(delayed(process_data)(i) for i in tqdm(range(len(smiles_list))))
 
-            # Split the results into data_list and data_smiles_list
-            data_list, data_smiles_list = zip(*results)
+            # # Split the results into data_list and data_smiles_list
+            # data_list, data_smiles_list = zip(*results)
 
         elif self.dataset == 'hiv':
             smiles_list, rdkit_mol_objs, labels = \

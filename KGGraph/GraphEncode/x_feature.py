@@ -140,7 +140,7 @@ def main():
     from joblib import Parallel, delayed
     import time
     from tqdm import tqdm
-    data = pd.read_csv('./data/Secfp_alk.csv')
+    data = pd.read_csv('./data/alk/alk.csv')
     smiles = data['Canomicalsmiles'].tolist()[:10]
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()

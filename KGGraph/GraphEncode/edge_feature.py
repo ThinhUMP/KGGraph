@@ -179,7 +179,7 @@ def edge_feature(mol):
 def main():
     import time
     from joblib import Parallel, delayed
-    data = pd.read_csv('./data/Secfp_alk.csv')
+    data = pd.read_csv('./data/alk/alk.csv')
     smiles = data['Canomicalsmiles'].tolist()
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()

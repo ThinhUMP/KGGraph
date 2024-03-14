@@ -32,7 +32,8 @@ class HybridizationFeaturize:
         (3,2): [1,3,1,3,2], #AX1E2 => sp3d 
         (4,1): [1,3,1,4,1], #AX1E1 => sp3d 
         (5,0): [1,3,1,5,0], #AX1E0 => sp3d => Ex: P of PCl5
-        (4,2): [1,3,2,4,2], #AX1E2 => sp3d2 
+        (4,2): [1,3,2,4,2], #AX1E2 => sp3d2
+        (2,4): [1,3,2,2,4], #AX2E4 => sp3d2 => Ex: Pd in PdCl2
         (5,1): [1,3,2,5,1], #AX1E1 => sp3d2
         (1,5): [1,3,2,1,5], #AX1E5 => sp3d2 => Ex:CuI
         (6,0): [1,3,2,6,0], #AX1E0 => sp3d2 => Ex: S of SF6

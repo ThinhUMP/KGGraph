@@ -74,14 +74,14 @@ class EdgeFeature:
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
                 
                 # Add the indices and features to the respective lists
-                edges_index_list.extend([[i, j], [j, i]])
+                edges_index_list.extend([(i, j), (j, i)])
                 edge_attr_list.extend([combined_features, combined_features])
             # Convert the lists to tensors
-            edge_attr_node = torch.tensor(edge_attr_list, dtype=torch.float64)
-            edges_index_node = torch.tensor(edges_index_list, dtype=torch.long).t().contiguous()
+            edge_attr_node = torch.tensor(np.array(edge_attr_list), dtype=torch.long)
+            edges_index_node = torch.tensor(np.array(edges_index_list).T, dtype=torch.long)
         else:  
             edges_index_node = torch.empty((2, 0), dtype=torch.long)
-            edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.float64)
+            edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.long)
         
         return edge_attr_node, edges_index_node
 
@@ -152,22 +152,20 @@ class EdgeFeature:
             # Ensure that all tensors are of the same type and device
             motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
-
             # Concatenate edge attributes for the entire graph
             edge_attr = torch.cat((edge_attr_node, motif_edge_attr, super_edge_attr), dim=0)
         
         else:
-            motif_edge_attr = torch.empty((0, 0), dtype=torch.float64)
+            motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((self.num_atoms, self.num_bond_features))
             super_edge_attr[:, -3] = 1  # Set bond type for the edge between nodes and supernode, 
             # we can access this feature via bond_dict json with key value 'NODESUPERNODE'
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
-            # Concatenate edge attributes for the entire graph
+            # # Concatenate edge attributes for the entire graph
             edge_attr = torch.cat((edge_attr_node, super_edge_attr), dim=0)
         
-
         return motif_edge_attr, super_edge_attr, edge_attr
 
 def edge_feature(mol):
@@ -180,7 +178,7 @@ def main():
     import time
     from joblib import Parallel, delayed
     data = pd.read_csv('./data/alk/alk.csv')
-    smiles = data['Canomicalsmiles'].tolist()
+    smiles = data['Canomicalsmiles'].tolist()[:5]
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
     edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols)

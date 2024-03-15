@@ -4,7 +4,7 @@ from rdkit import Chem
 from pathlib import Path
 import sys
 import pandas as pd
-import time
+from typing import List
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
@@ -49,7 +49,7 @@ class AtomFeature:
             atomic_number = get_atomic_number(atom)
             atomic_number_vector = list((np.array(atom_types) == atomic_number).astype(int))
             if atomic_number_vector is None:
-                atomic_number_vector = np.zeros(len(atom_types))
+                atomic_number_vector = list(np.zeros(len(atom_types)))
 
             total_single_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
             if hybri_feat == [0,0,0,0,0]:
@@ -59,9 +59,9 @@ class AtomFeature:
             combined_features = basic_features + chemical_group + hybri_feat + atomic_number_vector
             x_node.append(combined_features)
 
-        return torch.tensor(x_node, dtype=torch.float64)
+        return torch.tensor(np.array(x_node), dtype=torch.long)
     
-    def compute_basic_features(self, atom) -> torch.Tensor:
+    def compute_basic_features(self, atom) -> List:
         """
         Compute basic features for the given atom and return a tensor of features.
         """
@@ -113,7 +113,7 @@ def motif_supernode_feature(mol: Chem.Mol):
     # Create tensors based on the number of motifs
     x_supernode = torch.tensor([supernode_template], dtype=torch.long)
     if num_motif > 0:
-        x_motif = torch.tensor([motif_node_template] * num_motif, dtype=torch.long)
+        x_motif = torch.tensor([motif_node_template]).repeat_interleave(num_motif, dim=0)
     else:
         x_motif = torch.empty(0, number_atom_node_attr, dtype=torch.long)  # Handle cases with no motifs
 
@@ -135,7 +135,7 @@ def x_feature(mol: Chem.Mol):
     x_motif, x_supernode = motif_supernode_feature(mol)
 
     # Concatenate features
-    # print(x_node.size(), x_motif.size(), x_supernode.size())
+    print(x_node.size(), x_motif.size(), x_supernode.size())
     x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
     return x
 
@@ -144,7 +144,7 @@ def main():
     import time
     from tqdm import tqdm
     data = pd.read_csv('./finetune/dataset/tox21/raw/tox21.csv')
-    smiles = data['smiles'].tolist()
+    smiles = data['smiles'].tolist()[:10]
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
     x = Parallel(n_jobs=-1)(delayed(x_feature)(mol) for mol in tqdm(mols))

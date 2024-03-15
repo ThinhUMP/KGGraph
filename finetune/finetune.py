@@ -29,6 +29,11 @@ def train(model, device, loader, optimizer):
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
+        print('batch:', batch)
+        print('x', batch.x)
+        print('edge_index', batch.edge_index)
+        print('edge_attr',batch.edge_attr)
+        print('batch.batch',batch.batch)
         pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
         y = batch.y.view(pred.shape).to(torch.float64)
 
@@ -60,6 +65,7 @@ def train_reg(args, model, device, loader, optimizer):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+
 
 def eval(args, model, device, loader):
     model.eval()

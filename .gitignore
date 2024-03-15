@@ -17,3 +17,11 @@ data/tox21/raw/
 finetune/dataset/esol/
 finetune/dataset/tox21/
 saved_moedl/
+finetune/
+chemutils.py
+chemutils.ipynb
+data_utils.py
+decoder.py
+gnn_model.py
+pretrain.py
+test.py

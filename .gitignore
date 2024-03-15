@@ -4,7 +4,6 @@
 build/
 dist/
 KGGraph.egg-info/
-saved_model/
 __pycache__/
 test.ipynb
 treeEx.ipynb
@@ -13,10 +12,9 @@ check.py
 data/Cora/
 data/alk/
 data/tox21/processed/
-data/tox21/raw/
 finetune/dataset/esol/
 finetune/dataset/tox21/
-saved_moedl/
+saved_model/
 finetune/
 chemutils.py
 chemutils.ipynb

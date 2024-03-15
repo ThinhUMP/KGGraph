@@ -135,7 +135,7 @@ def x_feature(mol: Chem.Mol):
     x_motif, x_supernode = motif_supernode_feature(mol)
 
     # Concatenate features
-    print(x_node.size(), x_motif.size(), x_supernode.size())
+    # print(x_node.size(), x_motif.size(), x_supernode.size())
     x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
     return x
 

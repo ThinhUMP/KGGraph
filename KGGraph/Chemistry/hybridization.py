@@ -22,6 +22,7 @@ class HybridizationFeaturize:
         (3,-2): [0,0,0,3,0], #AX3E0 => UNSPECIFIED => Ex: Yb smiles: Cl[Yb](Cl)Cl
         (2,-1): [0,0,0,2,0], #AX2E0 => UNSPECIFIED => Ex: Au and hybridization: UNSPECIFIED smiles: N#C[Au-]C#N
         (6,-5): [0,0,0,6,0], #AX6E0 => UNSPECIFIED => Ex: Fe and hybridization: UNSPECIFIED smiles: N#C[Fe-2](C#N)(C#N)(C#N)(C#N)N=O
+        (1,-1): [1,0,0,1,0], #AX1E0 => s 
         (1,0): [1,0,0,1,0], #AX1E0 => s => Ex: Na in NaI
         (0,0): [1,0,0,0,0], #AX0E0 => s => Ex: Zn2+
         (1,1): [1,1,0,1,1], #AX1E1 => sp => Ex: N of HCN

@@ -26,14 +26,14 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers = 8)
 
     print('-----------training----------')
-        # Training GIN for 10 epochs
-    epochs = 10
-    model = GIN(dim_h=1024)
+    #     # Training GIN for 10 epochs
+    # epochs = 10
+    # model = GIN(dim_h=1024)
 
-    # Remember to change the path if you want to keep the previously trained model
-    train_loss, val_loss, val_aucs = train_epochs(
-        epochs, model, train_loader, test_loader, "data/GIN_model.pt"
-    )
+    # # Remember to change the path if you want to keep the previously trained model
+    # train_loss, val_loss, val_aucs = train_epochs(
+    #     epochs, model, train_loader, test_loader, "data/GIN_model.pt"
+    # )
 
 if __name__ == '__main__':
     main()

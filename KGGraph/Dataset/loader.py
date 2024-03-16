@@ -15,10 +15,8 @@ def load_tox21_dataset(input_path):
     tasks = ['NR-AR', 'NR-AR-LBD', 'NR-AhR', 'NR-Aromatase', 'NR-ER', 'NR-ER-LBD',\
         'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
     labels = tox21_dataset['SR-p53']
-    # convert 0 to -1 to avoid redundancy between 0 and nan values
-    labels = labels.replace(0, -1)
-    # convert nan to 0
-    labels = labels.fillna(0)
+    # convert nan to 0.5
+    labels = labels.fillna(0.5)
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values

@@ -34,8 +34,8 @@ def validation(val_loader, model, criterion):
         output = model(data)
         loss = criterion(output, torch.reshape((data.y+1)/2, (len(data.y), 1)))
         val_loss += loss.item() / len(val_loader)
-
-        all_targets.extend(data.y.detach().cpu().numpy())
+        print((data.y+1)/2)
+        all_targets.extend(((data.y+1)/2).detach().cpu().numpy())
         all_outputs.extend(output.detach().cpu().numpy())
 
     val_auc = roc_auc_score(all_targets, all_outputs)
@@ -55,7 +55,7 @@ def testing(test_loader, model):
         loss = criterion(output, torch.reshape((data.y+1)/2, (len(data.y), 1)))
         test_loss += loss.item() / len(test_loader)
 
-        all_targets.extend(data.y.cpu().detach().numpy())
+        all_targets.extend(((data.y+1)/2).cpu().detach().numpy())
         all_outputs.extend(output.cpu().detach().numpy())
 
     test_auc = roc_auc_score(all_targets, all_outputs)

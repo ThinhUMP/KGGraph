@@ -24,7 +24,7 @@ def training(train_loader, model, criterion, optimizer):
 
         output = model(data)
 
-        loss = criterion(output, torch.reshape(data.y, (len(data.y), 1)))
+        loss = criterion(output, torch.reshape((data.y+1)/2, (len(data.y), 1)))
         current_loss += loss / len(train_loader)
         loss.backward()
         optimizer.step()
@@ -60,7 +60,7 @@ def testing(test_loader, model):
     Returns:
         float: test loss
     """
-    criterion = torch.nn.CrossEntropyLoss()
+    criterion = torch.nn.BCEWithLogitsLoss()
     test_loss = 0
     test_target = numpy.empty((0))
     test_y_target = numpy.empty((0))
@@ -91,7 +91,7 @@ def train_epochs(epochs, model, train_loader, val_loader, path):
         array: returning train and validation losses over all epochs, prediction and ground truth values for training data in the last epoch
     """
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCEWithLogitsLoss()
 
     train_target = numpy.empty((0))
     train_y_target = numpy.empty((0))

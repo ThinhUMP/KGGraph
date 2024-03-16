@@ -23,3 +23,4 @@ decoder.py
 gnn_model.py
 pretrain.py
 test.py
+data/*.pt

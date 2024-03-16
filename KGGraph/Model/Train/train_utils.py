@@ -13,13 +13,13 @@ from tqdm import tqdm
 
 def training(train_loader, model, criterion, optimizer):
     device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device("cpu"))
+
     model.train()
     model.to(device)
     current_loss = 0
     for data in tqdm(train_loader):
         optimizer.zero_grad()
         data = data.to(device)
-        data.x = data.x.float()
 
         output = model(data)
 

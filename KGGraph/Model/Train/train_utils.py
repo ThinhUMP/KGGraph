@@ -62,10 +62,10 @@ def testing(test_loader, model):
     return test_loss, test_target, test_y_target
 
 def train_epochs(epochs, model, train_loader, val_loader, path):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device("cpu"))
-    print(device)
+    device = torch.device("cpu" if torch.cuda.is_available() else torch.device("cpu"))
+    
     model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0005)
     criterion = nn.BCEWithLogitsLoss()
 
     train_loss = numpy.empty(epochs)

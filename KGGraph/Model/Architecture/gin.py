@@ -29,8 +29,8 @@ class GIN(torch.nn.Module):
                 Linear(dim_h, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU()
             )
         )
-        self.lin1 = Linear(dim_h, dim_h)
-        self.lin2 = Linear(dim_h, 1)
+        self.lin1 = Linear(dim_h, 64)
+        self.lin2 = Linear(64, 1)
 
     def forward(self, data):
         x = data.x
@@ -48,7 +48,7 @@ class GIN(torch.nn.Module):
 
         h = self.lin1(h)
         h = h.relu()
-        h = Fun.dropout(h, p=0.0, training=self.training)
+        h = Fun.dropout(h, p=0.2, training=self.training)
         h = self.lin2(h)
 
         return h

@@ -1,18 +1,12 @@
-import math
-import numpy
-import torch
-from torch import nn
-from tqdm import tqdm
-
 import torch
 import numpy
 import math
 from torch import nn
 from tqdm import tqdm
-
+from sklearn.metrics import roc_auc_score
 
 def training(train_loader, model, criterion, optimizer):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device("cpu"))
+    device = torch.device("cpu" if torch.cuda.is_available() else torch.device("cpu"))
 
     model.train()
     model.to(device)
@@ -30,59 +24,66 @@ def training(train_loader, model, criterion, optimizer):
     return current_loss, model
 
 def validation(val_loader, model, criterion):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device("cpu"))
+    device = torch.device("cpu" if torch.cuda.is_available() else torch.device("cpu"))
     model.eval()
-    model.to(device)
     val_loss = 0
+    all_targets = []
+    all_outputs = []
     for data in tqdm(val_loader):
         data = data.to(device)
         output = model(data)
         loss = criterion(output, torch.reshape((data.y+1)/2, (len(data.y), 1)))
         val_loss += loss.item() / len(val_loader)
-    return val_loss
+
+        all_targets.extend(data.y.detach().cpu().numpy())
+        all_outputs.extend(output.detach().cpu().numpy())
+
+    val_auc = roc_auc_score(all_targets, all_outputs)
+    return val_loss, val_auc
 
 @torch.no_grad()
 def testing(test_loader, model):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device("cpu"))
-    model.eval()
+    device = torch.device("cpu" if torch.cuda.is_available() else torch.device("cpu"))
     model.to(device)
     criterion = torch.nn.BCEWithLogitsLoss()
     test_loss = 0
-    test_target = numpy.empty((0))
-    test_y_target = numpy.empty((0))
+    all_targets = []
+    all_outputs = []
     for data in tqdm(test_loader):
         data = data.to(device)
         output = model(data)
         loss = criterion(output, torch.reshape((data.y+1)/2, (len(data.y), 1)))
         test_loss += loss.item() / len(test_loader)
 
-        test_target = numpy.concatenate((test_target, output.cpu().detach().numpy()[:, 0]))
-        test_y_target = numpy.concatenate((test_y_target, data.y.cpu().detach().numpy()))
+        all_targets.extend(data.y.cpu().detach().numpy())
+        all_outputs.extend(output.cpu().detach().numpy())
 
-    return test_loss, test_target, test_y_target
+    test_auc = roc_auc_score(all_targets, all_outputs)
+    return test_loss, test_auc, all_outputs, all_targets
 
 def train_epochs(epochs, model, train_loader, val_loader, path):
     device = torch.device("cpu" if torch.cuda.is_available() else torch.device("cpu"))
-    
     model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0005)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
     criterion = nn.BCEWithLogitsLoss()
 
     train_loss = numpy.empty(epochs)
     val_loss = numpy.empty(epochs)
+    val_aucs = numpy.empty(epochs)
     best_loss = math.inf
 
     for epoch in range(epochs):
-        epoch_loss, model = training(train_loader, model, criterion, optimizer)
-        v_loss = validation(val_loader, model, criterion)
+        _, model = training(train_loader, model, criterion, optimizer)
+        v_loss, v_auc = validation(val_loader, model, criterion)
+        val_loss[epoch] = v_loss
+        val_aucs[epoch] = v_auc
+
         if v_loss < best_loss:
             best_loss = v_loss
             torch.save(model.state_dict(), path)
 
-        train_loss[epoch] = epoch_loss
-        val_loss[epoch] = v_loss
-
         if epoch % 2 == 0:
-            print(f"Epoch: {epoch}, Train loss: {epoch_loss}, Val loss: {v_loss}")
-    return train_loss, val_loss
+            print(f"Epoch: {epoch}, Train loss: {train_loss[epoch]}, Val loss: {v_loss}, Val AUC: {v_auc}")
+
+    return train_loss, val_loss, val_aucs
 

@@ -27,7 +27,7 @@ def main():
 
     print('-----------training----------')
         # Training GIN for 10 epochs
-    epochs = 50
+    epochs = 10
     model = GIN(dim_h=1024)
 
     # Remember to change the path if you want to keep the previously trained model

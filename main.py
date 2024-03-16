@@ -31,7 +31,7 @@ def main():
     model = GIN(dim_h=1024)
 
     # Remember to change the path if you want to keep the previously trained model
-    gin_train_loss, gin_val_loss, gin_train_target, gin_train_y_target = train_epochs(
+    train_loss, val_loss, val_aucs = train_epochs(
         epochs, model, train_loader, test_loader, "data/GIN_model.pt"
     )
 

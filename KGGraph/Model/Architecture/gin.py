@@ -31,7 +31,7 @@ class GIN(torch.nn.Module):
         )
         self.lin1 = Linear(dim_h, 64)
         self.lin2 = Linear(64, 1)
-
+        self.act = torch.nn.Sigmoid()
     def forward(self, data):
         x = data.x
         edge_index = data.edge_index
@@ -50,7 +50,7 @@ class GIN(torch.nn.Module):
         h = h.relu()
         h = Fun.dropout(h, p=0.2, training=self.training)
         h = self.lin2(h)
-
+        h = self.act(h)
         return h
 
 

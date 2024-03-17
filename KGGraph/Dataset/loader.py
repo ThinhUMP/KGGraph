@@ -20,3 +20,15 @@ def load_tox21_dataset(input_path):
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values
+
+def load_alk_dataset(input_path):
+    alk_dataset = pd.read_csv(input_path, sep=',')
+    smiles_list = alk_dataset['Canomicalsmiles']
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    tasks = ['activity']
+    labels = alk_dataset[tasks]
+    # convert nan to 0.5
+    labels = labels.fillna(0.5)
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values

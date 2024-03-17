@@ -10,13 +10,13 @@ warnings.filterwarnings('ignore')
 
 def main():
     # Processing dataset
-    dataset = MoleculeDataset('./data/tox21/', dataset='tox21')
+    dataset = MoleculeDataset('./data/alk/', dataset='alk')
     print(dataset)
     print('dataset[0]', dataset[0])
     
     # Scaffold split
     print("-------scaffold split----------")
-    smiles_list = pd.read_csv('data/tox21/processed/smiles.csv', header=None)[0].tolist()
+    smiles_list = pd.read_csv('data/alk/processed/smiles.csv', header=None)[0].tolist()
     train_dataset, valid_dataset, test_dataset, _ = scaffold_split(dataset, smiles_list, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1)
     
     #Load dataset
@@ -27,11 +27,11 @@ def main():
 
     print('-----------training----------')
         # Training GIN for 10 epochs
-    epochs = 10
+    epochs = 100
     model = GIN(dim_h=1024)
 
     # Remember to change the path if you want to keep the previously trained model
-    train_loss, val_loss, val_aucs = train_epochs(
+    train_epochs(
         epochs, model, train_loader, test_loader, "data/GIN_model.pt"
     )
 

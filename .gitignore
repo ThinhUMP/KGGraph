@@ -10,7 +10,7 @@ treeEx.ipynb
 period_table.json
 check.py
 data/Cora/
-data/alk/
+data/alk/processed/
 data/tox21/processed/
 finetune/dataset/esol/
 finetune/dataset/tox21/

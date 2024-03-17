@@ -18,7 +18,7 @@ def training(train_loader, model, criterion, optimizer, device):
         output = model(data)
 
         loss = criterion(output, torch.reshape(data.y, (len(data.y), 1)))
-        train_loss += loss/len(train_loader)
+        train_loss += loss.detach().cpu().item()/len(train_loader)
         loss.backward()
         optimizer.step()
         
@@ -44,7 +44,7 @@ def validation(val_loader, model, criterion, device):
         data.y = data.y.float()
         output = model(data)
         loss = criterion(output, torch.reshape(data.y, (len(data.y), 1)))
-        val_loss += loss/len(val_loader)
+        val_loss += loss.detach().cpu().item()/len(val_loader)
         
         all_targets.extend(data.y.detach().cpu().numpy())
         all_outputs.extend(output.detach().cpu().numpy())

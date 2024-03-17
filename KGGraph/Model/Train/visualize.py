@@ -1,21 +1,50 @@
 from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
+import matplotlib.pyplot as plt
 
-def plot_loss(train_loss, val_loss):
-    """Plot the loss for each epoch
+def plot_metrics(train_loss_list, val_loss_list, train_auc_list, val_auc_list, train_f1_list, val_f1_list, train_ap_list, val_ap_list):
+    """Plot the metrics for each epoch
 
     Args:
-        epochs (int): number of epochs
-        train_loss (array): training losses for each epoch
-        val_loss (array): validation losses for each epoch
+        train_loss_list (list): training losses for each epoch
+        val_loss_list (list): validation losses for each epoch
+        train_auc_list (list): training AUC for each epoch
+        val_auc_list (list): validation AUC for each epoch
+        train_f1_list (list): training F1 for each epoch
+        val_f1_list (list): validation F1 for each epoch
+        train_ap_list (list): training AP for each epoch
+        val_ap_list (list): validation AP for each epoch
     """
-    plt.plot(train_loss, label="Train loss (GIN)")
-    plt.plot(val_loss, label="Val loss (GIN)")
-    plt.legend()
-    plt.ylabel("loss")
-    plt.xlabel("epoch")
-    plt.title("Model Loss")
-    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+
+    # Plot loss
+    axs[0, 0].plot(train_loss_list, label="Train loss")
+    axs[0, 0].plot(val_loss_list, label="Val loss")
+    axs[0, 0].set_title("Loss")
+    axs[0, 0].legend()
+
+    # Plot AUC
+    axs[0, 1].plot(train_auc_list, label="Train AUC")
+    axs[0, 1].plot(val_auc_list, label="Val AUC")
+    axs[0, 1].set_title("AUC")
+    axs[0, 1].legend()
+
+    # Plot F1
+    axs[1, 0].plot(train_f1_list, label="Train F1")
+    axs[1, 0].plot(val_f1_list, label="Val F1")
+    axs[1, 0].set_title("F1 Score")
+    axs[1, 0].legend()
+
+    # Plot AP
+    axs[1, 1].plot(train_ap_list, label="Train AP")
+    axs[1, 1].plot(val_ap_list, label="Val AP")
+    axs[1, 1].set_title("Average Precision")
+    axs[1, 1].legend()
+
+    for ax in axs.flat:
+        ax.set(xlabel='Epoch', ylabel='Value')
+
+    plt.tight_layout()
     plt.show()
     
 def plot_targets(pred, ground_truth):

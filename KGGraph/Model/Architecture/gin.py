@@ -48,7 +48,7 @@ class GIN(torch.nn.Module):
 
         h = self.lin1(h)
         h = h.relu()
-        h = Fun.dropout(h, p=0.2, training=self.training)
+        h = Fun.dropout(h, p=0, training=self.training)
         h = self.lin2(h)
         h = self.act(h)
         return h

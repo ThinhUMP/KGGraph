@@ -10,7 +10,7 @@ warnings.filterwarnings('ignore')
 
 def main():
     # Processing dataset
-    dataset = MoleculeDataset('./data/alk/', dataset='alk')
+    dataset = MoleculeDataset('./data/tox21/', dataset='tox21')
     print(dataset)
     print('dataset[0]', dataset[0])
     
@@ -27,7 +27,7 @@ def main():
 
     print('-----------training----------')
         # Training GIN for 10 epochs
-    epochs = 100
+    epochs = 4
     model = GIN(dim_h=512)
 
     # Remember to change the path if you want to keep the previously trained model

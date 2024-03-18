@@ -42,7 +42,8 @@ def validation(val_loader, model, criterion, device):
     for data in tqdm(val_loader):
         data = data.to(device)
         data.y = data.y.float()
-        output = model(data)
+        with torch.no_grad():
+            output = model(data)
         loss = criterion(output, torch.reshape(data.y, (len(data.y), 1)))
         val_loss += loss.detach().cpu().item()/len(val_loader)
         

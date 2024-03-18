@@ -10,7 +10,7 @@ warnings.filterwarnings('ignore')
 
 def main():
     # Processing dataset
-    dataset = MoleculeDataset('./data/tox21/', dataset='tox21')
+    dataset = MoleculeDataset('./data/alk/', dataset='alk')
     print(dataset)
     print('dataset[0]', dataset[0])
     

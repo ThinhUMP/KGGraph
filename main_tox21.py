@@ -2,8 +2,8 @@ from KGGraph.Dataset.molecule_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.Dataset.scaffold_split import scaffold_split
 from torch_geometric.data import DataLoader
-from KGGraph.Model.Architecture.gin import GIN
-from KGGraph.Model.Train.train_utils_multi import train, evaluate
+from KGGraph.Model.Architecture.class_gin import Net
+from KGGraph.Model.Train.train_utils import train, evaluate
 from KGGraph.Model.Train.visualize import plot_metrics
 import warnings
 import torch
@@ -29,7 +29,7 @@ def main():
     print('-----------training----------')
         # Training GIN for 10 epochs
     epochs = 100
-    model = GIN(dim_h=2048)
+    model = Net(dim_h=2048)
 
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 

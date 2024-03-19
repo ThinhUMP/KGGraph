@@ -2,9 +2,10 @@ from KGGraph.Dataset.molecule_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.Dataset.scaffold_split import scaffold_split
 from torch_geometric.data import DataLoader
-from KGGraph.Model.Architecture.gin import GIN
-from KGGraph.Model.Train.train_utils import train_epochs
+from KGGraph.Model.Architecture.class_gin import Net
+from KGGraph.Model.Train.train_utils import train, evaluate
 from KGGraph.Model.Train.visualize import plot_metrics
+import torch
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -28,12 +29,27 @@ def main():
     print('-----------training----------')
         # Training GIN for 10 epochs
     epochs = 4
-    model = GIN(dim_h=512)
+    model = Net(dim_h=512)
 
-    # Remember to change the path if you want to keep the previously trained model
-    train_loss_list, train_auc_list, train_f1_list, train_ap_list, val_loss_list, val_auc_list, val_f1_list, val_ap_list =train_epochs(
-        epochs, model, train_loader, test_loader, "data/GIN_model.pt"
-    )
-    plot_metrics(train_loss_list, val_loss_list, train_auc_list, val_auc_list, train_f1_list, val_f1_list, train_ap_list, val_ap_list)
+    device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+
+    model.to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0)
+    train_auc_list, test_auc_list = [], []
+    for epoch in range(1, epochs+1):
+        print('====epoch:',epoch)
+        
+        train(model, device, train_loader, optimizer)
+
+        print('====Evaluation')
+        train_auc, train_loss = evaluate(model, device, train_loader)
+        # val_auc, val_loss = evaluate(model, device, val_loader)
+        test_auc, test_loss = evaluate(model, device, test_loader)
+        test_auc_list.append(float('{:.4f}'.format(test_auc)))
+        train_auc_list.append(float('{:.4f}'.format(train_auc)))
+
+        
+        print("train_auc: %f test_auc: %f" %(train_auc, test_auc))
+        print("train_loss: %f test_loss: %f" %(train_loss, test_loss))
 if __name__ == '__main__':
     main()

@@ -1,114 +1,125 @@
 import torch
-import numpy as np
-import math
-from torch import nn
+import torch.nn as nn
 from tqdm import tqdm
-from sklearn.metrics import roc_auc_score, f1_score, average_precision_score
-import numpy
-def training(train_loader, model, criterion, optimizer, device):
-    model.train()
-    train_loss = 0
-    all_targets = []
-    all_outputs = []
-    all_predictions = []
-    for data in tqdm(train_loader):
-        optimizer.zero_grad()
-        data = data.to(device)
-        data.y = data.y.float()
-        output = model(data)
+import numpy as np
+from sklearn.metrics import roc_auc_score, mean_squared_error, mean_absolute_error
 
-        loss = criterion(output, torch.reshape(data.y, (len(data.y), 1)))
-        train_loss += loss.detach().cpu().item()/len(train_loader)
+criterion = nn.BCEWithLogitsLoss(reduction = "none")
+device = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
+def train(model, device, loader, optimizer):
+    model.train()
+
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+        pred = model(batch)
+        y = batch.y.view(pred.shape).to(torch.float64)
+
+        #Whether y is non-null or not.
+        is_valid = y**2 > 0
+        #Loss matrix
+        loss_mat = criterion(pred.double(), (y+1)/2)
+        #loss matrix after removing null target
+        loss_mat = torch.where(is_valid, loss_mat, torch.zeros(loss_mat.shape).to(loss_mat.device).to(loss_mat.dtype))
+            
+        optimizer.zero_grad()
+        loss = torch.sum(loss_mat)/torch.sum(is_valid)
+        loss.backward()
+
+        optimizer.step()
+
+def train_reg(args, model, device, loader, optimizer):
+    model.train()
+
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+        pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+        y = batch.y.view(pred.shape).to(torch.float64)
+        if args.dataset in ['qm7', 'qm8', 'qm9']:
+            loss = torch.sum(torch.abs(pred-y))/y.size(0)
+        elif args.dataset in ['esol','freesolv','lipophilicity']:
+            loss = torch.sum((pred-y)**2)/y.size(0)
+
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
-        all_targets.extend(data.y.detach().cpu().numpy())
-        all_outputs.extend(output.detach().cpu().numpy())
-        
-        predictions = (output.detach().cpu().numpy() >= 0.5).astype(float)
-        all_predictions.extend(predictions)
-    train_auc = roc_auc_score(all_targets, all_outputs)
-    train_f1 = f1_score(all_targets, all_predictions)
-    train_ap = average_precision_score(all_targets, all_outputs)
-    
-    return train_loss, train_auc, train_f1, train_ap
 
-def validation(val_loader, model, criterion, device):
+
+def evaluate(model, device, loader):
     model.eval()
-    val_loss = 0
-    all_targets = []
-    all_outputs = []
-    all_predictions = []
-    for data in tqdm(val_loader):
-        data = data.to(device)
-        data.y = data.y.float()
+    y_true = []
+    y_scores = []
+
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+
         with torch.no_grad():
-            output = model(data)
-        loss = criterion(output, torch.reshape(data.y, (len(data.y), 1)))
-        val_loss += loss.detach().cpu().item()/len(val_loader)
-        
-        all_targets.extend(data.y.detach().cpu().numpy())
-        all_outputs.extend(output.detach().cpu().numpy())
-        
-        predictions = (output.detach().cpu().numpy() >= 0.5).astype(float)
-        all_predictions.extend(predictions)
-    val_f1 = f1_score(all_targets, all_predictions)
-    val_ap = average_precision_score(all_targets, all_outputs)
-    val_auc = roc_auc_score(all_targets, all_outputs)
-    return val_loss, val_auc, val_f1, val_ap
+            pred = model(batch)
 
-@torch.no_grad()
-def testing(test_loader, model, criterion, device):
-    test_loss = 0
-    all_targets = []
-    all_outputs = []
-    all_predictions = []
-    for data in tqdm(test_loader):
-        data = data.to(device)
-        data.y = data.y.float()
-        output = model(data)
-        loss = criterion(output, torch.reshape(data.y, (len(data.y), 1)))
-        test_loss += loss/len(test_loader)
 
-        all_targets.extend(data.y.detach().cpu().numpy())
-        all_outputs.extend(output.detach().cpu().numpy())
-        predictions = (output.detach().cpu().numpy() >= 0.5).astype(float)
-        all_predictions.extend(predictions)
-    test_auc = roc_auc_score(all_targets, all_outputs)
-    test_f1 = f1_score(all_targets, all_predictions)
-    test_ap = average_precision_score(all_targets, all_outputs)
-    
-    return test_loss, test_auc, test_f1, test_ap
+        y_true.append(batch.y.view(pred.shape))
+        y_scores.append(pred)
 
-def train_epochs(epochs, model, train_loader, val_loader, path):
-    device = torch.device("cpu" if torch.cuda.is_available() else torch.device("cpu"))
-    model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0)
-    criterion = nn.BCELoss()
-    best_loss = math.inf
-    train_loss_list = []
-    train_auc_list = []
-    train_f1_list = []
-    train_ap_list = []
-    val_loss_list = []
-    val_auc_list = []
-    val_f1_list = []
-    val_ap_list = []
-    for epoch in range(epochs):
-        train_loss, train_auc, train_f1, train_ap = training(train_loader, model, criterion, optimizer, device)
-        val_loss, val_auc, val_f1, val_ap = validation(val_loader, model, criterion, device)
-        if val_loss < best_loss:
-            best_loss = val_loss
-            torch.save(model.state_dict(), path)
-        train_loss_list.append(train_loss)
-        train_auc_list.append(train_auc)
-        train_f1_list.append(train_f1)
-        train_ap_list.append(train_ap)
-        val_loss_list.append(val_loss)
-        val_auc_list.append(val_auc)
-        val_f1_list.append(val_f1)
-        val_ap_list.append(val_ap)
-        print(f"Epoch: {epoch}")
-        print(f"Train loss: {train_loss}, Train auc: {train_auc}, Train F1: {train_f1}, Train AP: {train_ap}")
-        print(f"Val loss: {val_loss}, Val auc: {val_auc}, Val F1: {val_f1}, Val AP: {val_ap}")
-    return train_loss_list, train_auc_list, train_f1_list, train_ap_list, val_loss_list, val_auc_list, val_f1_list, val_ap_list
+    y_true = torch.cat(y_true, dim = 0).cpu().numpy()
+    y_scores = torch.cat(y_scores, dim = 0).cpu().numpy()
+
+    #Whether y is non-null or not.
+    y = batch.y.view(pred.shape).to(torch.float64)
+    is_valid = y**2 > 0
+    #Loss matrix
+    loss_mat = criterion(pred.double(), (y+1)/2)
+    #loss matrix after removing null target
+    loss_mat = torch.where(is_valid, loss_mat, torch.zeros(loss_mat.shape).to(loss_mat.device).to(loss_mat.dtype))
+    loss = torch.sum(loss_mat)/torch.sum(is_valid)
+
+
+    roc_list = []
+    for i in range(y_true.shape[1]):
+        #AUC is only defined when there is at least one positive data.
+        if np.sum(y_true[:,i] == 1) > 0 and np.sum(y_true[:,i] == -1) > 0:
+            is_valid = y_true[:,i]**2 > 0
+            roc_list.append(roc_auc_score((y_true[is_valid,i] + 1)/2, y_scores[is_valid,i]))
+
+    if len(roc_list) < y_true.shape[1]:
+        print("Some target is missing!")
+        print("Missing ratio: %f" %(1 - float(len(roc_list))/y_true.shape[1]))
+
+    eval_roc = sum(roc_list)/len(roc_list) #y_true.shape[1]
+
+    return eval_roc, loss
+
+def eval_reg(args, model, device, loader):
+    model.eval()
+    y_true = []
+    y_scores = []
+
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+
+        with torch.no_grad():
+            pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+
+        y_true.append(batch.y.view(pred.shape))
+        y_scores.append(pred)
+
+    y_true = torch.cat(y_true, dim = 0).cpu().numpy().flatten()
+    y_scores = torch.cat(y_scores, dim = 0).cpu().numpy().flatten()
+
+    mse = mean_squared_error(y_true, y_scores)
+    mae = mean_absolute_error(y_true, y_scores)
+    rmse=np.sqrt(mean_squared_error(y_true,y_scores))
+    return mse, mae, rmse
+
+def save_emb(args, model, device, loader, num_tasks, out_file):
+    model.eval()
+
+    emb,label = [],[]
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+        graph_emb = model.graph_emb(batch.x, batch.edge_index, batch.edge_attr, batch.batch).cpu().detach().numpy()
+        y = batch.y.view(-1, num_tasks).cpu().detach().numpy()
+        emb.append(graph_emb)
+        label.append(y)
+    output_emb = np.row_stack(emb)
+    output_label = np.row_stack(label)
+
+    np.savez(out_file, emb=output_emb, label=output_label)

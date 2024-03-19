@@ -29,8 +29,8 @@ class GIN(torch.nn.Module):
                 Linear(dim_h, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU()
             )
         )
-        self.lin1 = Linear(dim_h, 64)
-        self.lin2 = Linear(64, 1)
+        self.lin1 = Linear(dim_h, 512)
+        self.lin2 = Linear(512, 12)
         self.act = torch.nn.Sigmoid()
     def forward(self, data):
         x = data.x

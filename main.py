@@ -2,7 +2,7 @@ from KGGraph.Dataset.molecule_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.Dataset.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.GnnModel.Architecture.class_gin import GINNet
+from KGGraph.GnnModel.Architecture import GINNet, gin
 from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.GnnModel.Train.visualize import plot_metrics
 import torch
@@ -13,17 +13,19 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def main():
-    parser = argparse.ArgumentParser(description='PyTorch implementation of pre-training of graph neural networks')
+    parser = argparse.ArgumentParser(description='PyTorch implementation of training of graph neural networks')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=4,
+    parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0,
+    parser.add_argument('--decay', type=float, default=0.0,
                         help='weight decay (default: 0)')
+    parser.add_argument('--hidden_channels', type=int, default=2048,
+                        help='number of hidden nodes in the GNN network (default: 512).')
     parser.add_argument('--num_layer', type=int, default=1,
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--dropout_ratio', type=float, default=0.0,
@@ -101,8 +103,8 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
 
     #set up model
-    model = GINNet(num_layer=args.num_layer, out_channels=num_tasks, dropout = args.dropout_ratio)
-    
+    # model = GINNet(num_layer=args.num_layer, out_channels=num_tasks, dropout = args.dropout_ratio)
+    model = gin(dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
     model.to(device)
 
     #set up optimizer

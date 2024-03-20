@@ -32,7 +32,7 @@ def train_reg(args, model, device, loader, optimizer):
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
-        pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+        pred = model(batch)
         y = batch.y.view(pred.shape).to(torch.float64)
         if args.dataset in ['qm7', 'qm8', 'qm9']:
             loss = torch.sum(torch.abs(pred-y))/y.size(0)
@@ -87,7 +87,7 @@ def evaluate(model, device, loader):
 
     return eval_roc, loss
 
-def eval_reg(args, model, device, loader):
+def eval_reg(model, device, loader):
     model.eval()
     y_true = []
     y_scores = []
@@ -109,7 +109,7 @@ def eval_reg(args, model, device, loader):
     rmse=np.sqrt(mean_squared_error(y_true,y_scores))
     return mse, mae, rmse
 
-def save_emb(args, model, device, loader, num_tasks, out_file):
+def save_emb(model, device, loader, num_tasks, out_file):
     model.eval()
 
     emb,label = [],[]
@@ -123,3 +123,61 @@ def save_emb(args, model, device, loader, num_tasks, out_file):
     output_label = np.row_stack(label)
 
     np.savez(out_file, emb=output_emb, label=output_label)
+    
+def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
+    train_auc_list, test_auc_list = [], []
+    for epoch in range(1, args.epochs+1):
+        print('====epoch:',epoch)
+        
+        train(model, device, train_loader, optimizer)
+
+        print('====Evaluation')
+        if args.eval_train:
+            train_auc, train_loss = evaluate(model, device, train_loader)
+        else:
+            print('omit the training accuracy computation')
+            train_auc = 0
+        val_auc, val_loss = evaluate(model, device, val_loader)
+        test_auc, test_loss = evaluate(model, device, test_loader)
+        test_auc_list.append(float('{:.4f}'.format(test_auc)))
+        train_auc_list.append(float('{:.4f}'.format(train_auc)))
+
+        torch.save(model.state_dict(), model_save_path)
+        
+        print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))
+        print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))
+        # print("train_auc: %f test_auc: %f" %(train_auc, test_auc))
+        # print("train_loss: %f test_loss: %f" %(train_loss, test_loss))
+    return test_auc_list
+
+def train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
+    train_list, test_list = [], []
+    for epoch in range(1, args.epochs+1):
+        print('====epoch:',epoch)
+        
+        train_reg(args, model, device, train_loader, optimizer)
+
+        print('====Evaluation')
+        if args.eval_train:
+            train_mse, train_mae, train_rmse = eval_reg(args, model, device, train_loader)
+        else:
+            print('omit the training accuracy computation')
+            train_mse, train_mae, train_rmse = 0, 0, 0
+        val_mse, val_mae, val_rmse = eval_reg(args, model, device, val_loader)
+        test_mse, test_mae, test_rmse = eval_reg(args, model, device, test_loader)
+        
+        if args.dataset in ['esol', 'freesolv', 'lipophilicity']:
+            test_list.append(float('{:.6f}'.format(test_rmse)))
+            train_list.append(float('{:.6f}'.format(train_rmse)))
+            torch.save(model.state_dict(), model_save_path)
+
+        elif args.dataset in ['qm7', 'qm8', 'qm9']:
+            test_list.append(float('{:.6f}'.format(test_mae)))
+            train_list.append(float('{:.6f}'.format(train_mae)))
+            torch.save(model.state_dict(), model_save_path)
+            
+        print("train_mse: %f val_mse: %f test_mse: %f" %(train_mse, val_mse, test_mse))
+        print("train_mae: %f val_mae: %f test_mae: %f" %(train_mae, val_mae, test_mae))
+        print("train_rmse: %f val_rmse: %f test_rmse: %f" %(train_rmse, val_rmse, test_rmse))
+
+    return test_list

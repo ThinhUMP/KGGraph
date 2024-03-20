@@ -3,7 +3,7 @@ import pandas as pd
 from KGGraph.Dataset.scaffold_split import scaffold_split
 from torch_geometric.data import DataLoader
 from KGGraph.GnnModel.Architecture.class_gin import GINNet
-from KGGraph.GnnModel.Train.train_utils import train, evaluate, train_reg, eval_reg
+from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.GnnModel.Train.visualize import plot_metrics
 import torch
 import argparse
@@ -16,7 +16,7 @@ def main():
     parser = argparse.ArgumentParser(description='PyTorch implementation of pre-training of graph neural networks')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
-    parser.add_argument('--batch_size', type=int, default=32,
+    parser.add_argument('--batch_size', type=int, default=1,
                         help='input batch size for training (default: 32)')
     parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
@@ -28,7 +28,7 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--dropout_ratio', type=float, default=0.0,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'tox21', 
+    parser.add_argument('--dataset', type=str, default = 'alk', 
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity, alk]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -107,65 +107,18 @@ def main():
 
     #set up optimizer
     #different learning rate for different part of GNN
-    optimizer = optim.Adam(model.parameters(), lr= args.lr, weight_decay=args.decay)
+    # optimizer = optim.Adam(model.parameters(), lr= args.lr, weight_decay=args.decay)
+    optimizer = optim.SGD(model.parameters(), lr= args.lr, weight_decay=args.decay)
     print(optimizer)
 
-    finetune_model_save_path = './model/' + args.dataset + '.pth'
+    model_save_path = './model/' + args.dataset + '.pth'
 
     # training based on task type
     if task_type == 'cls':
-        train_auc_list, test_auc_list = [], []
-        for epoch in range(1, args.epochs+1):
-            print('====epoch:',epoch)
-            
-            train(model, device, train_loader, optimizer)
-
-            print('====Evaluation')
-            if args.eval_train:
-                train_auc, train_loss = evaluate(model, device, train_loader)
-            else:
-                print('omit the training accuracy computation')
-                train_auc = 0
-            val_auc, val_loss = evaluate(model, device, val_loader)
-            test_auc, test_loss = evaluate(model, device, test_loader)
-            test_auc_list.append(float('{:.4f}'.format(test_auc)))
-            train_auc_list.append(float('{:.4f}'.format(train_auc)))
-
-            torch.save(model.state_dict(), finetune_model_save_path)
-            
-            print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))
-            print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))
-
+        test_auc_list = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
 
     elif task_type == 'reg':
-        train_list, test_list = [], []
-        for epoch in range(1, args.epochs+1):
-            print('====epoch:',epoch)
-            
-            train_reg(args, model, device, train_loader, optimizer)
-
-            print('====Evaluation')
-            if args.eval_train:
-                train_mse, train_mae, train_rmse = eval_reg(args, model, device, train_loader)
-            else:
-                print('omit the training accuracy computation')
-                train_mse, train_mae, train_rmse = 0, 0, 0
-            val_mse, val_mae, val_rmse = eval_reg(args, model, device, val_loader)
-            test_mse, test_mae, test_rmse = eval_reg(args, model, device, test_loader)
-            
-            if args.dataset in ['esol', 'freesolv', 'lipophilicity']:
-                test_list.append(float('{:.6f}'.format(test_rmse)))
-                train_list.append(float('{:.6f}'.format(train_rmse)))
-                torch.save(model.state_dict(), finetune_model_save_path)
-
-            elif args.dataset in ['qm7', 'qm8', 'qm9']:
-                test_list.append(float('{:.6f}'.format(test_mae)))
-                train_list.append(float('{:.6f}'.format(train_mae)))
-                torch.save(model.state_dict(), finetune_model_save_path)
-                
-            print("train_mse: %f val_mse: %f test_mse: %f" %(train_mse, val_mse, test_mse))
-            print("train_mae: %f val_mae: %f test_mae: %f" %(train_mae, val_mae, test_mae))
-            print("train_rmse: %f val_rmse: %f test_rmse: %f" %(train_rmse, val_rmse, test_rmse))
+        test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path) 
 
 
 

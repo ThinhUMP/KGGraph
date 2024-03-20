@@ -9,7 +9,9 @@ criterion = nn.BCEWithLogitsLoss(reduction = "none")
 device = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
 def train(model, device, loader, optimizer):
     model.train()
-
+    y_true = []
+    y_scores = []
+    y_pred_labels = []
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
         pred = model(batch)
@@ -17,6 +19,11 @@ def train(model, device, loader, optimizer):
 
         #Whether y is non-null or not.
         is_valid = y**2 > 0
+        
+        y_true.append(batch.y.view(pred.shape))
+        y_scores.append(pred.detach())
+        y_pred_labels.append(pred.detach() >= 0.5)
+
         #Loss matrix
         loss_mat = criterion(pred.double(), (y+1)/2)
         #loss matrix after removing null target
@@ -27,7 +34,29 @@ def train(model, device, loader, optimizer):
         loss.backward()
 
         optimizer.step()
+    y_true = torch.cat(y_true, dim = 0).cpu().numpy()
+    y_scores = torch.cat(y_scores, dim = 0).cpu().numpy()
+    y_pred_labels = torch.cat(y_pred_labels, dim = 0).cpu().numpy()
+    roc_list = []
+    ap_list = []
+    f1_list = []
+    for i in range(y_true.shape[1]):
+        #AUC is only defined when there is at least one positive data.
+        if np.sum(y_true[:,i] == 1) > 0 and np.sum(y_true[:,i] == -1) > 0:
+            is_valid = y_true[:,i]**2 > 0
+            roc_list.append(roc_auc_score((y_true[is_valid,i] + 1)/2, y_scores[is_valid,i]))
+            ap_list.append(average_precision_score((y_true[is_valid,i] + 1)/2, y_scores[is_valid,i]))
+            f1_list.append(f1_score((y_true[is_valid,i] + 1)/2, y_pred_labels[is_valid,i]))
+    
+    if len(roc_list) < y_true.shape[1]:
+        print("Some target is missing!")
+        print("Missing ratio: %f" %(1 - float(len(roc_list))/y_true.shape[1]))
 
+    train_roc = sum(roc_list)/len(roc_list)
+    train_ap = sum(ap_list)/len(ap_list) 
+    train_f1 = sum(f1_list)/len(f1_list)    
+
+    return loss, train_roc, train_ap, train_f1
 def train_reg(args, model, device, loader, optimizer):
     model.train()
 
@@ -133,29 +162,35 @@ def save_emb(model, device, loader, num_tasks, out_file):
     np.savez(out_file, emb=output_emb, label=output_label)
     
 def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
-    train_auc_list, test_auc_list = [], []
-    train_ap_list, test_ap_list = [], []
-    train_f1_list, test_f1_list = [], []
+    train_auc_list, val_auc_list, test_auc_list = [], [], []
+    train_ap_list, val_ap_list, test_ap_list = [], [], []
+    train_f1_list, val_f1_list, test_f1_list = [], [], []
+    train_loss_list, val_loss_list, test_loss_list = [], [], []
     for epoch in range(1, args.epochs+1):
         print('====epoch:',epoch)
         
-        train(model, device, train_loader, optimizer)
+        train_loss, train_auc, train_ap, train_f1 = train(model, device, train_loader, optimizer)
 
         print('====Evaluation')
-        if args.eval_train:
-            train_auc, train_ap, train_f1, train_loss = evaluate(model, device, train_loader)
-        else:
-            print('omit the training accuracy computation')
-            train_auc = 0
+        
         val_auc, val_ap, val_f1, val_loss = evaluate(model, device, val_loader)
         test_auc, test_ap, test_f1, test_loss = evaluate(model, device, test_loader)
         
+        train_loss_list.append(float('{:.4f}'.format(train_loss)))
+        val_loss_list.append(float('{:.4f}'.format(val_loss)))
+        test_loss_list.append(float('{:.4f}'.format(test_loss)))
+        
         test_auc_list.append(float('{:.4f}'.format(test_auc)))
         train_auc_list.append(float('{:.4f}'.format(train_auc)))
+        val_auc_list.append(float('{:.4f}'.format(val_ap)))
+        
         train_ap_list.append(float('{:.4f}'.format(train_ap)))
         test_ap_list.append(float('{:.4f}'.format(test_ap)))
+        val_ap_list.append(float('{:.4f}'.format(val_ap)))
+        
         train_f1_list.append(float('{:.4f}'.format(train_f1)))
         test_f1_list.append(float('{:.4f}'.format(test_f1)))
+        val_f1_list.append(float('{:.4f}'.format(val_f1)))
         
         torch.save(model.state_dict(), model_save_path)
         
@@ -164,8 +199,10 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         print("train_ap: %f val_ap: %f test_ap: %f" %(train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" %(train_f1, val_f1, test_f1))
        
-    return test_auc_list, test_ap_list, test_f1_list
-
+    return (
+        train_loss_list, val_loss_list, test_loss_list, train_auc_list, val_auc_list, test_auc_list,
+        train_ap_list, val_ap_list, test_ap_list, train_f1_list, val_f1_list, test_f1_list
+    )
 def train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
     train_list, test_list = [], []
     for epoch in range(1, args.epochs+1):

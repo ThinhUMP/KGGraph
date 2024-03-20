@@ -2,7 +2,12 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plt
 
-def plot_metrics(train_loss_list, val_loss_list, train_auc_list, val_auc_list, train_f1_list, val_f1_list, train_ap_list, val_ap_list):
+def plot_metrics(args,
+    train_loss_list, val_loss_list, test_loss_list,
+    train_auc_list, val_auc_list, test_auc_list,
+    train_ap_list, val_ap_list, test_ap_list,
+    train_f1_list, val_f1_list, test_f1_list,
+):
     """Plot the metrics for each epoch
 
     Args:
@@ -20,24 +25,28 @@ def plot_metrics(train_loss_list, val_loss_list, train_auc_list, val_auc_list, t
     # Plot loss
     axs[0, 0].plot(train_loss_list, label="Train loss")
     axs[0, 0].plot(val_loss_list, label="Val loss")
+    axs[0, 0].plot(test_loss_list, label="Test loss")
     axs[0, 0].set_title("Loss")
     axs[0, 0].legend()
 
     # Plot AUC
     axs[0, 1].plot(train_auc_list, label="Train AUC")
     axs[0, 1].plot(val_auc_list, label="Val AUC")
+    axs[0, 1].plot(test_auc_list, label="Test AUC")
     axs[0, 1].set_title("AUC")
     axs[0, 1].legend()
 
     # Plot F1
     axs[1, 0].plot(train_f1_list, label="Train F1")
     axs[1, 0].plot(val_f1_list, label="Val F1")
+    axs[1, 0].plot(test_f1_list, label="Test F1")
     axs[1, 0].set_title("F1 Score")
     axs[1, 0].legend()
 
     # Plot AP
     axs[1, 1].plot(train_ap_list, label="Train AP")
     axs[1, 1].plot(val_ap_list, label="Val AP")
+    axs[1, 1].plot(test_ap_list, label="Test AP")
     axs[1, 1].set_title("Average Precision")
     axs[1, 1].legend()
 
@@ -45,6 +54,7 @@ def plot_metrics(train_loss_list, val_loss_list, train_auc_list, val_auc_list, t
         ax.set(xlabel='Epoch', ylabel='Value')
 
     plt.tight_layout()
+    plt.savefig(f"{args.save_fig_path+args.dataset+'/figures'}/training.png", dpi=600)
     plt.show()
     
 def plot_targets(pred, ground_truth):

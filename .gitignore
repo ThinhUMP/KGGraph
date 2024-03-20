@@ -29,3 +29,4 @@ model/
 data/processed/
 KGGraph/Model/Train/train_utils_draft.py
 dataset/*/processed/
+dataset/*/figures/

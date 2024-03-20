@@ -16,9 +16,9 @@ def main():
     parser = argparse.ArgumentParser(description='PyTorch implementation of pre-training of graph neural networks')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
-    parser.add_argument('--batch_size', type=int, default=1,
+    parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=20,
+    parser.add_argument('--epochs', type=int, default=4,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
@@ -32,9 +32,9 @@ def main():
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity, alk]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
-    parser.add_argument('--split', type = str, default="random", help = "random or scaffold or random_scaffold")
-    parser.add_argument('--eval_train', type=int, default = 1, help='evaluating training or not')
+    parser.add_argument('--split', type = str, default="scaffold", help = "random or scaffold or random_scaffold")
     parser.add_argument('--num_workers', type=int, default = 4, help='number of workers for dataset loading')
+    parser.add_argument('--save_fig_path', type=str, default = 'dataset/', help='path for saving training images')
     args = parser.parse_args()
 
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -106,19 +106,23 @@ def main():
     model.to(device)
 
     #set up optimizer
-    # optimizer = optim.Adam(model.parameters(), lr= args.lr, weight_decay=args.decay)
-    optimizer = optim.SGD(model.parameters(), lr= args.lr, weight_decay=args.decay)
+    optimizer = optim.Adam(model.parameters(), lr= args.lr, weight_decay=args.decay)
+    # optimizer = optim.SGD(model.parameters(), lr= args.lr, weight_decay=args.decay)
     print(optimizer)
 
     model_save_path = './model/' + args.dataset + '.pth'
 
     # training based on task type
     if task_type == 'cls':
-        test_auc_list, test_ap_list, test_f1_list = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
+        (train_loss_list, val_loss_list, test_loss_list, train_auc_list, val_auc_list, test_auc_list,
+        train_ap_list, val_ap_list, test_ap_list, train_f1_list, val_f1_list, test_f1_list) = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
 
     elif task_type == 'reg':
         test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path) 
 
+    plot_metrics(args, train_loss_list, val_loss_list, test_loss_list, train_auc_list, val_auc_list, test_auc_list,
+        train_ap_list, val_ap_list, test_ap_list, train_f1_list, val_f1_list, test_f1_list)
+    
 
 
 if __name__ == "__main__":

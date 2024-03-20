@@ -1,6 +1,6 @@
 from KGGraph.Dataset.molecule_dataset import MoleculeDataset
 import pandas as pd
-from KGGraph.Dataset.scaffold_split import scaffold_split
+from KGGraph.Dataset.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
 from KGGraph.GnnModel.Architecture.class_gin import GINNet
 from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
@@ -18,21 +18,21 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=1,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=100,
+    parser.add_argument('--epochs', type=int, default=20,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
     parser.add_argument('--decay', type=float, default=0,
                         help='weight decay (default: 0)')
-    parser.add_argument('--num_layer', type=int, default=5,
+    parser.add_argument('--num_layer', type=int, default=1,
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--dropout_ratio', type=float, default=0.0,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'alk', 
+    parser.add_argument('--dataset', type=str, default = 'tox21', 
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity, alk]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
-    parser.add_argument('--split', type = str, default="scaffold", help = "random or scaffold or random_scaffold")
+    parser.add_argument('--split', type = str, default="random", help = "random or scaffold or random_scaffold")
     parser.add_argument('--eval_train', type=int, default = 1, help='evaluating training or not')
     parser.add_argument('--num_workers', type=int, default = 4, help='number of workers for dataset loading')
     args = parser.parse_args()
@@ -85,9 +85,9 @@ def main():
         smiles_list = pd.read_csv('dataset/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
         train_dataset, valid_dataset, test_dataset, _ = scaffold_split(dataset, smiles_list, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1)
         print("scaffold")
-    # elif args.split == "random":
-    #     train_dataset, valid_dataset, test_dataset = random_split(dataset, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1, seed = args.seed)
-    #     print("random")
+    elif args.split == "random":
+        train_dataset, valid_dataset, test_dataset = random_split(dataset, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1, seed = args.seed)
+        print("random")
     else:
         raise ValueError("Invalid split option.")
 
@@ -106,7 +106,6 @@ def main():
     model.to(device)
 
     #set up optimizer
-    #different learning rate for different part of GNN
     # optimizer = optim.Adam(model.parameters(), lr= args.lr, weight_decay=args.decay)
     optimizer = optim.SGD(model.parameters(), lr= args.lr, weight_decay=args.decay)
     print(optimizer)
@@ -115,7 +114,7 @@ def main():
 
     # training based on task type
     if task_type == 'cls':
-        test_auc_list = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
+        test_auc_list, test_ap_list, test_f1_list = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
 
     elif task_type == 'reg':
         test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path) 

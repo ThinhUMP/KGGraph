@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 import numpy as np
-from sklearn.metrics import roc_auc_score, mean_squared_error, mean_absolute_error
-
+from sklearn.metrics import (
+    roc_auc_score, mean_squared_error, mean_absolute_error, f1_score, average_precision_score,
+)
 criterion = nn.BCEWithLogitsLoss(reduction = "none")
 device = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
 def train(model, device, loader, optimizer):
@@ -48,7 +49,7 @@ def evaluate(model, device, loader):
     model.eval()
     y_true = []
     y_scores = []
-
+    y_pred_labels = []
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
 
@@ -58,10 +59,11 @@ def evaluate(model, device, loader):
 
         y_true.append(batch.y.view(pred.shape))
         y_scores.append(pred)
+        y_pred_labels.append(pred >= 0.5)
 
     y_true = torch.cat(y_true, dim = 0).cpu().numpy()
     y_scores = torch.cat(y_scores, dim = 0).cpu().numpy()
-
+    y_pred_labels = torch.cat(y_pred_labels, dim = 0).cpu().numpy()
     #Whether y is non-null or not.
     y = batch.y.view(pred.shape).to(torch.float64)
     is_valid = y**2 > 0
@@ -73,19 +75,25 @@ def evaluate(model, device, loader):
 
 
     roc_list = []
+    ap_list = []
+    f1_list = []
     for i in range(y_true.shape[1]):
         #AUC is only defined when there is at least one positive data.
         if np.sum(y_true[:,i] == 1) > 0 and np.sum(y_true[:,i] == -1) > 0:
             is_valid = y_true[:,i]**2 > 0
             roc_list.append(roc_auc_score((y_true[is_valid,i] + 1)/2, y_scores[is_valid,i]))
-
+            ap_list.append(average_precision_score((y_true[is_valid,i] + 1)/2, y_scores[is_valid,i]))
+            f1_list.append(f1_score((y_true[is_valid,i] + 1)/2, y_pred_labels[is_valid,i]))
+    
     if len(roc_list) < y_true.shape[1]:
         print("Some target is missing!")
         print("Missing ratio: %f" %(1 - float(len(roc_list))/y_true.shape[1]))
 
-    eval_roc = sum(roc_list)/len(roc_list) #y_true.shape[1]
+    eval_roc = sum(roc_list)/len(roc_list)
+    eval_ap = sum(ap_list)/len(ap_list) 
+    eval_f1 = sum(f1_list)/len(f1_list)    
 
-    return eval_roc, loss
+    return eval_roc, eval_ap, eval_f1, loss
 
 def eval_reg(model, device, loader):
     model.eval()
@@ -126,6 +134,8 @@ def save_emb(model, device, loader, num_tasks, out_file):
     
 def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
     train_auc_list, test_auc_list = [], []
+    train_ap_list, test_ap_list = [], []
+    train_f1_list, test_f1_list = [], []
     for epoch in range(1, args.epochs+1):
         print('====epoch:',epoch)
         
@@ -133,22 +143,28 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
 
         print('====Evaluation')
         if args.eval_train:
-            train_auc, train_loss = evaluate(model, device, train_loader)
+            train_auc, train_ap, train_f1, train_loss = evaluate(model, device, train_loader)
         else:
             print('omit the training accuracy computation')
             train_auc = 0
-        val_auc, val_loss = evaluate(model, device, val_loader)
-        test_auc, test_loss = evaluate(model, device, test_loader)
+        val_auc, val_ap, val_f1, val_loss = evaluate(model, device, val_loader)
+        test_auc, test_ap, test_f1, test_loss = evaluate(model, device, test_loader)
+        
         test_auc_list.append(float('{:.4f}'.format(test_auc)))
         train_auc_list.append(float('{:.4f}'.format(train_auc)))
-
+        train_ap_list.append(float('{:.4f}'.format(train_ap)))
+        test_ap_list.append(float('{:.4f}'.format(test_ap)))
+        train_f1_list.append(float('{:.4f}'.format(train_f1)))
+        test_f1_list.append(float('{:.4f}'.format(test_f1)))
+        
         torch.save(model.state_dict(), model_save_path)
         
-        print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))
         print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))
-        # print("train_auc: %f test_auc: %f" %(train_auc, test_auc))
-        # print("train_loss: %f test_loss: %f" %(train_loss, test_loss))
-    return test_auc_list
+        print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))
+        print("train_ap: %f val_ap: %f test_ap: %f" %(train_ap, val_ap, test_ap))
+        print("train_f1: %f val_f1: %f test_f1: %f" %(train_f1, val_f1, test_f1))
+       
+    return test_auc_list, test_ap_list, test_f1_list
 
 def train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
     train_list, test_list = [], []

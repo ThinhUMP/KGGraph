@@ -2,9 +2,9 @@ from KGGraph.Dataset.molecule_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.Dataset.scaffold_split import scaffold_split
 from torch_geometric.data import DataLoader
-from KGGraph.Model.Architecture.class_gin import GINNet
-from KGGraph.Model.Train.train_utils import train, evaluate, train_reg, eval_reg
-from KGGraph.Model.Train.visualize import plot_metrics
+from KGGraph.GnnModel.Architecture.class_gin import GINNet
+from KGGraph.GnnModel.Train.train_utils import train, evaluate, train_reg, eval_reg
+from KGGraph.GnnModel.Train.visualize import plot_metrics
 import torch
 import argparse
 import numpy as np

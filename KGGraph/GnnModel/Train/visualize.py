@@ -3,10 +3,7 @@ from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plt
 
 def plot_metrics(args,
-    train_loss_list, val_loss_list, test_loss_list,
-    train_auc_list, val_auc_list, test_auc_list,
-    train_ap_list, val_ap_list, test_ap_list,
-    train_f1_list, val_f1_list, test_f1_list,
+    metrics_training
 ):
     """Plot the metrics for each epoch
 
@@ -23,30 +20,30 @@ def plot_metrics(args,
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
 
     # Plot loss
-    axs[0, 0].plot(train_loss_list, label="Train loss")
-    axs[0, 0].plot(val_loss_list, label="Val loss")
-    axs[0, 0].plot(test_loss_list, label="Test loss")
+    axs[0, 0].plot(metrics_training['train loss'], label="Train loss")
+    axs[0, 0].plot(metrics_training['val loss'], label="Val loss")
+    axs[0, 0].plot(metrics_training['test loss'], label="Test loss")
     axs[0, 0].set_title("Loss")
     axs[0, 0].legend()
 
     # Plot AUC
-    axs[0, 1].plot(train_auc_list, label="Train AUC")
-    axs[0, 1].plot(val_auc_list, label="Val AUC")
-    axs[0, 1].plot(test_auc_list, label="Test AUC")
+    axs[0, 1].plot(metrics_training['train auc'], label="Train AUC")
+    axs[0, 1].plot(metrics_training['val auc'], label="Val AUC")
+    axs[0, 1].plot(metrics_training['test auc'], label="Test AUC")
     axs[0, 1].set_title("AUC")
     axs[0, 1].legend()
 
     # Plot F1
-    axs[1, 0].plot(train_f1_list, label="Train F1")
-    axs[1, 0].plot(val_f1_list, label="Val F1")
-    axs[1, 0].plot(test_f1_list, label="Test F1")
+    axs[1, 0].plot(metrics_training['train f1'], label="Train F1")
+    axs[1, 0].plot(metrics_training['val f1'], label="Val F1")
+    axs[1, 0].plot(metrics_training['test f1'], label="Test F1")
     axs[1, 0].set_title("F1 Score")
     axs[1, 0].legend()
 
     # Plot AP
-    axs[1, 1].plot(train_ap_list, label="Train AP")
-    axs[1, 1].plot(val_ap_list, label="Val AP")
-    axs[1, 1].plot(test_ap_list, label="Test AP")
+    axs[1, 1].plot(metrics_training['train ap'], label="Train AP")
+    axs[1, 1].plot(metrics_training['val ap'], label="Val AP")
+    axs[1, 1].plot(metrics_training['test ap'], label="Test AP")
     axs[1, 1].set_title("Average Precision")
     axs[1, 1].legend()
 

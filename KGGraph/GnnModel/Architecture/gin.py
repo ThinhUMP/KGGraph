@@ -19,30 +19,30 @@ class gin(torch.nn.Module):
         super(gin, self).__init__()
         self.conv1 = GINConv(
             Sequential(
-                Linear(126, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU(), Linear(dim_h, dim_h), ReLU()
+                Linear(126, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU(), Linear(dim_h, 2*dim_h), ReLU()
                 )
         )
         self.conv2 = GINConv(
             Sequential(
-                Linear(dim_h, 2*dim_h), BatchNorm1d(2*dim_h), ReLU(), Linear(2*dim_h, 2*dim_h), ReLU(), Linear(2*dim_h, 2*dim_h), ReLU()
+                Linear(2*dim_h, 2*dim_h), BatchNorm1d(2*dim_h), ReLU(), Linear(2*dim_h, 4*dim_h), ReLU(), Linear(4*dim_h, 2*dim_h), ReLU()
             )
         )
-        self.conv3 = GINConv(
-            Sequential(
-                Linear(2*dim_h, 4*dim_h), BatchNorm1d(4*dim_h), ReLU(), Linear(4*dim_h, 4*dim_h), ReLU(), Linear(4*dim_h, 4*dim_h), ReLU()
-            )
-        )
-        self.conv4 = GINConv(
-            Sequential(
-                Linear(4*dim_h, 2*dim_h), BatchNorm1d(2*dim_h), ReLU(), Linear(2*dim_h, 2*dim_h), ReLU(), Linear(2*dim_h, 2*dim_h), ReLU()
-            )
-        )
-        self.conv5 = GINConv(
-            Sequential(
-                Linear(2*dim_h, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU(), Linear(dim_h, dim_h), ReLU()
-            )
-        )
-        self.lin1 = Linear(dim_h, 64)
+        # self.conv3 = GINConv(
+        #     Sequential(
+        #         Linear(2*dim_h, 4*dim_h), BatchNorm1d(4*dim_h), ReLU(), Linear(4*dim_h, 4*dim_h), ReLU(), Linear(4*dim_h, 4*dim_h), ReLU()
+        #     )
+        # )
+        # self.conv4 = GINConv(
+        #     Sequential(
+        #         Linear(4*dim_h, 2*dim_h), BatchNorm1d(2*dim_h), ReLU(), Linear(2*dim_h, 2*dim_h), ReLU(), Linear(2*dim_h, 2*dim_h), ReLU()
+        #     )
+        # )
+        # self.conv5 = GINConv(
+        #     Sequential(
+        #         Linear(2*dim_h, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU(), Linear(dim_h, dim_h), ReLU()
+        #     )
+        # )
+        self.lin1 = Linear(2*dim_h, 64)
         self.lin2 = Linear(64, out_channels)
         # self.act = torch.nn.Sigmoid()
     def forward(self, data):
@@ -54,11 +54,11 @@ class gin(torch.nn.Module):
         h = h.relu()
         h = self.conv2(h, edge_index)
         h = h.relu()
-        h = self.conv3(h, edge_index)
-        h = h.relu()
-        h = self.conv4(h, edge_index)
-        h = h.relu()
-        h = self.conv5(h, edge_index)
+        # h = self.conv3(h, edge_index)
+        # h = h.relu()
+        # h = self.conv4(h, edge_index)
+        # h = h.relu()
+        # h = self.conv5(h, edge_index)
         # Graph-level readout
         h = global_add_pool(h, batch)
 

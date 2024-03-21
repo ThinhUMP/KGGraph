@@ -116,14 +116,12 @@ def main():
 
     # training based on task type
     if task_type == 'cls':
-        (train_loss_list, val_loss_list, test_loss_list, train_auc_list, val_auc_list, test_auc_list,
-        train_ap_list, val_ap_list, test_ap_list, train_f1_list, val_f1_list, test_f1_list) = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
+        metrics_training = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
 
     elif task_type == 'reg':
         test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path) 
 
-    plot_metrics(args, train_loss_list, val_loss_list, test_loss_list, train_auc_list, val_auc_list, test_auc_list,
-        train_ap_list, val_ap_list, test_ap_list, train_f1_list, val_f1_list, test_f1_list)
+    plot_metrics(args, metrics_training)
     
 
 

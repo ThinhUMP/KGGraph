@@ -182,7 +182,7 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         
         test_auc_list.append(float('{:.4f}'.format(test_auc)))
         train_auc_list.append(float('{:.4f}'.format(train_auc)))
-        val_auc_list.append(float('{:.4f}'.format(val_ap)))
+        val_auc_list.append(float('{:.4f}'.format(val_auc)))
         
         train_ap_list.append(float('{:.4f}'.format(train_ap)))
         test_ap_list.append(float('{:.4f}'.format(test_ap)))
@@ -192,17 +192,23 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         test_f1_list.append(float('{:.4f}'.format(test_f1)))
         val_f1_list.append(float('{:.4f}'.format(val_f1)))
         
-        torch.save(model.state_dict(), model_save_path)
+        test_math_auc = 0.0
+        if float(test_auc) > test_math_auc:
+            test_math_auc = test_auc
+            torch.save(model.state_dict(), model_save_path)
         
         print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))
         print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))
         print("train_ap: %f val_ap: %f test_ap: %f" %(train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" %(train_f1, val_f1, test_f1))
-       
-    return (
-        train_loss_list, val_loss_list, test_loss_list, train_auc_list, val_auc_list, test_auc_list,
-        train_ap_list, val_ap_list, test_ap_list, train_f1_list, val_f1_list, test_f1_list
-    )
+
+        metrics_training = {
+            'train loss': train_loss_list, 'val loss': val_loss_list, 'test loss': test_loss_list,
+            'train auc': train_auc_list, 'val auc': val_auc_list, 'test auc': test_auc_list,
+            'train ap': train_ap_list, 'val ap': val_ap_list, 'test ap': test_ap_list,
+            'train f1': train_f1_list, 'val f1': val_f1_list, 'test f1': test_f1_list
+        }       
+    return metrics_training
 def train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
     train_list, test_list = [], []
     for epoch in range(1, args.epochs+1):

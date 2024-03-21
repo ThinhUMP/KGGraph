@@ -20,7 +20,7 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 def feature(mol):
     x = x_feature(mol)
-    edge_index, edge_attr = edge_feature(mol)
+    edge_index, edge_attr, directed_adj_matrix = edge_feature(mol)
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
     return data
 
@@ -107,6 +107,6 @@ class MoleculeDataset(InMemoryDataset):
             torch.save((data, slices), self.processed_paths[0])
             
 if __name__ == '__main__':
-    dataset = MoleculeDataset('./data/tox21/', dataset='tox21')
+    dataset = MoleculeDataset('./data/alk/', dataset='alk')
     print(dataset)
     print(dataset[0])

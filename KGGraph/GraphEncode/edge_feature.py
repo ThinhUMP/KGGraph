@@ -12,13 +12,13 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
     
 # Import necessary modules and functions
-from KGGraph.Chemistry.chemutils import get_mol
+from KGGraph.Chemistry.chemutils import get_mol, get_smiles
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.features import (
     is_conjugated, is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
 )
 from KGGraph.Chemistry.bond_type import GetBondTypeFeature
-
+from KGGraph.Chemistry.gasteiger_adj import add_atom_mapping, renumber_and_calculate_charges, calculate_directed_adjacency_matrix
 # Load bond dictionaries for process of feature extraction: bond stereo.
 with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
@@ -172,12 +172,14 @@ def edge_feature(mol):
     obj = EdgeFeature(mol)
     _, _, edge_index = obj.get_edge_index(mol)
     _, _, edge_attr = obj.get_edge_attr(mol)
-    return edge_index, edge_attr
+    mol_charges, charges = renumber_and_calculate_charges(get_smiles(mol))
+    directed_adj_matrix = torch.tensor(calculate_directed_adjacency_matrix(mol_charges, charges), dtype=torch.long)
+    return edge_index, edge_attr, directed_adj_matrix
 
 def main():
     import time
     from joblib import Parallel, delayed
-    data = pd.read_csv('./data/alk/alk.csv')
+    data = pd.read_csv('./dataset/alk/raw/alk.csv')
     smiles = data['Canomicalsmiles'].tolist()[:5]
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
@@ -189,6 +191,8 @@ def main():
     print(edges[0][0])
     print(edges[0][1].size())
     print(edges[0][1])
+    print(edges[0][2].size())
+    print(edges[0][2])
 
 if __name__ == '__main__':
     main()

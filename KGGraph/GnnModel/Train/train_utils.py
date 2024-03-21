@@ -5,8 +5,17 @@ import numpy as np
 from sklearn.metrics import (
     roc_auc_score, mean_squared_error, mean_absolute_error, f1_score, average_precision_score,
 )
+from pathlib import Path
+import sys
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
+from KGGraph.GnnModel.Train.crawl_test_metrics import create_test_df
+
 criterion = nn.BCEWithLogitsLoss(reduction = "none")
 device = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
+
 def train(model, device, loader, optimizer):
     model.train()
     y_true = []
@@ -74,7 +83,7 @@ def train_reg(args, model, device, loader, optimizer):
         optimizer.step()
 
 
-def evaluate(model, device, loader):
+def evaluate(args, model, device, loader):
     model.eval()
     y_true = []
     y_scores = []
@@ -121,7 +130,12 @@ def evaluate(model, device, loader):
     eval_roc = sum(roc_list)/len(roc_list)
     eval_ap = sum(ap_list)/len(ap_list) 
     eval_f1 = sum(f1_list)/len(f1_list)    
-
+    
+    eval_math = 0.0
+    if eval_roc > eval_math:
+        eval_math = eval_roc
+        create_test_df(args, eval_roc, eval_ap, eval_f1)
+    
     return eval_roc, eval_ap, eval_f1, loss
 
 def eval_reg(model, device, loader):
@@ -161,7 +175,7 @@ def save_emb(model, device, loader, num_tasks, out_file):
 
     np.savez(out_file, emb=output_emb, label=output_label)
     
-def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
+def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer):
     train_auc_list, val_auc_list, test_auc_list = [], [], []
     train_ap_list, val_ap_list, test_ap_list = [], [], []
     train_f1_list, val_f1_list, test_f1_list = [], [], []
@@ -173,8 +187,8 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
 
         print('====Evaluation')
         
-        val_auc, val_ap, val_f1, val_loss = evaluate(model, device, val_loader)
-        test_auc, test_ap, test_f1, test_loss = evaluate(model, device, test_loader)
+        val_auc, val_ap, val_f1, val_loss = evaluate(args, model, device, val_loader)
+        test_auc, test_ap, test_f1, test_loss = evaluate(args, model, device, test_loader)
         
         train_loss_list.append(float('{:.4f}'.format(train_loss)))
         val_loss_list.append(float('{:.4f}'.format(val_loss)))
@@ -195,7 +209,7 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         test_math_auc = 0.0
         if float(test_auc) > test_math_auc:
             test_math_auc = test_auc
-            torch.save(model.state_dict(), model_save_path)
+            torch.save(model.state_dict(), f"{args.save_path+args.dataset}/{args.dataset}.pth")
         
         print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))
         print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))

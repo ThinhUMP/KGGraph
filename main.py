@@ -18,7 +18,7 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=200,
+    parser.add_argument('--epochs', type=int, default=2,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.0001)')
@@ -36,7 +36,7 @@ def main():
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
     parser.add_argument('--split', type = str, default="scaffold", help = "random or scaffold or random_scaffold")
     parser.add_argument('--num_workers', type=int, default = 4, help='number of workers for dataset loading')
-    parser.add_argument('--save_fig_path', type=str, default = 'dataset/', help='path for saving training images')
+    parser.add_argument('--save_path', type=str, default = 'dataset/', help='path for saving training images, test_metrics csv, model')
     args = parser.parse_args()
 
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -112,14 +112,12 @@ def main():
     # optimizer = optim.SGD(model.parameters(), lr= args.lr, weight_decay=args.decay)
     print(optimizer)
 
-    model_save_path = './model/' + args.dataset + '.pth'
-
     # training based on task type
     if task_type == 'cls':
-        metrics_training = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path)
+        metrics_training = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer)
 
     elif task_type == 'reg':
-        test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path) 
+        test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, args.save_path) 
 
     plot_metrics(args, metrics_training)
     

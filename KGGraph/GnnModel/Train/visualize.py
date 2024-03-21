@@ -51,7 +51,7 @@ def plot_metrics(args,
         ax.set(xlabel='Epoch', ylabel='Value')
 
     plt.tight_layout()
-    plt.savefig(f"{args.save_fig_path+args.dataset+'/figures'}/training.png", dpi=600)
+    plt.savefig(f"{args.save_path+args.dataset+'/figures'}/training.png", dpi=600)
     plt.show()
     
 def plot_targets(pred, ground_truth):

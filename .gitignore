@@ -30,6 +30,6 @@ data/processed/
 KGGraph/Model/Train/train_utils_draft.py
 dataset/*/processed/
 dataset/*/figures/
-random_conform/
-optim_conform/
-partial_charge/
+data/random_conform/
+data/optim_conform/
+data/partial_charge/

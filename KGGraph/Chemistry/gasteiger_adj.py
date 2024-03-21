@@ -74,4 +74,3 @@ if __name__ == '__main__':
     print("Partial charges:", charges)
     directed_adj_matrix = calculate_directed_adjacency_matrix(mol, charges)
     print("Directed adjacency matrix:\n", directed_adj_matrix)
-

@@ -59,7 +59,7 @@ class AtomFeature:
             combined_features = basic_features + chemical_group + hybri_feat + atomic_number_vector
             x_node.append(combined_features)
 
-        return torch.tensor(np.array(x_node), dtype=torch.long)
+        return torch.tensor(np.array(x_node), dtype=torch.float64)
     
     def compute_basic_features(self, atom) -> List:
         """
@@ -111,11 +111,11 @@ def motif_supernode_feature(mol: Chem.Mol):
     motif_node_template =[0] * (number_atom_node_attr - 2) + [1, 0]
 
     # Create tensors based on the number of motifs
-    x_supernode = torch.tensor([supernode_template], dtype=torch.long)
+    x_supernode = torch.tensor([supernode_template], dtype=torch.float64)
     if num_motif > 0:
         x_motif = torch.tensor([motif_node_template]).repeat_interleave(num_motif, dim=0)
     else:
-        x_motif = torch.empty(0, number_atom_node_attr, dtype=torch.long)  # Handle cases with no motifs
+        x_motif = torch.empty(0, number_atom_node_attr, dtype=torch.float64)  # Handle cases with no motifs
 
     return x_motif, x_supernode
 

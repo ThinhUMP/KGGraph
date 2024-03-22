@@ -6,7 +6,7 @@ import pandas as pd
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.Chemistry.chemutils import get_mol
+from KGGraph.Chemistry.chemutils import get_mol, get_smiles
         
 def load_tox21_dataset(input_path):
     tox21_dataset = pd.read_csv(input_path, sep=',')
@@ -60,3 +60,30 @@ def load_bace_dataset(input_path):
     assert len(smiles_list) == len(labels)
     assert len(smiles_list) == len(folds)
     return smiles_list, mols_list, folds.values, labels.values
+
+def load_bbbp_dataset(input_path):
+    """
+    Load the BBBP dataset from a CSV file.
+
+    :param input_path: Path to the CSV file containing the dataset
+    :return: Tuple containing a list of SMILES strings, a list of RDKit Mol objects, and a NumPy array containing the labels
+    """
+    # Load the dataset
+    input_df = pd.read_csv(input_path, sep=',')
+
+    # Filter out invalid molecules directly using Pandas
+    input_df['mol'] = input_df['smiles'].apply(get_mol)
+    input_df = input_df[input_df['mol'].notnull()]
+
+    # Extract SMILES strings and molecule objects
+    smiles_list = input_df['smiles'].tolist()
+    mols_list = input_df['mol'].tolist()
+
+    # Handle labels: convert 0 to -1, then ensure there are no NaN values
+    labels = input_df['p_np'].replace(0, -1)
+    assert not labels.isnull().any()
+
+    # Assertions to check list lengths
+    assert len(smiles_list) == len(mols_list) == len(labels)
+
+    return smiles_list, mols_list, labels.values

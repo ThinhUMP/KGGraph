@@ -58,7 +58,6 @@ def set_atommap(mol: Chem.Mol, num: int = 0) -> Chem.Mol:
         atom.SetAtomMapNum(num)
     return mol
 
-
 def get_mol(smiles: str) -> Optional[Chem.Mol]:
     """
     Generate a molecule object from a SMILES string.
@@ -69,7 +68,10 @@ def get_mol(smiles: str) -> Optional[Chem.Mol]:
     Returns:
     - Optional[Chem.Mol]: The generated molecule object, or None if molecule generation fails.
     """
-    mol = Chem.MolFromSmiles(smiles)
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+    except:
+        mol = None
     if mol is not None: 
         Chem.Kekulize(mol, clearAromaticFlags=True)
     return mol

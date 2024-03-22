@@ -16,7 +16,7 @@ from KGGraph.GraphEncode.x_feature import x_feature
 from KGGraph.GraphEncode.edge_feature import edge_feature
 from KGGraph.Chemistry.chemutils import get_mol, get_atom_types
 from KGGraph.Dataset.loader import (
-        load_tox21_dataset, load_another_dataset, load_bace_dataset, load_bbbp_dataset,
+        load_tox21_dataset, load_another_dataset, load_bace_dataset, load_bbbp_dataset, load_clintox_dataset,
 )
 from joblib import Parallel, delayed
 from tqdm import tqdm
@@ -96,6 +96,16 @@ class MoleculeDataset(InMemoryDataset):
                 
         elif self.dataset == 'bbbp':
             smiles_list, mols_list, labels = load_bbbp_dataset(self.raw_paths[0])
+            atom_types = get_atom_types(smiles_list)
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
+            for idx, data in enumerate(data_result_list):
+                data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
+                data.y = torch.tensor(labels[idx])
+                data_list.append(data)
+                data_smiles_list.append(smiles_list[idx])
+                
+        elif self.dataset == 'clintox':
+            smiles_list, mols_list, labels = load_clintox_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
             data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):

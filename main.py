@@ -30,8 +30,8 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--dropout_ratio', type=float, default=0.0,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'bbbp',
-                        help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity, alk]')
+    parser.add_argument('--dataset', type=str, default = 'clintox',
+                        help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
     parser.add_argument('--split', type = str, default="scaffold", help = "random or scaffold or random_scaffold")
@@ -41,7 +41,7 @@ def main():
 
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    if args.dataset in ['tox21', 'hiv', 'pcba', 'muv', 'bace', 'bbbp', 'toxcast', 'sider', 'clintox', 'mutag', 'alk']:
+    if args.dataset in ['tox21', 'hiv', 'pcba', 'muv', 'bace', 'bbbp', 'toxcast', 'sider', 'clintox', 'mutag']:
         task_type = 'classification'
     else:
         task_type = 'regrression'
@@ -49,8 +49,6 @@ def main():
     #Bunch of classification tasks
     if args.dataset == "tox21":
         num_tasks = 12
-    elif args.dataset == "alk":
-        num_tasks = 1
     elif args.dataset == "pcba":
         num_tasks = 128
     elif args.dataset == "bace":

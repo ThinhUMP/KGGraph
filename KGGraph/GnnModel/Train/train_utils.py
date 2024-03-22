@@ -5,13 +5,14 @@ import numpy as np
 from sklearn.metrics import (
     roc_auc_score, mean_squared_error, mean_absolute_error, f1_score, average_precision_score,
 )
+import pandas as pd
 from pathlib import Path
 import sys
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.GnnModel.Train.crawl_test_metrics import create_test_df
+from KGGraph.GnnModel.Train.crawl_metrics import create_test_df, create_train_df
 
 criterion = nn.BCEWithLogitsLoss(reduction = "none")
 device = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
@@ -180,6 +181,7 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
     train_ap_list, val_ap_list, test_ap_list = [], [], []
     train_f1_list, val_f1_list, test_f1_list = [], [], []
     train_loss_list, val_loss_list, test_loss_list = [], [], []
+    train_df = pd.DataFrame(columns=["train_loss", "train_auc", "train_ap", "train_f1", "val_loss", "val_auc", "val_ap", "val_f1"], index=range(args.epochs))
     for epoch in range(1, args.epochs+1):
         print('====epoch:',epoch)
         
@@ -205,6 +207,8 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         train_f1_list.append(float('{:.4f}'.format(train_f1)))
         test_f1_list.append(float('{:.4f}'.format(test_f1)))
         val_f1_list.append(float('{:.4f}'.format(val_f1)))
+        
+        create_train_df(args, train_df, float(train_loss), train_auc, train_ap, train_f1, float(val_loss), val_auc, val_ap, val_f1, task_type, epoch)
         
         test_math_auc = 0.0
         if float(test_auc) > test_math_auc:

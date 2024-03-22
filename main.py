@@ -84,7 +84,7 @@ def main():
     print(dataset)
     
     if args.split == "scaffold":
-        smiles_list = pd.read_csv('dataset/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
+        smiles_list = pd.read_csv('dataset/' + task_type + '/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
         train_dataset, valid_dataset, test_dataset, _ = scaffold_split(dataset, smiles_list, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1)
         print("scaffold")
     elif args.split == "random":

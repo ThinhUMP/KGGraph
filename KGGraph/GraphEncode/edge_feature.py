@@ -77,11 +77,11 @@ class EdgeFeature:
                 edges_index_list.extend([(i, j), (j, i)])
                 edge_attr_list.extend([combined_features, combined_features])
             # Convert the lists to tensors
-            edge_attr_node = torch.tensor(np.array(edge_attr_list), dtype=torch.float64)
+            edge_attr_node = torch.tensor(np.array(edge_attr_list), dtype=torch.long)
             edges_index_node = torch.tensor(np.array(edges_index_list).T, dtype=torch.long)
         else:  
             edges_index_node = torch.empty((2, 0), dtype=torch.long)
-            edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.float64)
+            edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.long)
         
         return edge_attr_node, edges_index_node
 

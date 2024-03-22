@@ -40,3 +40,4 @@ dataset/*/*/processed/
 dataset/*/*/*.csv
 dataset/*/*/*.pth
 dataset/*/*/figures/
+KGGraph/GnnModel/Train/train_utils_draft.py

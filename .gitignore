@@ -36,3 +36,6 @@ data/partial_charge/
 dataset/*/processed/
 dataset/*/*.csv
 dataset/*/*.pth
+dataset/*/*/processed/
+dataset/*/*/*.csv
+dataset/*/*/*.pth

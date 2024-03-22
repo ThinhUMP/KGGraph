@@ -134,8 +134,7 @@ def evaluate(args, model, device, loader):
     eval_math = 0.0
     if eval_roc > eval_math:
         eval_math = eval_roc
-        for i in range(y_true.shape[1]):
-            create_test_df(args, roc_list[i], ap_list[i], f1_list[i])
+        create_test_df(args, roc_list, ap_list, f1_list)
     
     return eval_roc, eval_ap, eval_f1, loss
 

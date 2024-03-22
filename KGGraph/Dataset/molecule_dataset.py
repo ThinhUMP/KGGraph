@@ -141,6 +141,6 @@ class MoleculeDataset(InMemoryDataset):
             torch.save((data, slices), self.processed_paths[0])
             
 if __name__ == '__main__':
-    dataset = MoleculeDataset('./data/alk/', dataset='alk')
+    dataset = MoleculeDataset('./dataset/classification/clintox/', dataset='clintox')
     print(dataset)
     print(dataset[0])

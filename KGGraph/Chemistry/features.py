@@ -41,8 +41,12 @@ def get_atomic_number(atom: Chem.Atom) -> int:
     
 def get_period(atom: Chem.Atom) -> int:
     """Get the period of the atom."""
-    atom_mendeleev = element(atom.GetSymbol())
-    period = atom_mendeleev.period
+    if get_symbol(atom) == '*':
+        period = 0
+        return period
+    else:
+        atom_mendeleev = element(get_symbol(atom))
+        period = atom_mendeleev.period
     if period is None:
         period = 0
     return period

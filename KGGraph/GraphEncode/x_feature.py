@@ -21,14 +21,15 @@ from KGGraph.Chemistry.features import (
     is_hydrogen_donor, is_hydrogen_acceptor, get_hybridization, get_symbol,
     is_in_aromatic_ring,
 )
+from KGGraph.Chemistry.chemutils import get_atom_types, atomic_num_features
 
-atom_types = list(range(1, 93))  # Atomic numbers from 1 to 90 because we don't see that much atom with atomic number greater than 90 in medicinal chemistry
+# atom_types = list(range(1, 93))  # Atomic numbers from 1 to 90 because we don't see that much atom with atomic number greater than 90 in medicinal chemistry
 # 91 for motif and 92 for supernode
 class AtomFeature:
     """
     Class to compute atom features for a given dataset of molecules.
     """
-    def __init__(self, mol: Chem.Mol):
+    def __init__(self, mol: Chem.Mol, atom_types: List[int]):
         """
         Initializes the class with the given molecule.
         
@@ -36,30 +37,35 @@ class AtomFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
+        self.atom_types = atom_types
         
     def feature(self):
         """
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
-        x_node = []
+        x_node_list = []
+        atomic_features = atomic_num_features(self.mol, self.atom_types)
         for atom in self.mol.GetAtoms():
             basic_features = self.compute_basic_features(atom)
             chemical_group = get_chemical_group_block(atom)
             
-            atomic_number = get_atomic_number(atom)
-            atomic_number_vector = list((np.array(atom_types) == atomic_number).astype(int))
-            if atomic_number_vector is None:
-                atomic_number_vector = list(np.zeros(len(atom_types)))
+            # atomic_number = get_atomic_number(atom)
+            # atomic_number_vector = list((np.array(atom_types) == atomic_number).astype(int))
+            # if atomic_number_vector is None:
+            #     atomic_number_vector = list(np.zeros(len(atom_types)))
 
             total_single_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
             if hybri_feat == [0,0,0,0,0]:
                 print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
                 # raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
             
-            combined_features = basic_features + chemical_group + hybri_feat + atomic_number_vector
-            x_node.append(combined_features)
-
-        return torch.tensor(np.array(x_node), dtype=torch.long)
+            combined_features = basic_features + chemical_group + hybri_feat
+            x_node_list.append(combined_features)
+        
+        x_node_array = np.array(x_node_list)
+        x_node = torch.tensor(np.concatenate((x_node_array, atomic_features), axis=1), dtype=torch.long)
+        
+        return x_node
     
     def compute_basic_features(self, atom) -> List:
         """
@@ -88,7 +94,7 @@ class AtomFeature:
         ]
         return basic_features
 
-def motif_supernode_feature(mol: Chem.Mol):
+def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int):
     """
     Compute motif and supernode features for a given molecule.
     
@@ -99,7 +105,7 @@ def motif_supernode_feature(mol: Chem.Mol):
     Returns:
         A tuple of tensors representing motif and supernode features.
     """
-    number_atom_node_attr = 126
+    # number_atom_node_attr = 126
     motif = MotifDecomposition(mol)
     cliques = motif.defragment()
     num_motif = len(cliques)
@@ -119,7 +125,7 @@ def motif_supernode_feature(mol: Chem.Mol):
 
     return x_motif, x_supernode
 
-def x_feature(mol: Chem.Mol):
+def x_feature(mol: Chem.Mol, atom_types: List[int]):
     """
     Compute the feature vector for a given molecule.
     
@@ -130,9 +136,9 @@ def x_feature(mol: Chem.Mol):
     Returns:
         A tensor representing the feature vector.
     """
-    atom_feature = AtomFeature(mol=mol)
+    atom_feature = AtomFeature(mol=mol, atom_types=atom_types)
     x_node = atom_feature.feature()
-    x_motif, x_supernode = motif_supernode_feature(mol)
+    x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1))
 
     # Concatenate features
     # print(x_node.size(), x_motif.size(), x_supernode.size())
@@ -143,11 +149,12 @@ def main():
     from joblib import Parallel, delayed
     import time
     from tqdm import tqdm
-    data = pd.read_csv('./dataset/tox21/raw/tox21.csv')
+    data = pd.read_csv('./dataset/classification/tox21/raw/tox21.csv')
     smiles = data['smiles'].tolist()[:10]
     mols = [get_mol(smile) for smile in smiles]
+    atom_types = get_atom_types(smiles)
     t1 = time.time()
-    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol) for mol in tqdm(mols))
+    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))
     t2 = time.time()
     print(t2-t1)
     print(x[0])

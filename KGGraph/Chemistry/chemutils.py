@@ -2,7 +2,8 @@ import rdkit
 import rdkit.Chem as Chem
 from collections import defaultdict
 from typing import List, Tuple, Set, Optional
-
+import numpy as np
+from .features import get_atomic_number
 lg = rdkit.RDLogger.logger() 
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
@@ -22,10 +23,25 @@ def get_atom_types(smiles: List[str]) -> List[int]:
     atom_types = []
     for mol in mols:
         for atom in mol.GetAtoms():
-            if atom.GetAtomicNum() not in atom_types:
-                atom_types.append(atom.GetAtomicNum())
+            if get_atomic_number(atom) not in atom_types:
+                atom_types.append(get_atomic_number(atom))
     atom_types.sort()
     return atom_types
+
+def atomic_num_features(mol, atom_types):
+    """_summary_
+
+    Args:
+        m (rdkit mol): Molecule to be transformed into a graph.
+
+        atom_types (list): List of all atom types present in the dataset 
+            represented by their atomic numbers.
+    """
+    atomic_features = np.zeros((mol.GetNumAtoms(), len(atom_types)))
+    for idx, atom in enumerate(mol.GetAtoms()):
+        atomic_features[idx] = get_atomic_number(atom)
+    atomic_features = np.where(atomic_features == np.tile(atom_types, (mol.GetNumAtoms(), 1)), 1, 0)
+    return atomic_features
 
 def set_atommap(mol: Chem.Mol, num: int = 0) -> Chem.Mol:
     """

@@ -9,7 +9,7 @@ from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 class gin(torch.nn.Module):
     """Graph Isomorphism Network class with 3 GINConv layers and 2 linear layers"""
 
-    def __init__(self, dim_h, out_channels, dropout):
+    def __init__(self, in_channels, dim_h, out_channels, dropout):
         """Initializing GIN class
 
         Args:
@@ -19,7 +19,7 @@ class gin(torch.nn.Module):
         super(gin, self).__init__()
         self.conv1 = GINConv(
             Sequential(
-                Linear(126, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU(), Linear(dim_h, 2*dim_h), ReLU()
+                Linear(in_channels, dim_h), BatchNorm1d(dim_h), ReLU(), Linear(dim_h, dim_h), ReLU(), Linear(dim_h, 2*dim_h), ReLU()
                 )
         )
         self.conv2 = GINConv(

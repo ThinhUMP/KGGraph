@@ -10,11 +10,11 @@ from KGGraph.Chemistry.chemutils import get_mol
         
 def load_tox21_dataset(input_path):
     tox21_dataset = pd.read_csv(input_path, sep=',')
-    smiles_list = tox21_dataset['smiles'][:10]
+    smiles_list = tox21_dataset['smiles']
     mols_list = [get_mol(smile) for smile in smiles_list]
     tasks = ['NR-AR', 'NR-AR-LBD', 'NR-AhR', 'NR-Aromatase', 'NR-ER', 'NR-ER-LBD',
        'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
-    labels = tox21_dataset[tasks][:10]
+    labels = tox21_dataset[tasks]
     # convert 0 to -1
     labels = labels.replace(0, -1)
     # convert nan to 0

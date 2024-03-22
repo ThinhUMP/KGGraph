@@ -1,5 +1,6 @@
 import pandas as pd
 def create_test_df(args, roc_list, ap_list, f1_list, task_type):
+    
     if args.dataset == "tox21":
         tasks = ['NR-AR', 'NR-AR-LBD', 'NR-AhR', 'NR-Aromatase', 'NR-ER', 'NR-ER-LBD',
        'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
@@ -8,6 +9,15 @@ def create_test_df(args, roc_list, ap_list, f1_list, task_type):
         test_metrics_tox21['AP'] = ap_list
         test_metrics_tox21['F1'] = f1_list
         test_metrics_tox21.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_tox21.csv")
+        
+    elif args.dataset == "bace":
+        tasks = ['Class']
+        test_metrics_tox21 = pd.DataFrame(columns=["AUC", "AP", "F1"], index=tasks)
+        test_metrics_tox21['AUC'] = roc_list
+        test_metrics_tox21['AP'] = ap_list
+        test_metrics_tox21['F1'] = f1_list
+        test_metrics_tox21.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_bace.csv")
+        
     elif args.dataset == "another":
         tasks = ['activity']
         test_metrics_alk = pd.DataFrame(columns=["AUC", "AP", "F1"], index=tasks)

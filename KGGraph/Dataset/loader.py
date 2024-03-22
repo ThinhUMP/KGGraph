@@ -36,3 +36,27 @@ def load_another_dataset(input_path, smile_col='smiles', tasks='activity'):
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values
+
+def load_bace_dataset(input_path):
+    """
+
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array
+    containing indices for each of the 3 folds, np.array containing the
+    labels
+    """
+    input_df = pd.read_csv(input_path, sep=',')
+    smiles_list = input_df['mol']
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    labels = input_df['Class']
+    # convert 0 to -1
+    labels = labels.replace(0, -1)
+    # there are no nans
+    folds = input_df['Model']
+    folds = folds.replace('Train', 0)   # 0 -> train
+    folds = folds.replace('Valid', 1)   # 1 -> valid
+    folds = folds.replace('Test', 2)    # 2 -> test
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    assert len(smiles_list) == len(folds)
+    return smiles_list, mols_list, folds.values, labels.values

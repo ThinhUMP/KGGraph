@@ -33,3 +33,6 @@ dataset/*/figures/
 data/random_conform/
 data/optim_conform/
 data/partial_charge/
+dataset/*/processed/
+dataset/*/*.csv
+dataset/*/*.pth

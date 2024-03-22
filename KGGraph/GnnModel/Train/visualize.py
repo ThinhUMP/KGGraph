@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plt
-
+import os
 def plot_metrics(args,
     metrics_training
 ):
@@ -51,6 +51,8 @@ def plot_metrics(args,
         ax.set(xlabel='Epoch', ylabel='Value')
 
     plt.tight_layout()
+    if not os.path.isdir(args.save_path+args.dataset+'/figures'):
+        os.mkdir(args.save_path+args.dataset+'/figures')
     plt.savefig(f"{args.save_path+args.dataset+'/figures'}/training.png", dpi=600)
     plt.show()
     

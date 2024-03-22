@@ -132,12 +132,7 @@ def evaluate(args, model, device, loader, task_type):
     eval_ap = sum(ap_list)/len(ap_list) 
     eval_f1 = sum(f1_list)/len(f1_list)    
     
-    eval_math = 0.0
-    if eval_roc > eval_math:
-        eval_math = eval_roc
-        create_test_df(args, roc_list, ap_list, f1_list, task_type)
-    
-    return eval_roc, eval_ap, eval_f1, loss
+    return eval_roc, eval_ap, eval_f1, loss, roc_list, ap_list, f1_list
 
 def eval_reg(model, device, loader):
     model.eval()
@@ -182,6 +177,9 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
     train_f1_list, val_f1_list, test_f1_list = [], [], []
     train_loss_list, val_loss_list, test_loss_list = [], [], []
     train_df = pd.DataFrame(columns=["train_loss", "train_auc", "train_ap", "train_f1", "val_loss", "val_auc", "val_ap", "val_f1"], index=range(args.epochs))
+    
+    test_math_auc = 0.0
+    
     for epoch in range(1, args.epochs+1):
         print('====epoch:',epoch)
         
@@ -189,8 +187,8 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
 
         print('====Evaluation')
         
-        val_auc, val_ap, val_f1, val_loss = evaluate(args, model, device, val_loader, task_type)
-        test_auc, test_ap, test_f1, test_loss = evaluate(args, model, device, test_loader, task_type)
+        val_auc, val_ap, val_f1, val_loss, _, _, _ = evaluate(args, model, device, val_loader, task_type)
+        test_auc, test_ap, test_f1, test_loss, roc_list, ap_list, f1_list = evaluate(args, model, device, test_loader, task_type)
         
         train_loss_list.append(float('{:.4f}'.format(train_loss)))
         val_loss_list.append(float('{:.4f}'.format(val_loss)))
@@ -210,9 +208,9 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         
         create_train_df(args, train_df, float(train_loss), train_auc, train_ap, train_f1, float(val_loss), val_auc, val_ap, val_f1, task_type, epoch)
         
-        test_math_auc = 0.0
         if float(test_auc) > test_math_auc:
             test_math_auc = test_auc
+            create_test_df(args, roc_list, ap_list, f1_list, task_type)
             torch.save(model.state_dict(), f"{args.save_path+task_type}/{args.dataset}/{args.dataset}.pth")
         
         print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))

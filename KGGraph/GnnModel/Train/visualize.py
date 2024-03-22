@@ -3,7 +3,7 @@ from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plt
 import os
 def plot_metrics(args,
-    metrics_training
+    metrics_training, task_type
 ):
     """Plot the metrics for each epoch
 
@@ -51,9 +51,9 @@ def plot_metrics(args,
         ax.set(xlabel='Epoch', ylabel='Value')
 
     plt.tight_layout()
-    if not os.path.isdir(args.save_path+args.dataset+'/figures'):
-        os.mkdir(args.save_path+args.dataset+'/figures')
-    plt.savefig(f"{args.save_path+args.dataset+'/figures'}/training.png", dpi=600)
+    if not os.path.isdir(f"{args.save_path+task_type}/{args.dataset}/figures"):
+        os.mkdir(f"{args.save_path+task_type}/{args.dataset}/figures")
+    plt.savefig(f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png", dpi=600)
     plt.show()
     
 def plot_targets(pred, ground_truth):

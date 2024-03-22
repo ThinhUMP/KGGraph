@@ -83,7 +83,7 @@ def train_reg(args, model, device, loader, optimizer):
         optimizer.step()
 
 
-def evaluate(args, model, device, loader):
+def evaluate(args, model, device, loader, task_type):
     model.eval()
     y_true = []
     y_scores = []
@@ -134,7 +134,7 @@ def evaluate(args, model, device, loader):
     eval_math = 0.0
     if eval_roc > eval_math:
         eval_math = eval_roc
-        create_test_df(args, roc_list, ap_list, f1_list)
+        create_test_df(args, roc_list, ap_list, f1_list, task_type)
     
     return eval_roc, eval_ap, eval_f1, loss
 
@@ -175,7 +175,7 @@ def save_emb(model, device, loader, num_tasks, out_file):
 
     np.savez(out_file, emb=output_emb, label=output_label)
     
-def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer):
+def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, task_type):
     train_auc_list, val_auc_list, test_auc_list = [], [], []
     train_ap_list, val_ap_list, test_ap_list = [], [], []
     train_f1_list, val_f1_list, test_f1_list = [], [], []
@@ -187,8 +187,8 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
 
         print('====Evaluation')
         
-        val_auc, val_ap, val_f1, val_loss = evaluate(args, model, device, val_loader)
-        test_auc, test_ap, test_f1, test_loss = evaluate(args, model, device, test_loader)
+        val_auc, val_ap, val_f1, val_loss = evaluate(args, model, device, val_loader, task_type)
+        test_auc, test_ap, test_f1, test_loss = evaluate(args, model, device, test_loader, task_type)
         
         train_loss_list.append(float('{:.4f}'.format(train_loss)))
         val_loss_list.append(float('{:.4f}'.format(val_loss)))
@@ -209,7 +209,7 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         test_math_auc = 0.0
         if float(test_auc) > test_math_auc:
             test_math_auc = test_auc
-            torch.save(model.state_dict(), f"{args.save_path+args.dataset}/{args.dataset}.pth")
+            torch.save(model.state_dict(), f"{args.save_path+task_type}/{args.dataset}/{args.dataset}.pth")
         
         print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))
         print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))

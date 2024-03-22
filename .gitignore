@@ -39,3 +39,4 @@ dataset/*/*.pth
 dataset/*/*/processed/
 dataset/*/*/*.csv
 dataset/*/*/*.pth
+dataset/*/*/figures/

@@ -18,7 +18,7 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=3,
+    parser.add_argument('--epochs', type=int, default=2,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.0001)')
@@ -30,7 +30,7 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--dropout_ratio', type=float, default=0.0,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'tox21', 
+    parser.add_argument('--dataset', type=str, default = 'tox21',
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity, alk]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -42,9 +42,9 @@ def main():
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
     if args.dataset in ['tox21', 'hiv', 'pcba', 'muv', 'bace', 'bbbp', 'toxcast', 'sider', 'clintox', 'mutag', 'alk']:
-        task_type = 'cls'
+        task_type = 'classification'
     else:
-        task_type = 'reg'
+        task_type = 'regrression'
 
     #Bunch of classification tasks
     if args.dataset == "tox21":
@@ -79,7 +79,7 @@ def main():
         raise ValueError("Invalid dataset name.")
 
     #set up dataset
-    dataset = MoleculeDataset("dataset/" + args.dataset, dataset=args.dataset)
+    dataset = MoleculeDataset("dataset/" + task_type + "/" + args.dataset, dataset=args.dataset)
 
     print(dataset)
     
@@ -113,13 +113,13 @@ def main():
     print(optimizer)
 
     # training based on task type
-    if task_type == 'cls':
-        metrics_training = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer)
+    if task_type == 'classification':
+        metrics_training = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, task_type)
 
-    elif task_type == 'reg':
+    elif task_type == 'regression':
         test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, args.save_path) 
 
-    plot_metrics(args, metrics_training)
+    plot_metrics(args, metrics_training, task_type)
     
 
 

@@ -15,7 +15,7 @@ sys.path.append(str(root_dir))
 from KGGraph.GraphEncode.x_feature import x_feature
 from KGGraph.GraphEncode.edge_feature import edge_feature
 from KGGraph.Chemistry.chemutils import get_mol
-from KGGraph.Dataset.loader import load_tox21_dataset, load_alk_dataset
+from KGGraph.Dataset.loader import load_tox21_dataset, load_another_dataset
 from joblib import Parallel, delayed
 from tqdm import tqdm
 def feature(mol):
@@ -80,8 +80,8 @@ class MoleculeDataset(InMemoryDataset):
                 data_list.append(data)
                 data_smiles_list.append(smiles_list[idx])
 
-        elif self.dataset == 'alk':
-            smiles_list, mols_list, labels = load_alk_dataset(self.raw_paths[0])
+        elif self.dataset == 'another':
+            smiles_list, mols_list, labels = load_another_dataset(self.raw_paths[0])
             data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset

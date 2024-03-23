@@ -15,7 +15,7 @@ sys.path.append(str(root_dir))
 from KGGraph.GnnModel.Train.crawl_metrics import create_test_df, create_train_df
 
 criterion = nn.BCEWithLogitsLoss(reduction = "none")
-device = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
+device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
 def train(model, device, loader, optimizer):
     model.train()

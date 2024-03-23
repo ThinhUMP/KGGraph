@@ -179,8 +179,8 @@ def edge_feature(mol):
 def main():
     import time
     from joblib import Parallel, delayed
-    data = pd.read_csv('./dataset/alk/raw/alk.csv')
-    smiles = data['Canomicalsmiles'].tolist()[:5]
+    data = pd.read_csv('./dataset/classification/bace/raw/bace.csv')
+    smiles = data['mol'].tolist()[:5]
     mols = [get_mol(smile) for smile in smiles]
     t1 = time.time()
     edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols)
@@ -192,7 +192,7 @@ def main():
     print(edges[0][1].size())
     print(edges[0][1])
     print(edges[0][2].size())
-    print(edges[0][2])
+    print(torch.unique(edges[0][2]))
 
 if __name__ == '__main__':
     main()

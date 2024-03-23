@@ -5,7 +5,6 @@ build/
 dist/
 KGGraph.egg-info/
 __pycache__/
-test.ipynb
 treeEx.ipynb
 period_table.json
 check.py
@@ -22,7 +21,6 @@ data_utils.py
 decoder.py
 gnn_model.py
 pretrain.py
-test.py
 data/*.pt
 data/raw/
 model/

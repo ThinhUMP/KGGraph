@@ -20,6 +20,7 @@ class GINGenerate(torch.nn.Module):
         self.lin2 = Linear(64, 1)
         
     def forward(self, data):
+        
         x = data.x
         edge_index = data.edge_index
         edge_attr = data.edge_attr

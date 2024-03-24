@@ -18,13 +18,13 @@ class GINConv(MessagePassing):
             BatchNorm1d(emb_dim),
             torch.nn.ReLU(),
             )
-        self.bias = Parameter(torch.empty(emb_dim))
+        # self.bias = Parameter(torch.empty(emb_dim, dtype=torch.long))
         self.edge_embedding = torch.nn.Embedding(unique_value_edge_attr, emb_dim)
         torch.nn.init.xavier_uniform_(self.edge_embedding.weight.data)
-        self.reset_parameters()
+        # self.reset_parameters()
 
-    def reset_parameters(self):
-        self.bias.data.zero_()
+    # def reset_parameters(self):
+    #     self.bias.data.zero_()
         
     def forward(self, x, edge_index, edge_attr):
         # x has shape [N, in_channels]
@@ -38,17 +38,20 @@ class GINConv(MessagePassing):
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
         
-        edge_embeddings = torch.zeros(edge_attr.size(0), self.emb_dim).to(edge_attr.device).to(edge_attr.dtype)
+        edge_embeddings = torch.zeros((edge_attr.size(0), self.emb_dim), dtype=torch.float).to(edge_attr.device).to(edge_attr.dtype)
 
         for i in range(edge_attr.size(1)):  # Iterate over the second dimension
             embedding_ith = self.edge_embedding(edge_attr[:, i]).clone().detach().to(edge_attr.device).to(edge_attr.dtype)
             edge_embeddings += embedding_ith
-        
+        # print(edge_index.dtype)
+        # print(x.dtype)
+        # print(edge_embeddings.dtype)
+        # print(self.bias.dtype)
         # Step 2-3: Start propagating messages.
         out = self.propagate(edge_index, x=x, edge_attr = edge_embeddings)
         # Step56: Apply a final bias vector.
-        out = out + self.bias
-
+        # out = out + self.bias
+        # print(out.dtype)
         return out
 
     def message(self, x_j, edge_attr):

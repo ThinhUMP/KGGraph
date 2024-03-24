@@ -30,7 +30,7 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--dropout_ratio', type=float, default=0.0,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'bace',
+    parser.add_argument('--dataset', type=str, default = 'bbbp',
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")

@@ -18,6 +18,8 @@ class GINGenerate(torch.nn.Module):
         self.conv1 = GINConv(in_channels= in_channels, emb_dim=emb_dim)
         self.conv2 = GINConv(in_channels= 2*emb_dim, emb_dim=4*emb_dim)
         self.conv3 = GINConv(in_channels= 8*emb_dim, emb_dim=8*emb_dim)
+        self.conv4 = GINConv(in_channels= 16*emb_dim, emb_dim=8*emb_dim)
+        self.conv5 = GINConv(in_channels= 16*emb_dim, emb_dim=8*emb_dim)
         # self.conv3 = GINConv(in_channels= 2*emb_dim, emb_dim=4*emb_dim)
         self.lin1 = Linear(16*emb_dim, 256)
         self.lin2 = Linear(256, out_channels)
@@ -35,6 +37,10 @@ class GINGenerate(torch.nn.Module):
         x = self.conv2(x, edge_index, edge_attr)
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.conv3(x, edge_index, edge_attr)
+        # x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.conv4(x, edge_index, edge_attr)
+        # x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.conv5(x, edge_index, edge_attr)
         
         x = global_add_pool(x, batch)
         

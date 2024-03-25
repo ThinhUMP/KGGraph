@@ -18,16 +18,16 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=1,
+    parser.add_argument('--epochs', type=int, default=50,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
-                        help='learning rate (default: 0.0001)')
+                        help='learning rate (default: 0.001)')
     parser.add_argument('--decay', type=float, default=0.0,
                         help='weight decay (default: 0)')
     parser.add_argument('--hidden_channels', type=int, default=2048,
                         help='number of hidden nodes in the GNN network (default: 512).')
-    parser.add_argument('--num_layer', type=int, default=5,
-                        help='number of GNN message passing layers (default: 5).')
+    # parser.add_argument('--num_layer', type=int, default=3, 
+    #                     help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--dropout_ratio', type=float, default=0.0,
                         help='dropout ratio (default: 0.5)')
     parser.add_argument('--dataset', type=str, default = 'bbbp',
@@ -103,7 +103,7 @@ def main():
     #set up model
     # model = GINNet(num_layer=args.num_layer, out_channels=num_tasks, dropout = args.dropout_ratio)
     # model = gin(in_channels=dataset[0].x.size(1), dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
-    model = GINGenerate(emb_dim=dataset[0].x.size(1), dropout=args.dropout_ratio, num_layer=args.num_layer)
+    model = GINGenerate(in_channels=dataset[0].x.size(1), emb_dim = 64, dropout=args.dropout_ratio, out_channels=num_tasks)
     model.to(device)
 
     #set up optimizer

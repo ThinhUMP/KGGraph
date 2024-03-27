@@ -29,11 +29,11 @@ def main():
                         help='number of hidden nodes in the GNN network (default: 512).')
     # parser.add_argument('--num_layer', type=int, default=3, 
     #                     help='number of GNN message passing layers (default: 5).')
-    parser.add_argument('--emb_dim', type=int, default=128,
+    parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 128)')
     parser.add_argument('--dropout_ratio', type=float, default=0.5,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'bbbp',
+    parser.add_argument('--dataset', type=str, default = 'tox21',
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -78,8 +78,8 @@ def main():
 
     #set up model
     # model = GINNet(num_layer=args.num_layer, out_channels=num_tasks, dropout = args.dropout_ratio)
-    model = gin(in_channels=dataset[0].x.size(1), dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
-    # model = GINGenerate(in_channels=dataset[0].x.size(1), emb_dim = args.emb_dim, dropout=args.dropout_ratio, out_channels=num_tasks)
+    # model = gin(in_channels=dataset[0].x.size(1), dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
+    model = GINGenerate(in_channels=dataset[0].x.size(1), emb_dim = args.emb_dim, dropout=args.dropout_ratio, out_channels=num_tasks)
     model.to(device)
 
     #set up optimizer

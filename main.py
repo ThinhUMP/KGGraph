@@ -5,32 +5,35 @@ from torch_geometric.data import DataLoader
 from KGGraph.GnnModel.Architecture import GINNet, gin, GINGenerate
 from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.GnnModel.Train.visualize import plot_metrics
+from KGGraph.GnnModel.Train.get_task_type_num_tasks import get_num_task, get_task_type
 import torch
 import argparse
-import numpy as np
 from torch import optim
 import warnings
 warnings.filterwarnings('ignore')
 
 def main():
+    #set up parameters
     parser = argparse.ArgumentParser(description='PyTorch implementation of training of graph neural networks')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=20,
+    parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0.0,
+    parser.add_argument('--decay', type=float, default=0.1,
                         help='weight decay (default: 0)')
     parser.add_argument('--hidden_channels', type=int, default=2048,
                         help='number of hidden nodes in the GNN network (default: 512).')
     # parser.add_argument('--num_layer', type=int, default=3, 
     #                     help='number of GNN message passing layers (default: 5).')
+    parser.add_argument('--emb_dim', type=int, default=128,
+                        help='embedding dimensions (default: 128)')
     parser.add_argument('--dropout_ratio', type=float, default=0.5,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'tox21',
+    parser.add_argument('--dataset', type=str, default = 'bbbp',
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -39,48 +42,20 @@ def main():
     parser.add_argument('--save_path', type=str, default = 'dataset/', help='path for saving training images, test_metrics csv, model')
     args = parser.parse_args()
 
+    #set up device
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    if args.dataset in ['tox21', 'hiv', 'pcba', 'muv', 'bace', 'bbbp', 'toxcast', 'sider', 'clintox', 'mutag']:
-        task_type = 'classification'
-    else:
-        task_type = 'regrression'
+    #set up task type
+    task_type = get_task_type(args)
 
-    #Bunch of classification tasks
-    if args.dataset == "tox21":
-        num_tasks = 12
-    elif args.dataset == "pcba":
-        num_tasks = 128
-    elif args.dataset == "bace":
-        num_tasks = 1
-    elif args.dataset == "bbbp":
-        num_tasks = 1
-    elif args.dataset == "toxcast":
-        num_tasks = 617
-    elif args.dataset == "sider":
-        num_tasks = 27
-    elif args.dataset == "clintox":
-        num_tasks = 2
-    elif args.dataset == 'esol':
-        num_tasks = 1
-    elif args.dataset == 'freesolv':
-        num_tasks = 1
-    elif args.dataset == 'lipophilicity':
-        num_tasks = 1
-    elif args.dataset == 'qm7':
-        num_tasks = 1
-    elif args.dataset == 'qm8':
-        num_tasks = 12
-    elif args.dataset == 'qm9':
-        num_tasks = 12
-    else:
-        raise ValueError("Invalid dataset name.")
+    #set up number of tasks
+    num_tasks = get_num_task(args)
 
     #set up dataset
     dataset = MoleculeDataset("dataset/" + task_type + "/" + args.dataset, dataset=args.dataset)
-
     print(dataset)
     
+    #data split
     if args.split == "scaffold":
         smiles_list = pd.read_csv('dataset/' + task_type + '/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
         train_dataset, valid_dataset, test_dataset, _ = scaffold_split(dataset, smiles_list, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1)
@@ -93,6 +68,7 @@ def main():
 
     print(train_dataset[0])
 
+    #data loader
     if args.dataset == 'freesolv':
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers = args.num_workers, drop_last=True)
     else:
@@ -102,8 +78,8 @@ def main():
 
     #set up model
     # model = GINNet(num_layer=args.num_layer, out_channels=num_tasks, dropout = args.dropout_ratio)
-    # model = gin(in_channels=dataset[0].x.size(1), dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
-    model = GINGenerate(in_channels=dataset[0].x.size(1), emb_dim = 64, dropout=args.dropout_ratio, out_channels=num_tasks)
+    model = gin(in_channels=dataset[0].x.size(1), dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
+    # model = GINGenerate(in_channels=dataset[0].x.size(1), emb_dim = args.emb_dim, dropout=args.dropout_ratio, out_channels=num_tasks)
     model.to(device)
 
     #set up optimizer
@@ -118,6 +94,7 @@ def main():
     elif task_type == 'regression':
         test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, args.save_path) 
 
+    # plot training metrics
     plot_metrics(args, metrics_training, task_type)
     
 

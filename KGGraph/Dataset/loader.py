@@ -102,6 +102,67 @@ def load_clintox_dataset(input_path):
 
     return smiles_list, mols_list, labels.values
 
+def load_sider_dataset(input_path):
+    """
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels
+    """
+    input_df = pd.read_csv(input_path, sep=',')
+    smiles_list = input_df['smiles']
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    tasks = ['Hepatobiliary disorders',
+       'Metabolism and nutrition disorders', 'Product issues', 'Eye disorders',
+       'Investigations', 'Musculoskeletal and connective tissue disorders',
+       'Gastrointestinal disorders', 'Social circumstances',
+       'Immune system disorders', 'Reproductive system and breast disorders',
+       'Neoplasms benign, malignant and unspecified (incl cysts and polyps)',
+       'General disorders and administration site conditions',
+       'Endocrine disorders', 'Surgical and medical procedures',
+       'Vascular disorders', 'Blood and lymphatic system disorders',
+       'Skin and subcutaneous tissue disorders',
+       'Congenital, familial and genetic disorders',
+       'Infections and infestations',
+       'Respiratory, thoracic and mediastinal disorders',
+       'Psychiatric disorders', 'Renal and urinary disorders',
+       'Pregnancy, puerperium and perinatal conditions',
+       'Ear and labyrinth disorders', 'Cardiac disorders',
+       'Nervous system disorders',
+       'Injury, poisoning and procedural complications']
+    labels = input_df[tasks]
+    # convert 0 to -1
+    labels = labels.replace(0, -1)
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+def load_toxcast_dataset(input_path):
+    """
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels
+    """
+    # Load the dataset
+    input_df = pd.read_csv(input_path, sep=',')
+
+    # Filter out invalid molecules directly using Pandas
+    input_df['mol'] = input_df['smiles'].apply(get_mol)
+    input_df = input_df[input_df['mol'].notnull()]
+
+    # Extract SMILES strings and molecule objects
+    smiles_list = input_df['smiles'].tolist()
+    mols_list = input_df['mol'].tolist()
+
+    # Handle labels: convert 0 to -1, then ensure there are no NaN values
+    tasks = list(input_df.columns)[1:-1] #except for mol column
+    labels = input_df[tasks].replace(0, -1)
+     # convert nan to 0
+    labels = labels.fillna(0)
+
+    # Assertions to check list lengths
+    assert len(smiles_list) == len(mols_list) == len(labels)
+
+    return smiles_list, mols_list, labels.values
 
 def load_another_dataset(input_path, smile_col='smiles', tasks='activity'):
     alk_dataset = pd.read_csv(input_path, sep=',')

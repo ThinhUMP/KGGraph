@@ -23,8 +23,12 @@ class GINConv(MessagePassing):
         #multi-layer perceptron
         self.mlp = torch.nn.Sequential(
             torch.nn.Linear(emb_dim, 2*emb_dim),
+            torch.nn.BatchNorm1d(2*emb_dim),
             torch.nn.ReLU(),
-            torch.nn.Linear(2*emb_dim, emb_dim),
+            torch.nn.Linear(2*emb_dim, 4*emb_dim),
+            torch.nn.BatchNorm1d(4*emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(4*emb_dim, emb_dim),
             )
         self.edge_embedding = torch.nn.Embedding(value_edge_attr_categories, emb_dim)
 

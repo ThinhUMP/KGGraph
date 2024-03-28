@@ -21,9 +21,9 @@ def main():
                         help='input batch size for training (default: 32)')
     parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
-    parser.add_argument('--lr', type=float, default=0.001,
+    parser.add_argument('--lr', type=float, default=0.0001,
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0.1,
+    parser.add_argument('--decay', type=float, default=0.0,
                         help='weight decay (default: 0)')
     parser.add_argument('--hidden_channels', type=int, default=2048,
                         help='number of hidden nodes in the GNN network (default: 512).')
@@ -31,7 +31,7 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 512)')
-    parser.add_argument('--dropout_ratio', type=float, default=0.5,
+    parser.add_argument('--dropout_ratio', type=float, default=0,
                         help='dropout ratio (default: 0.5)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')

@@ -2,7 +2,7 @@ from KGGraph.Dataset.molecule_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.Dataset.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.GnnModel.Architecture import GINNet, gin, GINGenerate
+from KGGraph.GnnModel.Architecture import GINNet, gin, GINGenerate, GINTrain
 from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.GnnModel.Train.visualize import plot_metrics
 from KGGraph.GnnModel.Train.get_task_type_num_tasks import get_num_task, get_task_type
@@ -21,19 +21,23 @@ def main():
                         help='input batch size for training (default: 32)')
     parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
-    parser.add_argument('--lr', type=float, default=0.01,
+    parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
     parser.add_argument('--decay', type=float, default=0.1,
                         help='weight decay (default: 0)')
     parser.add_argument('--hidden_channels', type=int, default=2048,
                         help='number of hidden nodes in the GNN network (default: 512).')
-    # parser.add_argument('--num_layer', type=int, default=3, 
-    #                     help='number of GNN message passing layers (default: 5).')
+    parser.add_argument('--num_layer', type=int, default=5, 
+                        help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
-                        help='embedding dimensions (default: 128)')
+                        help='embedding dimensions (default: 512)')
     parser.add_argument('--dropout_ratio', type=float, default=0.5,
                         help='dropout ratio (default: 0.5)')
-    parser.add_argument('--dataset', type=str, default = 'tox21',
+    parser.add_argument('--JK', type=str, default="last",
+                        help='how the node features across layers are combined. last, sum, max or concat')
+    parser.add_argument('--gnn_type', type=str, default="gin",
+                        help='gnn_type (gat, gin, gcn, graphsage)')
+    parser.add_argument('--dataset', type=str, default = 'bace',
                         help='[bbbp, bace, sider, clintox, sider,tox21, toxcast, esol,freesolv,lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -79,7 +83,8 @@ def main():
     #set up model
     # model = GINNet(num_layer=args.num_layer, out_channels=num_tasks, dropout = args.dropout_ratio)
     # model = gin(in_channels=dataset[0].x.size(1), dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
-    model = GINGenerate(in_channels=dataset[0].x.size(1), emb_dim = args.emb_dim, dropout=args.dropout_ratio, out_channels=num_tasks)
+    # model = GINGenerate(emb_dim = dataset[0].x.size(1), dropout=args.dropout_ratio, out_channels=num_tasks)
+    model = GINTrain(args.num_layer, args.emb_dim, num_tasks, JK = args.JK, drop_ratio = args.dropout_ratio, gnn_type = args.gnn_type)
     model.to(device)
 
     #set up optimizer

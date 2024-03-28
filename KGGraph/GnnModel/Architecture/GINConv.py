@@ -5,7 +5,7 @@ from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 
-unique_value_edge_attr = 2
+value_edge_attr_categories = 3
 
 class GINConv(MessagePassing):
     """
@@ -18,22 +18,20 @@ class GINConv(MessagePassing):
 
     See https://arxiv.org/abs/1810.00826
     """
-    def __init__(self, in_channels, emb_dim, aggr = "add"):
+    def __init__(self, emb_dim, aggr = "add"):
         super(GINConv, self).__init__()
         #multi-layer perceptron
         self.mlp = torch.nn.Sequential(
-            torch.nn.Linear(in_channels, 2*emb_dim),
+            torch.nn.Linear(emb_dim, 2*emb_dim),
             torch.nn.ReLU(),
             torch.nn.Linear(2*emb_dim, emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.BatchNorm1d(emb_dim),
             )
-        self.edge_embedding = torch.nn.Embedding(unique_value_edge_attr, in_channels)
+        self.edge_embedding = torch.nn.Embedding(value_edge_attr_categories, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.edge_embedding.weight.data)
 
         self.aggr = aggr
-        self.in_channels = in_channels
+        self.in_channels = emb_dim
         self.emb_dim = emb_dim
 
     def forward(self, x, edge_index, edge_attr):
@@ -46,11 +44,7 @@ class GINConv(MessagePassing):
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
 
-        edge_embeddings = torch.zeros((edge_attr.size(0), self.in_channels), dtype=torch.float).to(edge_attr.device).to(edge_attr.dtype)
-
-        for i in range(edge_attr.size(1)):  # Iterate over the second dimension
-            embedding_ith = self.edge_embedding(edge_attr[:, i]).clone().detach().to(edge_attr.device).to(edge_attr.dtype)
-            edge_embeddings += embedding_ith
+        edge_embeddings = self.edge_embedding(edge_attr).sum(dim=1)
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 

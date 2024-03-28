@@ -5,7 +5,7 @@ from torch_geometric.nn import global_add_pool
 import torch.nn.functional as F
 
 class GINGenerate(torch.nn.Module):
-    def __init__(self, in_channels, emb_dim, dropout, out_channels):
+    def __init__(self, emb_dim, dropout, out_channels):
         super(GINGenerate, self).__init__()
         self.emb_dim = emb_dim
         self.dropout = dropout
@@ -15,20 +15,22 @@ class GINGenerate(torch.nn.Module):
         # for _ in range(num_layer):
         #     conv = GINConv(emb_dim)
         #     self.convs.append(conv)
-        self.conv1 = GINConv(in_channels= in_channels, emb_dim=emb_dim)
-        self.conv2 = GINConv(in_channels= emb_dim, emb_dim=2*emb_dim)
-        self.conv3 = GINConv(in_channels= 2*emb_dim, emb_dim=4*emb_dim)
-        self.conv4 = GINConv(in_channels= 4*emb_dim, emb_dim=4*emb_dim)
-        self.conv5 = GINConv(in_channels= 4*emb_dim, emb_dim=2*emb_dim)
-        self.lin1 = Linear(2*emb_dim, 256)
-        self.lin2 = Linear(256, out_channels)
+        self.conv1 = GINConv(emb_dim=emb_dim)
+        self.conv2 = GINConv(emb_dim=emb_dim)
+        self.conv3 = GINConv(emb_dim=emb_dim)
+        self.conv4 = GINConv(emb_dim=emb_dim)
+        self.conv5 = GINConv(emb_dim=emb_dim)
+        self.lin1 = Linear(emb_dim, emb_dim//2)
+        self.lin2 = Linear(emb_dim//2, out_channels)
         
     def forward(self, data):
         
         x = data.x
+        # print(x.size())
         edge_index = data.edge_index
         edge_attr = data.edge_attr
         batch = data.batch
+        # print(len(batch.unique()))
         # for conv in self.convs:
         #     x = conv(x, edge_index, edge_attr)
         x = self.conv1(x, edge_index, edge_attr)
@@ -40,13 +42,14 @@ class GINGenerate(torch.nn.Module):
         x = self.conv4(x, edge_index, edge_attr)
         # x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.conv5(x, edge_index, edge_attr)
-        
+        # print(x.size())
         x = global_add_pool(x, batch)
-        
+        # print(x.size())
         x = self.lin1(x)
         x = F.relu(x)
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.lin2(x)
+        # print(x.size())
         
         return x
             

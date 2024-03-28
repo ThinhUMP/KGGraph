@@ -7,7 +7,7 @@ import pathlib
 from mendeleev import element
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-# from KGGraph.Chemistry.chemutils import *
+from .chemutils import get_smiles
 with open(root_dir+'/data/feature/group_block_onehot.json', 'r') as f:
     group_block_onehot = json.load(f)
 
@@ -30,57 +30,82 @@ ELECTRONEGATIVITY = {
 ### Atom type
 def get_symbol(atom: Chem.Atom) -> str:
     """Get the symbol of the atom."""
-    return atom.GetSymbol()
+    try:
+        symbol = atom.GetSymbol()
+    except:
+        symbol = None
+        print(f"{get_smiles(atom.GetOwningMol())} contains atom which is not in the periodic table.")
+    return symbol
     
 def get_atomic_number(atom: Chem.Atom) -> int:
     """Get the atomic number of the atom."""
-    atomic_number = atom.GetAtomicNum()
-    if atomic_number is None:
+    try:
+        atomic_number = atom.GetAtomicNum()
+        if atomic_number is None:
+            atomic_number = 0
+    except:
         atomic_number = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get atomic number.")
     return atomic_number
     
 def get_period(atom: Chem.Atom) -> int:
     """Get the period of the atom."""
-    if get_symbol(atom) == '*':
-        period = 0
-        return period
-    else:
+    try:
         atom_mendeleev = element(get_symbol(atom))
         period = atom_mendeleev.period
-    if period is None:
+        if period is None:
+            period = 0
+    except:
         period = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get period.")
     return period
     
 def get_group(atom: Chem.Atom) -> int:
     """Get the group of the atom."""
-    atom_mendeleev = element(atom.GetSymbol())
-    groupid = atom_mendeleev.group_id
-    if groupid is None:
+    try:
+        atom_mendeleev = element(atom.GetSymbol())
+        groupid = atom_mendeleev.group_id
+        if groupid is None:
+            groupid = 0
+    except:
         groupid = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get group.")
     return groupid
 
 def get_atomicweight(atom: Chem.Atom) -> float:
     """Get the atomic weight of the atom."""
-    atom_mendeleev = element(atom.GetSymbol())
-    mass = atom_mendeleev.mass
-    if mass is None:
+    try:
+        atom_mendeleev = element(atom.GetSymbol())
+        mass = atom_mendeleev.mass
+        if mass is None:
+            mass = 0.0
+    except:
         mass = 0.0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get atomic weight.")
     return mass
 
 def get_num_valence_e(atom: Chem.Atom) -> int:
     """Get the number of valence electrons of the atom."""
-    pt = Chem.GetPeriodicTable()
-    NumValE = pt.GetNOuterElecs(get_symbol(atom))
-    if NumValE is None:
+    try:
+        pt = Chem.GetPeriodicTable()
+        NumValE = pt.GetNOuterElecs(get_symbol(atom))
+        if NumValE is None:
+            NumValE = 0
+    except:
         NumValE = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get number of valence electrons.")
     return NumValE
 
 def get_chemical_group_block(atom: Chem.Atom) -> List:
     """Retrieve the chemical group block of the atom, excluding the first value."""
-    atomic_index = get_atomic_number(atom) - 1
-    group_block_values = list(group_block_onehot[atomic_index].values())[1:]
-    if group_block_values is None:
+    try:
+        atomic_index = get_atomic_number(atom) - 1
+        group_block_values = list(group_block_onehot[atomic_index].values())[1:]
+        if group_block_values is None:
+            group_block_values = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+    except:
         group_block_values = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get chemical group block.")
     return group_block_values
 
 def get_hybridization(atom: Chem.Atom) -> str:
@@ -95,91 +120,146 @@ def get_cip_code(atom: Chem.Atom) -> Union[None, str]:
 
 def is_chiral_center(atom: Chem.Atom) -> bool:
     """Determine if the atom is a chiral center."""
-    chiral_center = atom.HasProp("_ChiralityPossible")
-    if chiral_center is None:
+    try:
+        chiral_center = atom.HasProp("_ChiralityPossible")
+        if chiral_center is None:
+            chiral_center = False
+    except:
         chiral_center = False
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get chiral center.")
     return chiral_center
 
 def get_formal_charge(atom: Chem.Atom) -> int:
     """Get the formal charge of the atom."""
-    formal_charge = atom.GetFormalCharge()
-    if formal_charge is None:
-        formal_charge = 0
+    try:
+        formal_charge = atom.GetFormalCharge()
+        if formal_charge is None:
+            formal_charge = 0
+    except:
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get formal charge.")
     return formal_charge
 
 def get_total_num_hs(atom: Chem.Atom) -> int:
     """Get the total number of hydrogen atoms connected to the atom."""
-    NumHs = atom.GetTotalNumHs()
-    if NumHs is None:
+    try:
+        NumHs = atom.GetTotalNumHs()
+        if NumHs is None:
+            NumHs = 0
+    except:
         NumHs = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get total number of hydrogen atoms.")
     return NumHs
 
 def get_total_valence(atom: Chem.Atom) -> int:
     """Get the total valence of the atom."""
-    ToVal = atom.GetTotalValence()
-    if ToVal is None:
+    try:
+        ToVal = atom.GetTotalValence()
+        if ToVal is None:
+            ToVal = 0
+    except:
         ToVal = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get total valence.")
     return ToVal
 
 def get_num_radical_electrons(atom: Chem.Atom) -> int:
     """Get the number of radical electrons of the atom."""
-    NumRadiE = atom.GetNumRadicalElectrons()
-    if NumRadiE is None:
+    try:
+        NumRadiE = atom.GetNumRadicalElectrons()
+        if NumRadiE is None:
+            NumRadiE = 0
+    except:
         NumRadiE = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get number of radical electrons.")
     return NumRadiE
 
 def get_degree(atom: Chem.Atom) -> int:
     """Get the degree of the atom (number of bonded neighbors)."""
-    return atom.GetDegree()
+    try:
+        atom_degree = atom.GetDegree()
+    except:
+        atom_degree = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get degree.")
+    return atom_degree
 
 def is_aromatic(atom: Chem.Atom) -> bool:
     """Check if the atom is part of an aromatic system."""
-    is_aromatic = atom.GetIsAromatic()
-    if is_aromatic is None:
+    try:
+        is_aromatic = atom.GetIsAromatic()
+        if is_aromatic is None:
+            is_aromatic = False
+    except:
         is_aromatic = False
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is aromatic.")
     return is_aromatic
 
 def is_hetero(atom: Chem.Atom) -> bool:
     """Check if the atom is a heteroatom."""
-    mol = atom.GetOwningMol()
-    return atom.GetIdx() in [i[0] for i in Lipinski._Heteroatoms(mol)]
+    try:
+        mol = atom.GetOwningMol()
+        is_hetero = atom.GetIdx() in [i[0] for i in Lipinski._Heteroatoms(mol)]
+    except:
+        is_hetero = False
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is hetero.")
+    return is_hetero
 
 def is_hydrogen_donor(atom: Chem.Atom) -> bool:
     """Check if the atom is a hydrogen bond donor."""
-    mol = atom.GetOwningMol()
-    return atom.GetIdx() in [i[0] for i in Lipinski._HDonors(mol)]
-
+    try:
+        mol = atom.GetOwningMol()
+        return atom.GetIdx() in [i[0] for i in Lipinski._HDonors(mol)]
+    except:
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is hydrogen donor.")
+        return False
 def is_hydrogen_acceptor(atom: Chem.Atom) -> bool:
     """Check if the atom is a hydrogen bond acceptor."""
-    mol = atom.GetOwningMol()
-    return atom.GetIdx() in [i[0] for i in Lipinski._HAcceptors(mol)]
-
+    try:
+        mol = atom.GetOwningMol()
+        return atom.GetIdx() in [i[0] for i in Lipinski._HAcceptors(mol)]
+    except:
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is hydrogen acceptor.")
+        return False
 def get_ring_size(atom: Chem.Atom) -> int:
     """Get the ring size for the smallest ring the atom is a part of."""
-    size = 0
-    if atom.IsInRing():
-        while not atom.IsInRingSize(size):
-            size += 1
+    try:
+        size = 0
+        if atom.IsInRing():
+            while not atom.IsInRingSize(size):
+                size += 1
+    except:
+        size = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get ring size.")
     return size
 
 def is_in_ring(atom: Chem.Atom) -> bool:
     """Check if the atom is part of any ring."""
-    is_in_ring = atom.IsInRing()
-    if is_in_ring is None:
+    try:
+        is_in_ring = atom.IsInRing()
+        if is_in_ring is None:
+            is_in_ring = False
+    except:
         is_in_ring = False
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is in ring.")
     return is_in_ring
 
 def get_ring_membership_count(atom: Chem.Atom) -> int:
     """Get the number of rings the atom is a part of."""
-    mol = atom.GetOwningMol()
-    ring_info = mol.GetRingInfo()
-    return len([ring for ring in ring_info.AtomRings() if atom.GetIdx() in ring])
+    try:
+        mol = atom.GetOwningMol()
+        ring_info = mol.GetRingInfo()
+        return len([ring for ring in ring_info.AtomRings() if atom.GetIdx() in ring])
+    except:
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get ring membership count.")
+        return 0
 
 def is_in_aromatic_ring(atom: Chem.Atom) -> bool:
     """Check if the atom is part of an aromatic ring."""
-    is_in_aromatic_ring = atom.GetIsAromatic()
-    if is_in_aromatic_ring is None:
+    try:
+        is_in_aromatic_ring = atom.GetIsAromatic()
+        if is_in_aromatic_ring is None:
+            is_in_aromatic_ring = False
+    except:
         is_in_aromatic_ring = False
+        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is in aromatic ring.")
     return is_in_aromatic_ring
 
 def get_electronegativity(atom: Chem.Atom) -> float:

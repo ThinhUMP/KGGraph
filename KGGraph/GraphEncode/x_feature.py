@@ -149,9 +149,11 @@ def main():
     from joblib import Parallel, delayed
     import time
     from tqdm import tqdm
-    data = pd.read_csv('./dataset/classification/tox21/raw/tox21.csv')
-    smiles = data['smiles'].tolist()[:10]
-    mols = [get_mol(smile) for smile in smiles]
+    from KGGraph import load_clintox_dataset
+    # data = pd.read_csv('./dataset/classification/clintox/raw/clintox.csv')
+    # smiles = data['smiles'].tolist()[:10]
+    # mols = [get_mol(smile) for smile in smiles]
+    smiles, mols, labels = load_clintox_dataset('./dataset/classification/clintox/raw/clintox.csv')
     atom_types = get_atom_types(smiles)
     t1 = time.time()
     x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))

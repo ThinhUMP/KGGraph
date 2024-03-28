@@ -3,12 +3,21 @@ import rdkit.Chem as Chem
 from collections import defaultdict
 from typing import List, Tuple, Set, Optional
 import numpy as np
-from .features import get_atomic_number
 lg = rdkit.RDLogger.logger() 
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
 idxfunc = lambda a : a.GetAtomMapNum() - 1
 
+def get_atomic_number(atom: Chem.Atom) -> int:
+    """Get the atomic number of the atom."""
+    try:
+        atomic_number = atom.GetAtomicNum()
+        if atomic_number is None:
+            atomic_number = 0
+    except:
+        atomic_number = 0
+        print(f"{get_smiles(atom.GetOwningMol())} contains atom which can not get atomic number.")
+    return atomic_number
 def get_atom_types(smiles: List[str]) -> List[int]:
     """
     Returns a list of unique atomic numbers present in the molecules represented by the given SMILES strings.

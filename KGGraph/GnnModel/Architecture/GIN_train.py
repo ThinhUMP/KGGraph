@@ -21,7 +21,7 @@ class GINTrain(torch.nn.Module):
         gnn_type: gin, gcn, graphsage, gat
         
     """
-    def __init__(self, num_layer, emb_dim, num_tasks, JK = "last", drop_ratio = 0, gnn_type = "gin"):
+    def __init__(self, dataset, num_layer, emb_dim, num_tasks, JK = "last", drop_ratio = 0, gnn_type = "gin"):
         super(GINTrain, self).__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
@@ -32,7 +32,7 @@ class GINTrain(torch.nn.Module):
         if self.num_layer < 2:
             raise ValueError("Number of GNN layers must be greater than 1.")
 
-        self.gnn = GNN(num_layer, emb_dim, JK, drop_ratio, gnn_type = gnn_type)
+        self.gnn = GNN(dataset, num_layer, emb_dim, JK, drop_ratio, gnn_type = gnn_type)
         
 
         if self.JK == "concat":

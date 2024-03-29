@@ -4,8 +4,7 @@ from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
-
-value_edge_attr_categories = 3
+from ..vocab_edge_attr_embedding import num_vocab_edge_attr_embedding
 
 class GINConv(MessagePassing):
     """
@@ -18,7 +17,7 @@ class GINConv(MessagePassing):
 
     See https://arxiv.org/abs/1810.00826
     """
-    def __init__(self, emb_dim, aggr = "add"):
+    def __init__(self, dataset, emb_dim, aggr = "add"):
         super(GINConv, self).__init__()
         #multi-layer perceptron
         self.mlp = torch.nn.Sequential(
@@ -30,7 +29,8 @@ class GINConv(MessagePassing):
             torch.nn.ReLU(),
             torch.nn.Linear(4*emb_dim, emb_dim),
             )
-        self.edge_embedding = torch.nn.Embedding(value_edge_attr_categories, emb_dim)
+        vocab_edge_attr_embedding = num_vocab_edge_attr_embedding(dataset)
+        self.edge_embedding = torch.nn.Embedding(vocab_edge_attr_embedding, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.edge_embedding.weight.data)
 

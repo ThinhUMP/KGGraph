@@ -4,9 +4,9 @@ from torch_geometric.nn import global_add_pool
 import torch
 import torch.nn.functional as F
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
-from .GINConv import GINConv
+from .Conv.GINConv import GINConv
+from .vocab_x_embedding import num_vocab_x_embedding
 
-num_categories = 127  # Number of unique categories in your feature x
 class GNN(torch.nn.Module):
     """
     
@@ -23,7 +23,7 @@ class GNN(torch.nn.Module):
         node representations
 
     """
-    def __init__(self, num_layer, emb_dim, JK = "last", drop_ratio = 0, gnn_type = "gin"):
+    def __init__(self, dataset, num_layer, emb_dim, JK = "last", drop_ratio = 0, gnn_type = "gin"):
         super(GNN, self).__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
@@ -32,8 +32,8 @@ class GNN(torch.nn.Module):
 
         if self.num_layer < 2:
             raise ValueError("Number of GNN layers must be greater than 1.")
-
-        self.x_embedding = torch.nn.Embedding(num_categories, emb_dim)
+        vocab_x_embedding = num_vocab_x_embedding(dataset)
+        self.x_embedding = torch.nn.Embedding(vocab_x_embedding, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.x_embedding.weight.data)
 
@@ -41,7 +41,7 @@ class GNN(torch.nn.Module):
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):
             if gnn_type == "gin":
-                self.gnns.append(GINConv(emb_dim, aggr = "add"))
+                self.gnns.append(GINConv(dataset, emb_dim, aggr = "add"))
             elif gnn_type == "gcn":
                 pass
             elif gnn_type == "gat":

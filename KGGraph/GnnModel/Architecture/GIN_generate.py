@@ -1,4 +1,4 @@
-from .GINConv import GINConv
+from .Conv.GINConv import GINConv
 import torch
 from torch.nn import Linear, ModuleList, BatchNorm1d
 from torch_geometric.nn import global_add_pool

@@ -41,3 +41,5 @@ dataset/*/*/figures/
 KGGraph/GnnModel/Train/train_utils_draft.py
 KGGraph/GnnModel/Architecture/GIN_generate.py
 KGGraph/GnnModel/Architecture/GINNet.py
+test.ipynb
+test.py

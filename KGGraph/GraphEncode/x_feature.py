@@ -150,10 +150,19 @@ def main():
     import time
     from tqdm import tqdm
     from KGGraph import load_clintox_dataset
+    from pathlib import Path
+    import sys
+    import pandas as pd
+    from typing import List
+    # Get the root directory
+    root_dir = Path(__file__).resolve().parents[2]
+    # Add the root directory to the system path
+    sys.path.append(str(root_dir))
     # data = pd.read_csv('./dataset/classification/clintox/raw/clintox.csv')
     # smiles = data['smiles'].tolist()[:10]
     # mols = [get_mol(smile) for smile in smiles]
-    smiles, mols, labels = load_clintox_dataset('./dataset/classification/clintox/raw/clintox.csv')
+    print(pwd())
+    smiles, mols, labels = load_clintox_dataset('dataset/classification/clintox/raw/clintox.csv')
     atom_types = get_atom_types(smiles)
     t1 = time.time()
     x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))

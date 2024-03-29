@@ -18,6 +18,19 @@ criterion = nn.BCEWithLogitsLoss(reduction = "none")
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
 def train(model, device, loader, optimizer):
+    """
+    Trains the model for one epoch over the provided data loader.
+
+    Parameters:
+    model (torch.nn.Module): The model to be trained.
+    device (torch.device): The device to run the model on ('cuda' or 'cpu').
+    loader (DataLoader): The data loader that provides batches of data.
+    optimizer (torch.optim.Optimizer): The optimizer used for updating model parameters.
+    criterion (function): The loss function used for training.
+
+    Returns:
+    tuple: A tuple containing the average loss, ROC AUC, average precision, and F1 score for the training epoch.
+    """
     model.train()
     y_true = []
     y_scores = []
@@ -85,6 +98,25 @@ def train_reg(args, model, device, loader, optimizer):
 
 
 def evaluate(args, model, device, loader, task_type):
+    """
+    Evaluates the performance of a model on a given dataset.
+
+    Parameters:
+    - args: The command-line arguments passed to the program.
+    - model: The model to be evaluated.
+    - device: The device on which the model is running.
+    - loader: The data loader for the dataset.
+    - task_type: The type of task being performed.
+
+    Returns:
+    - eval_roc: The area under the ROC curve for the evaluation.
+    - eval_ap: The average precision for the evaluation.
+    - eval_f1: The F1 score for the evaluation.
+    - loss: The average loss for the evaluation.
+    - roc_list: A list of ROC scores for each target.
+    - ap_list: A list of average precisions for each target.
+    - f1_list: A list of F1 scores for each target.
+    """
     model.eval()
     y_true = []
     y_scores = []
@@ -172,6 +204,22 @@ def save_emb(model, device, loader, num_tasks, out_file):
     np.savez(out_file, emb=output_emb, label=output_label)
     
 def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, task_type):
+    """
+    Trains a classification model for a specified number of epochs and returns the training metrics.
+
+    Args:
+        args (object): The arguments object containing the necessary parameters for training.
+        model (object): The classification model to be trained.
+        device (str): The device on which the training will be performed.
+        train_loader (object): The data loader for the training dataset.
+        val_loader (object): The data loader for the validation dataset.
+        test_loader (object): The data loader for the test dataset.
+        optimizer (object): The optimizer used for training.
+        task_type (str): The type of task (e.g., binary classification, multi-class classification).
+
+    Returns:
+        dict: A dictionary containing the training metrics for each epoch, including the training and validation loss, AUC, AP, and F1 scores.
+    """
     train_auc_list, val_auc_list, test_auc_list = [], [], []
     train_ap_list, val_ap_list, test_ap_list = [], [], []
     train_f1_list, val_f1_list, test_f1_list = [], [], []

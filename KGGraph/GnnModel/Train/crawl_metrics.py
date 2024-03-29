@@ -1,6 +1,15 @@
 import pandas as pd
 def create_test_df(args, roc_list, ap_list, f1_list, task_type):
-    
+    """
+    Creates and saves a test metrics DataFrame for various datasets.
+
+    Parameters:
+    args: Argument parser or a similar object with attributes dataset, save_path, and task_type.
+    roc_list (list): List of ROC AUC values for individual task.
+    ap_list (list): List of average precision (AP) values for individual task.
+    f1_list (list): List of F1 scores for individual task.
+    task_type (str): The type of task for which metrics are being recorded.
+    """
     if args.dataset == "tox21":
         tasks = ['NR-AR', 'NR-AR-LBD', 'NR-AhR', 'NR-Aromatase', 'NR-ER', 'NR-ER-LBD',
        'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
@@ -81,6 +90,23 @@ def create_test_df(args, roc_list, ap_list, f1_list, task_type):
 def create_train_df(
     args, train_df, train_loss, train_auc, train_ap, train_f1, val_loss, val_auc, val_ap, val_f1, task_type, epoch
     ):
+    """
+    Updates and saves the training metrics DataFrame with new epoch data.
+
+    Parameters:
+    args: Argument parser or a similar object with attributes save_path, task_type, and dataset.
+    train_df (DataFrame): The DataFrame containing the training metrics.
+    train_loss (float): Training loss for the current epoch.
+    train_auc (float): Training AUC for the current epoch.
+    train_ap (float): Training AP for the current epoch.
+    train_f1 (float): Training F1 score for the current epoch.
+    val_loss (float): Validation loss for the current epoch.
+    val_auc (float): Validation AUC for the current epoch.
+    val_ap (float): Validation AP for the current epoch.
+    val_f1 (float): Validation F1 score for the current epoch.
+    task_type (str): The type of task for which metrics are being recorded.
+    epoch (int): The current epoch number.
+    """
     train_df.at[epoch-1, "train_loss"] = train_loss
     train_df.at[epoch-1,"train_auc"] = train_auc
     train_df.at[epoch-1,"train_ap"] = train_ap

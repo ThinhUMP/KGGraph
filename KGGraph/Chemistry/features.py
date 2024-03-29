@@ -8,6 +8,7 @@ from mendeleev import element
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from .chemutils import get_smiles
+
 with open(root_dir+'/data/feature/group_block_onehot.json', 'r') as f:
     group_block_onehot = json.load(f)
 
@@ -210,6 +211,7 @@ def is_hydrogen_donor(atom: Chem.Atom) -> bool:
     except:
         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is hydrogen donor.")
         return False
+
 def is_hydrogen_acceptor(atom: Chem.Atom) -> bool:
     """Check if the atom is a hydrogen bond acceptor."""
     try:
@@ -218,6 +220,7 @@ def is_hydrogen_acceptor(atom: Chem.Atom) -> bool:
     except:
         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get is hydrogen acceptor.")
         return False
+
 def get_ring_size(atom: Chem.Atom) -> int:
     """Get the ring size for the smallest ring the atom is a part of."""
     try:

@@ -1,7 +1,6 @@
 import os
 import torch
 import pandas as pd
-from rdkit.Chem import AllChem
 from torch_geometric.data import Data
 from torch_geometric.data import InMemoryDataset
 from itertools import repeat
@@ -14,13 +13,14 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 from KGGraph.GraphEncode.x_feature import x_feature
 from KGGraph.GraphEncode.edge_feature import edge_feature
-from KGGraph.Chemistry.chemutils import get_mol, get_atom_types
+from KGGraph.Chemistry.chemutils import get_atom_types
 from KGGraph.Dataset.loader import (
         load_tox21_dataset, load_another_dataset, load_bace_dataset, load_bbbp_dataset, 
         load_clintox_dataset, load_sider_dataset, load_toxcast_dataset,
 )
 from joblib import Parallel, delayed
 from tqdm import tqdm
+
 def feature(mol, atom_types):
     x = x_feature(mol, atom_types)
     edge_index, edge_attr, directed_adj_matrix = edge_feature(mol)

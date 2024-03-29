@@ -5,17 +5,15 @@ import os
 def plot_metrics(args,
     metrics_training, task_type
 ):
-    """Plot the metrics for each epoch
+    """
+    Plot the training, validation, and test loss, AUC, F1, and AP for each epoch.
 
-    Args:
-        train_loss_list (list): training losses for each epoch
-        val_loss_list (list): validation losses for each epoch
-        train_auc_list (list): training AUC for each epoch
-        val_auc_list (list): validation AUC for each epoch
-        train_f1_list (list): training F1 for each epoch
-        val_f1_list (list): validation F1 for each epoch
-        train_ap_list (list): training AP for each epoch
-        val_ap_list (list): validation AP for each epoch
+    Parameters:
+    args: Argument parser or a similar object with attributes like save_path and dataset.
+    metrics_training (dict): Dictionary containing lists of training, validation, and test metrics.
+    task_type (str): The type of task (e.g., 'classification', 'regression').
+
+    The function saves the plot to a file and displays it.
     """
     fig, axs = plt.subplots(2, 2, figsize=(10, 10))
 
@@ -47,9 +45,11 @@ def plot_metrics(args,
     axs[1, 1].set_title("Average Precision")
     axs[1, 1].legend()
 
+    # Setting labels for all subplots
     for ax in axs.flat:
         ax.set(xlabel='Epoch', ylabel='Value')
 
+    # Adjust layout and save the plot
     plt.tight_layout()
     if not os.path.isdir(f"{args.save_path+task_type}/{args.dataset}/figures"):
         os.mkdir(f"{args.save_path+task_type}/{args.dataset}/figures")
@@ -57,18 +57,21 @@ def plot_metrics(args,
     plt.show()
     
 def plot_targets(pred, ground_truth):
-    """Plot true vs predicted value in a scatter plot
+    """
+    Plot predicted values against ground truth values.
 
-    Args:
-        pred (array): predicted values
-        ground_truth (array): ground truth values
+    Parameters:
+    pred (array-like): Predicted values.
+    ground_truth (array-like): True values.
+
+    The function displays a scatter plot comparing predictions to true values.
     """
     f, ax = plt.subplots(figsize=(6, 6))
     ax.scatter(pred, ground_truth, s=0.5)
     plt.xlim(-2, 7)
     plt.ylim(-2, 7)
-    ax.axline((1, 1), slope=1)
+    ax.plot([1, 1], [1, 1], color='red', lw=2)  # Ideal line for perfect predictions
     plt.xlabel("Predicted Value")
-    plt.ylabel("Ground truth")
-    plt.title("Ground truth vs prediction")
+    plt.ylabel("Ground Truth")
+    plt.title("Ground Truth vs Prediction")
     plt.show()

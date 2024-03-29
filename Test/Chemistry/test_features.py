@@ -15,8 +15,16 @@ from KGGraph.Chemistry.features import (
 )
 
 class TestMolecularFeatures(unittest.TestCase):
+    """
+    Test class for validating molecular feature extraction functions.
 
+    This class includes a series of tests to ensure the correctness of various functions designed to extract
+    atomic and bond features from a molecule, using ethanol as a test case.
+    """
     def setUp(self):
+        """
+        Set up the test case environment by initializing an ethanol molecule, a target atom, and a target bond.
+        """
         self.molecule = Chem.MolFromSmiles('CCO')  # ethanol as a test case
         self.atom = self.molecule.GetAtomWithIdx(1)  # Carbon atom
         self.bond = self.molecule.GetBondWithIdx(0)  # Bond between two carbon atoms

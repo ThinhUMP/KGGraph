@@ -18,6 +18,7 @@ def get_atomic_number(atom: Chem.Atom) -> int:
         atomic_number = 0
         print(f"{get_smiles(atom.GetOwningMol())} contains atom which can not get atomic number.")
     return atomic_number
+
 def get_atom_types(smiles: List[str]) -> List[int]:
     """
     Returns a list of unique atomic numbers present in the molecules represented by the given SMILES strings.

@@ -23,8 +23,6 @@ from KGGraph.Chemistry.features import (
 )
 from KGGraph.Chemistry.chemutils import get_atom_types, atomic_num_features
 
-# atom_types = list(range(1, 93))  # Atomic numbers from 1 to 90 because we don't see that much atom with atomic number greater than 90 in medicinal chemistry
-# 91 for motif and 92 for supernode
 class AtomFeature:
     """
     Class to compute atom features for a given dataset of molecules.
@@ -48,16 +46,10 @@ class AtomFeature:
         for atom in self.mol.GetAtoms():
             basic_features = self.compute_basic_features(atom)
             chemical_group = get_chemical_group_block(atom)
-            
-            # atomic_number = get_atomic_number(atom)
-            # atomic_number_vector = list((np.array(atom_types) == atomic_number).astype(int))
-            # if atomic_number_vector is None:
-            #     atomic_number_vector = list(np.zeros(len(atom_types)))
 
             total_single_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
             if hybri_feat == [0,0,0,0,0]:
                 print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
-                # raise ValueError(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)}')
             
             combined_features = basic_features + chemical_group + hybri_feat
             x_node_list.append(combined_features)
@@ -111,9 +103,9 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int):
     num_motif = len(cliques)
 
     # Pre-define tensor templates for atomic number of motif and supernode
-    # 120 for supernode in the atomic number onehot encoding
+    # atomic number for supernode in the atomic number onehot encoding
     supernode_template =[0] * (number_atom_node_attr - 2) + [0, 1] 
-    # 119 for motif in the atomic number onehot encoding
+    # atomic number for motif in the atomic number onehot encoding
     motif_node_template =[0] * (number_atom_node_attr - 2) + [1, 0]
 
     # Create tensors based on the number of motifs
@@ -141,7 +133,6 @@ def x_feature(mol: Chem.Mol, atom_types: List[int]):
     x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1))
 
     # Concatenate features
-    # print(x_node.size(), x_motif.size(), x_supernode.size())
     x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
     return x
 

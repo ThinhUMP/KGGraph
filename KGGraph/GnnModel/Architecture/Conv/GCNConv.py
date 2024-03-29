@@ -3,7 +3,7 @@ from torch.nn import Linear, Parameter
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
-
+#TODO: rewrite this python file to adapt with new code
 unique_value_edge_attr = 2
 
 class GCNConv(MessagePassing):

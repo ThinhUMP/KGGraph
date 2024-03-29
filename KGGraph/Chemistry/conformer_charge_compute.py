@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-from typing import Any, Optional
 from pandas import DataFrame
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -156,14 +155,6 @@ class ConformerChargeGeneration:
         if geometric_process.returncode != 0:
             print(f"Error in xtb: {geometric_err}")
             return None
-        # else:
-        #     partial_chrg_command = f"xtb {input_file} --gfn 2 --chrg 0 --ohess --pop --parallel {num_cpus}"
-        #     partial_chrg_process = subprocess.Popen(partial_chrg_command, shell=True, stdout=subprocess.PIPE)
-        #     partial_chrg_output, partial_chrg_err = partial_chrg_process.communicate()    
-        
-        #     if partial_chrg_process.returncode != 0:
-        #         print(f"Error in xtb: {partial_chrg_err}")
-        #         return None
 
         # Rename and move the optimized geometric file to the specified directory
         if os.path.exists("xtbopt.pdb"):

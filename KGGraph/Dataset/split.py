@@ -7,19 +7,21 @@ from collections import defaultdict
 
 def generate_scaffold(smiles, include_chirality=False):
     """
-    Obtain Bemis-Murcko scaffold from smiles
-    :param smiles:
-    :param include_chirality:
-    :return: smiles of scaffold
-    """
-    scaffold = MurckoScaffold.MurckoScaffoldSmiles(
-        smiles=smiles, includeChirality=include_chirality)
-    return scaffold
+    Generates a Bemis-Murcko scaffold representation from a SMILES string. The Bemis-Murcko
+    scaffold is a way to represent the core structure of a molecule, excluding side chains.
 
-# # test generate_scaffold
-# s = 'Cc1cc(Oc2nccc(CCC)c2)ccc1'
-# scaffold = generate_scaffold(s)
-# assert scaffold == 'c1ccc(Oc2ccccn2)cc1'
+    Parameters:
+    smiles (str): A SMILES string representing the molecule.
+    include_chirality (bool): If True, the chiral information will be included in the scaffold.
+                              Defaults to False.
+
+    Returns:
+    str: A SMILES string representing the Bemis-Murcko scaffold of the input molecule.
+    """
+    # Generate the Bemis-Murcko scaffold from the provided SMILES string, considering chirality if specified
+    scaffold = MurckoScaffold.MurckoScaffoldSmiles(smiles=smiles, includeChirality=include_chirality)
+    
+    return scaffold
 
 def scaffold_split(
     dataset, 
@@ -33,23 +35,31 @@ def scaffold_split(
 ):
     """
     Adapted from  https://github.com/deepchem/deepchem/blob/master/deepchem/splits/splitters.py
-    Split dataset by Bemis-Murcko scaffolds
-    This function can also ignore examples containing null values for a
-    selected task when splitting. Deterministic split
-    :param dataset: pytorch geometric dataset obj
-    :param smiles_list: list of smiles corresponding to the dataset obj
-    :param task_idx: column idx of the data.y tensor. Will filter out
-    examples with null value in specified task column of the data.y tensor
-    prior to splitting. If None, then no filtering
-    :param null_value: float that specifies null value in data.y to filter if
-    task_idx is provided
-    :param frac_train:
-    :param frac_valid:
-    :param frac_test:
-    :param return_smiles:
-    :return: train, valid, test slices of the input dataset obj. If
-    return_smiles = True, also returns ([train_smiles_list],
-    [valid_smiles_list], [test_smiles_list])
+    Splits a dataset into training, validation, and test sets based on Bemis-Murcko scaffolds.
+    This deterministic splitting method ensures that molecules with the same scaffold are
+    grouped together. Optionally, the function can filter out examples that contain a null
+    value for a specified task before performing the split.
+
+    Parameters:
+    dataset (PyG Dataset): A PyTorch Geometric dataset object to be split.
+    smiles_list (list of str): A list of SMILES strings corresponding to each entry in the dataset.
+    task_idx (int, optional): The index of the task in the data.y tensor. If provided, the function
+                              filters out examples where the specified task column in data.y has the
+                              null value before splitting. Defaults to None, which means no filtering.
+    null_value (float): The value considered as null in the data.y tensor. Used for filtering when
+                        task_idx is provided. Defaults to 0.
+    frac_train (float): The fraction of the dataset to include in the training set. Defaults to 0.8.
+    frac_valid (float): The fraction of the dataset to include in the validation set. Defaults to 0.1.
+    frac_test (float): The fraction of the dataset to include in the test set. Defaults to 0.1.
+    return_smiles (bool): If True, the function also returns lists of SMILES strings for the training,
+                          validation, and test sets. Defaults to True.
+
+    Returns:
+    tuple: Depending on the value of return_smiles, the function returns:
+           - If return_smiles is False: Three PyG dataset objects representing the training, validation,
+             and test sets.
+           - If return_smiles is True: Three PyG dataset objects as above, plus a tuple containing three
+             lists of SMILES strings (one for each set).
     """
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
 
@@ -120,18 +130,28 @@ def random_split(dataset, task_idx=None, null_value=0,
                    frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=42,
                  smiles_list=None):
     """
+    Randomly splits a dataset into training, validation, and test sets. The function
+    allows for optional filtering of examples based on a specified task index and null value.
+    If a list of SMILES strings is provided, it returns the corresponding SMILES for each
+    subset along with the dataset objects.
 
-    :param dataset:
-    :param task_idx:
-    :param null_value:
-    :param frac_train:
-    :param frac_valid:
-    :param frac_test:
-    :param seed:
-    :param smiles_list: list of smiles corresponding to the dataset obj, or None
-    :return: train, valid, test slices of the input dataset obj. If
-    smiles_list != None, also returns ([train_smiles_list],
-    [valid_smiles_list], [test_smiles_list])
+    Parameters:
+    dataset (PyG Dataset): The dataset to be split.
+    task_idx (int, optional): Index of the task in the data.y tensor. If provided, examples with a null
+                              value in this task column are filtered out before splitting. Defaults to None.
+    null_value (float): The value considered as null in the data.y tensor. Used for filtering when
+                        task_idx is provided. Defaults to 0.
+    frac_train (float): Fraction of the dataset to include in the training set. Defaults to 0.8.
+    frac_valid (float): Fraction of the dataset to include in the validation set. Defaults to 0.1.
+    frac_test (float): Fraction of the dataset to include in the test set. Defaults to 0.1.
+    seed (int): Random seed for reproducibility. Defaults to 42.
+    smiles_list (list of str, optional): List of SMILES strings corresponding to the dataset. If provided,
+                                          the function also returns SMILES for each subset.
+
+    Returns:
+    tuple: If smiles_list is not provided, returns (train_dataset, valid_dataset, test_dataset).
+           If smiles_list is provided, also returns (train_smiles, valid_smiles, test_smiles) for
+           the corresponding subsets.
     """
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
 
@@ -181,21 +201,26 @@ def random_scaffold_split(dataset, smiles_list, task_idx=None, null_value=0,
                    frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=0):
     """
     Adapted from https://github.com/pfnet-research/chainer-chemistry/blob/master/chainer_chemistry/dataset/splitters/scaffold_splitter.py
-    Split dataset by Bemis-Murcko scaffolds
-    This function can also ignore examples containing null values for a
-    selected task when splitting. Deterministic split
-    :param dataset: pytorch geometric dataset obj
-    :param smiles_list: list of smiles corresponding to the dataset obj
-    :param task_idx: column idx of the data.y tensor. Will filter out
-    examples with null value in specified task column of the data.y tensor
-    prior to splitting. If None, then no filtering
-    :param null_value: float that specifies null value in data.y to filter if
-    task_idx is provided
-    :param frac_train:
-    :param frac_valid:
-    :param frac_test:
-    :param seed;
-    :return: train, valid, test slices of the input dataset obj
+    Splits a dataset into training, validation, and test sets based on randomized Bemis-Murcko scaffolds.
+    This ensures that molecules with similar scaffolds are grouped together, providing a more robust
+    evaluation of model generalization. This function also supports filtering out data points based
+    on a specified task index and null value.
+
+    Parameters:
+    dataset (PyG Dataset): The PyTorch Geometric dataset object to be split.
+    smiles_list (list of str): A list of SMILES strings corresponding to the entries in the dataset.
+    task_idx (int, optional): Index of the task in the data.y tensor. If provided, examples with a null
+                              value in this task column are filtered out before splitting. Defaults to None.
+    null_value (float): The value considered as null in the data.y tensor. Used for filtering when
+                        task_idx is provided. Defaults to 0.
+    frac_train (float): Fraction of the dataset to include in the training set. Defaults to 0.8.
+    frac_valid (float): Fraction of the dataset to include in the validation set. Defaults to 0.1.
+    frac_test (float): Fraction of the dataset to include in the test set. Defaults to 0.1.
+    seed (int): Seed for the random number generator used in shuffling the scaffolds. Defaults to 0.
+
+    Returns:
+    tuple: Three PyTorch Geometric dataset objects representing the training, validation,
+           and test sets, in that order.
     """
 
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)

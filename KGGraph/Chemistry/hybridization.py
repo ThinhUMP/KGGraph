@@ -10,7 +10,6 @@ from KGGraph.Chemistry.features import (
     get_degree, get_total_num_hs, get_hybridization,
 )
 
-
 class HybridizationFeaturize:
     """
     Class to compute hybridization features for a given dataset of molecules.
@@ -85,7 +84,7 @@ class HybridizationFeaturize:
         num_lone_pairs = HybridizationFeaturize.num_bond_hybridization(atom) - HybridizationFeaturize.total_single_bond(atom)
         return num_lone_pairs
     
-    def feature(atom: Chem.Atom) -> list:
+    def feature(atom: Chem.Atom) -> list[int, int, list[int, int, int, int, int]]:
         # print(get_smiles(atom.GetOwningMol()))
         total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
         num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)

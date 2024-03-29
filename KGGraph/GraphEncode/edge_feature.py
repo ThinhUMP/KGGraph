@@ -14,10 +14,11 @@ sys.path.append(str(root_dir))
 from KGGraph.Chemistry.chemutils import get_smiles
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.features import (
-     is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
+    is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
 )
 from KGGraph.Chemistry.bond_type import bond_type_feature
 from KGGraph.Chemistry.gasteiger_adj import renumber_and_calculate_charges, calculate_directed_adjacency_matrix
+
 # Load bond dictionaries for process of feature extraction: bond stereo.
 with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
@@ -57,7 +58,7 @@ class EdgeFeature:
                 # Compute basic features for the bond
                 basic_features = [
                     is_rotatable(bond),
-                    get_bond_polarity(bond), #TODO: xtb => density
+                    get_bond_polarity(bond), #TODO: xtb => density => minus calculation
                     is_bond_in_ring(bond) #TODO: remove
                 ]
                 

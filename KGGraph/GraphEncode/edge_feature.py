@@ -1,6 +1,5 @@
 import sys
 import json
-import pandas as pd
 import torch
 from pathlib import Path
 from rdkit import Chem
@@ -12,13 +11,13 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
     
 # Import necessary modules and functions
-from KGGraph.Chemistry.chemutils import get_mol, get_smiles
+from KGGraph.Chemistry.chemutils import get_smiles
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.features import (
-    is_conjugated, is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
+     is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
 )
-from KGGraph.Chemistry.bond_type import GetBondTypeFeature
-from KGGraph.Chemistry.gasteiger_adj import add_atom_mapping, renumber_and_calculate_charges, calculate_directed_adjacency_matrix
+from KGGraph.Chemistry.bond_type import bond_type_feature
+from KGGraph.Chemistry.gasteiger_adj import renumber_and_calculate_charges, calculate_directed_adjacency_matrix
 # Load bond dictionaries for process of feature extraction: bond stereo.
 with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
@@ -32,7 +31,7 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 19
+        self.num_bond_features = 18
         motif = MotifDecomposition(mol)
         self.cliques = motif.defragment()
         self.num_motif = len(self.cliques)
@@ -57,18 +56,17 @@ class EdgeFeature:
             for bond in mol.GetBonds():
                 # Compute basic features for the bond
                 basic_features = [
-                    is_conjugated(bond),
                     is_rotatable(bond),
                     get_bond_polarity(bond), #TODO: xtb => density
                     is_bond_in_ring(bond) #TODO: remove
                 ]
                 
                 # Get bond type and stereo features from the dictionaries
-                bond_type_feature = GetBondTypeFeature.feature(bond)
-                bond_stereo_feature = bond_stereo_dict.get(get_stereo(bond), [0] * len(bond_stereo_dict))
+                bond_type_features = bond_type_feature(bond)
+                bond_stereo_features = bond_stereo_dict.get(get_stereo(bond), [0] * len(bond_stereo_dict))
                 
                 # Combine all features into a single list
-                combined_features = basic_features + bond_stereo_feature + bond_type_feature 
+                combined_features = basic_features + bond_stereo_features + bond_type_features 
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
@@ -179,11 +177,10 @@ def edge_feature(mol):
 def main():
     import time
     from joblib import Parallel, delayed
-    data = pd.read_csv('./dataset/classification/bace/raw/bace.csv')
-    smiles = data['mol'].tolist()[:5]
-    mols = [get_mol(smile) for smile in smiles]
+    from KGGraph import load_clintox_dataset
+    smiles_list, mols_list, labels = load_clintox_dataset('./dataset/classification/clintox/raw/clintox.csv')
     t1 = time.time()
-    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols)
+    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols_list)
     t2 = time.time()
     print(t2-t1)
     # Print the results

@@ -81,8 +81,8 @@ def get_mol(smiles: str) -> Optional[Chem.Mol]:
         mol = Chem.MolFromSmiles(smiles)
     except:
         mol = None
-    if mol is not None: 
-        Chem.Kekulize(mol, clearAromaticFlags=True)
+    # if mol is not None: 
+    #     Chem.Kekulize(mol, clearAromaticFlags=False)
     return mol
 
 def get_smiles(mol: Chem.Mol) -> str:
@@ -95,7 +95,7 @@ def get_smiles(mol: Chem.Mol) -> str:
     Returns:
     - str: The SMILES representation of the molecule.
     """
-    return Chem.MolToSmiles(mol, kekuleSmiles=True)
+    return Chem.MolToSmiles(mol, kekuleSmiles=False)
 
 def sanitize(mol: Chem.Mol, kekulize: bool = True) -> Optional[Chem.Mol]:
     """

@@ -66,11 +66,6 @@ class GNN(torch.nn.Module):
 
         x_clamped = torch.clamp(x, 0, self.x_embedding.num_embeddings - 1)
         x_embeddings = self.x_embedding(x_clamped).sum(dim=1)
-        # x_embeddings = torch.empty((x.size(0), self.emb_dim)).to(x.device).to(x.dtype)
-
-        # for i in range(x.size(1)):  # Iterate over the second dimension
-        #     embedding_ith = self.x_embedding(x[:, i]).clone().detach().to(x.device).to(x.dtype)
-        #     x_embeddings += embedding_ith
         
         h_list = [x_embeddings]
         

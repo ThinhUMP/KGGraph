@@ -161,7 +161,6 @@ def main():
     # data = pd.read_csv('./dataset/classification/clintox/raw/clintox.csv')
     # smiles = data['smiles'].tolist()[:10]
     # mols = [get_mol(smile) for smile in smiles]
-    print(pwd())
     smiles, mols, labels = load_clintox_dataset('dataset/classification/clintox/raw/clintox.csv')
     atom_types = get_atom_types(smiles)
     t1 = time.time()

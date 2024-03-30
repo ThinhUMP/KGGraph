@@ -3,18 +3,17 @@ import numpy as np
 from rdkit import Chem
 from pathlib import Path
 import sys
-import pandas as pd
 from typing import List
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
 
-from KGGraph.Chemistry.chemutils import get_atom_types, get_mol, get_smiles
+from KGGraph.Chemistry.chemutils import get_atom_types, get_smiles
 from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.Chemistry.hybridization import HybridizationFeaturize
 from KGGraph.Chemistry.features import (
-    get_chemical_group_block, get_atomic_number, get_period, get_group, get_atomicweight,
+    get_chemical_group_block, get_period, get_group, get_atomicweight,
     get_num_valence_e, get_num_radical_electrons, get_degree, is_aromatic, is_hetero,
     is_chiral_center, get_ring_size, is_in_ring, get_ring_membership_count, 
     get_electronegativity, get_formal_charge, get_total_num_hs, get_total_valence,
@@ -43,6 +42,10 @@ class AtomFeature:
         """
         x_node_list = []
         atomic_features = atomic_num_features(self.mol, self.atom_types)
+        
+        # Atom feature dictionary for each atom in the molecule with key as atom index and value as atom features
+        atom_feature_dic = {}
+        
         for atom in self.mol.GetAtoms():
             basic_features = self.compute_basic_features(atom)
             chemical_group = get_chemical_group_block(atom)
@@ -52,12 +55,18 @@ class AtomFeature:
                 print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
             combined_features = basic_features + chemical_group + hybri_feat
+            
+            # Add atom feature to dictionary to use for motif feature extraction
+            atom_feature = np.concatenate((combined_features, atomic_features[atom.GetIdx()]), axis=0)
+            atom_feature_tensor = torch.tensor(atom_feature, dtype=torch.long)
+            atom_feature_dic[atom.GetIdx()] = atom_feature_tensor
+            
             x_node_list.append(combined_features)
         
         x_node_array = np.array(x_node_list)
         x_node = torch.tensor(np.concatenate((x_node_array, atomic_features), axis=1), dtype=torch.long)
         
-        return x_node
+        return x_node, atom_feature_dic
     
     def compute_basic_features(self, atom) -> List:
         """
@@ -86,36 +95,41 @@ class AtomFeature:
         ]
         return basic_features
 
-def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int):
+def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feature_dic: dict):
     """
     Compute motif and supernode features for a given molecule.
     
     Parameters:
         mol: The input molecule.
-        atom_types: The list of atom types.
+        number_atom_node_attr: number of atom features in the molecule.
+        atom_feature_dic: The dictionary of atom features in the molecule.
         
     Returns:
         A tuple of tensors representing motif and supernode features.
     """
-    # number_atom_node_attr = 126
     motif = MotifDecomposition(mol)
     cliques = motif.defragment()
     num_motif = len(cliques)
-
-    # Pre-define tensor templates for atomic number of motif and supernode
-    # atomic number for supernode in the atomic number onehot encoding
-    supernode_template =[0] * (number_atom_node_attr - 2) + [0, 1] 
-    # atomic number for motif in the atomic number onehot encoding
-    motif_node_template =[0] * (number_atom_node_attr - 2) + [1, 0]
-
-    # Create tensors based on the number of motifs
-    x_supernode = torch.tensor([supernode_template], dtype=torch.long)
+    x_motif = []
+    
     if num_motif > 0:
-        x_motif = torch.tensor([motif_node_template]).repeat_interleave(num_motif, dim=0)
-    else:
-        x_motif = torch.empty(0, number_atom_node_attr, dtype=torch.long)  # Handle cases with no motifs
+        for k, motif_nodes in enumerate(cliques):
+            motif_node_feature = torch.zeros(number_atom_node_attr, dtype=torch.long)
+            for i in motif_nodes:
+                motif_node_feature += atom_feature_dic[i]
+            x_motif.append(motif_node_feature)
 
+        x_motif = torch.stack(x_motif, dim = 0)
+        x_supernode = torch.sum(x_motif, dim=0).unsqueeze(0)
+    else:
+        x_motif = torch.empty(0, number_atom_node_attr, dtype=torch.long) # Handle cases with no motifs
+        x_supernode = torch.zeros(number_atom_node_attr, dtype=torch.long)
+        for i in atom_feature_dic.keys():
+            x_supernode += atom_feature_dic[i]
+        x_supernode = x_supernode.unsqueeze(0) 
+        
     return x_motif, x_supernode
+
 
 def x_feature(mol: Chem.Mol, atom_types: List[int]):
     """
@@ -129,11 +143,12 @@ def x_feature(mol: Chem.Mol, atom_types: List[int]):
         A tensor representing the feature vector.
     """
     atom_feature = AtomFeature(mol=mol, atom_types=atom_types)
-    x_node = atom_feature.feature()
-    x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1))
+    x_node, atom_feature_dic = atom_feature.feature()
+    x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), atom_feature_dic=atom_feature_dic)
 
     # Concatenate features
     x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
+
     return x
 
 def main():
@@ -155,7 +170,7 @@ def main():
     smiles, mols, labels = load_clintox_dataset('dataset/classification/clintox/raw/clintox.csv')
     atom_types = get_atom_types(smiles)
     t1 = time.time()
-    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))
+    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols[:5]))
     t2 = time.time()
     print(t2-t1)
     print(x[0])

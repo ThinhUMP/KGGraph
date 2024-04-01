@@ -3,6 +3,7 @@ import rdkit.Chem as Chem
 from rdkit.Chem import BRICS
 from typing import List
 class BRCISDecomposition:
+    
     @staticmethod
     def create_initial_cliques(mol: Chem.Mol) -> List[List[int]]:
         """

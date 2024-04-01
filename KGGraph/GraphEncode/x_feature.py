@@ -107,8 +107,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feat
     Returns:
         A tuple of tensors representing motif and supernode features.
     """
-    motif = MotifDecomposition(mol)
-    cliques = motif.defragment()
+    cliques = MotifDecomposition.defragment(mol)
     num_motif = len(cliques)
     x_motif = []
     

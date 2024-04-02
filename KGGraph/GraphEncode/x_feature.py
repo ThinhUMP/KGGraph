@@ -107,7 +107,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feat
     Returns:
         A tuple of tensors representing motif and supernode features.
     """
-    cliques = MotifDecomposition.defragment(mol)
+    cliques, _ = MotifDecomposition.defragment(mol)
     num_motif = len(cliques)
     x_motif = []
     
@@ -163,13 +163,14 @@ def main():
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
+    from KGGraph import load_bace_dataset
     # data = pd.read_csv('./dataset/classification/clintox/raw/clintox.csv')
     # smiles = data['smiles'].tolist()[:10]
     # mols = [get_mol(smile) for smile in smiles]
-    smiles, mols, labels = load_clintox_dataset('dataset/classification/clintox/raw/clintox.csv')
+    smiles, mols, folds, labels = load_bace_dataset('dataset/classification/bace/raw/bace.csv')
     atom_types = get_atom_types(smiles)
     t1 = time.time()
-    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols[:5]))
+    x = Parallel(n_jobs=4)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))
     t2 = time.time()
     print(t2-t1)
     print(x[0])

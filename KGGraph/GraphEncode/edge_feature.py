@@ -187,11 +187,11 @@ def edge_feature(mol):
 def main():
     import time
     from joblib import Parallel, delayed
-    from KGGraph import load_clintox_dataset
+    from KGGraph import load_bace_dataset
     from tqdm import tqdm
-    smiles_list, mols_list, labels = load_clintox_dataset('./dataset/classification/clintox/raw/clintox.csv')
+    smiles_list, mols_list, folds, labels = load_bace_dataset('./dataset/classification/bace/raw/bace.csv')
     t1 = time.time()
-    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in tqdm(mols_list))
+    edges = Parallel(n_jobs=4)(delayed(edge_feature)(mol) for mol in tqdm(mols_list))
     t2 = time.time()
     print(t2-t1)
     # Print the results

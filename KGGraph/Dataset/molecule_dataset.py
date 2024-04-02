@@ -87,7 +87,7 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'bace':
             smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
-            data_result_list = Parallel(n_jobs=4)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=20)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])

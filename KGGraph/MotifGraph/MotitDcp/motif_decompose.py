@@ -133,7 +133,7 @@ class MotifDecomposition:
         """
         n_atoms = mol.GetNumAtoms()
         if n_atoms == 1:
-            return [[0]]
+            return [[0]], []
 
         cliques = MotifDecomposition._initial_cliques(mol)
         cliques, res_list = MotifDecomposition._apply_brics_breaks(cliques, mol)

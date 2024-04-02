@@ -32,9 +32,8 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 18
-        motif = MotifDecomposition(mol)
-        self.cliques = motif.defragment()
+        self.num_bond_features = 19
+        self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
         self.num_motif = len(self.cliques)
         self.num_atoms = mol.GetNumAtoms()
         
@@ -47,7 +46,7 @@ class EdgeFeature:
             edge_attr_list: A tensor of edge attributes.
             edges_index_list: A tensor of edge indices.
         """
-        
+        # try:
         if len(mol.GetAtoms()) > 0:
         # Initialize lists to store edge attributes and indices
             edge_attr_list = []
@@ -58,7 +57,7 @@ class EdgeFeature:
                 # Compute basic features for the bond
                 basic_features = [
                     is_rotatable(bond),
-                    get_bond_polarity(bond), #TODO: xtb => density => minus calculation
+                    get_bond_polarity(bond),
                     is_bond_in_ring(bond) #TODO: remove
                 ]
                 
@@ -81,7 +80,10 @@ class EdgeFeature:
         else:  
             edges_index_node = torch.empty((2, 0), dtype=torch.long)
             edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.long)
-        
+        # except:
+        #     print(f'Error in get_edge_node_feature {Chem.MolToSmiles(mol)}')
+        #     edges_index_node = torch.empty((2, 0), dtype=torch.long)
+        #     edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.long)
         return edge_attr_node, edges_index_node
 
     def get_edge_index(self, mol: Chem.Mol) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -102,6 +104,11 @@ class EdgeFeature:
             motif_edge_index = []
             for k, motif_nodes in enumerate(self.cliques):
                 motif_edge_index.extend([[i, self.num_atoms + k] for i in motif_nodes])
+            for k in range(len(self.cliques)):
+                for h in range(k+1, len(self.cliques)):
+                    for bond in self.clique_edges:
+                        if (bond[0] == k and bond[1] == h) or (bond[0] == h and bond[1] == k):
+                            motif_edge_index.extend([[self.num_atoms + k, self.num_atoms + h], [self.num_atoms + h, self.num_atoms + k]])
 
             motif_edge_index = torch.tensor(np.array(motif_edge_index).T, dtype=torch.long).to(edge_index_node.device)
 
@@ -140,16 +147,23 @@ class EdgeFeature:
             motif_edge_index, _, _ = self.get_edge_index(mol)
             
             # Initialize motif edge attributes
-            motif_edge_attr = torch.zeros((motif_edge_index.size(1), self.num_bond_features))
-            motif_edge_attr[:, -2] = 1  # Set bond type for the edge between atoms and motif, 
+            motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(self.clique_edges)*2, self.num_bond_features))
+            motif_node_edge_attr[:, -3] = 1  # Set bond type for the edge between atoms and motif, 
             # we can access this feature via bond_dict json with key value 'NODEMOTIF'
+            
+            # Initialize motif-motif edge attributes
+            motif_motif_edge_attr = torch.zeros((len(self.clique_edges)*2, self.num_bond_features))
+            motif_motif_edge_attr[:, -1] = 1  # Set bond type for the edge between motif and motif
+            
+            # Motif edge attributes
+            motif_edge_attr = torch.cat((motif_node_edge_attr, motif_motif_edge_attr), dim=0)
 
             # Initialize super edge attributes
             super_edge_attr = torch.zeros((self.num_motif, self.num_bond_features))
-            super_edge_attr[:, -1] = 1  # Set bond type for the edge between motifs and supernode, 
+            super_edge_attr[:, -2] = 1  # Set bond type for the edge between motifs and supernode, 
             # we can access this feature via bond_dict json with key value 'MOTIFSUPERNODE'
             # Ensure that all tensors are of the same type and device
-            motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
+            motif_node_edge_attr = motif_node_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             # Concatenate edge attributes for the entire graph
             edge_attr = torch.cat((edge_attr_node, motif_edge_attr, super_edge_attr), dim=0)
@@ -158,7 +172,7 @@ class EdgeFeature:
             motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((self.num_atoms, self.num_bond_features))
-            super_edge_attr[:, -3] = 1  # Set bond type for the edge between nodes and supernode, 
+            super_edge_attr[:, -4] = 1  # Set bond type for the edge between nodes and supernode, 
             # we can access this feature via bond_dict json with key value 'NODESUPERNODE'
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
@@ -179,9 +193,10 @@ def main():
     import time
     from joblib import Parallel, delayed
     from KGGraph import load_clintox_dataset
+    from tqdm import tqdm
     smiles_list, mols_list, labels = load_clintox_dataset('./dataset/classification/clintox/raw/clintox.csv')
     t1 = time.time()
-    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in mols_list)
+    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in tqdm(mols_list))
     t2 = time.time()
     print(t2-t1)
     # Print the results

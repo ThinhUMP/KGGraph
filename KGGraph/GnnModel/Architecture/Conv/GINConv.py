@@ -67,7 +67,7 @@ class GINConv(MessagePassing):
 
         #add features corresponding to self-loop edges.
         self_loop_attr = torch.zeros(x.size(0), edge_attr.size(1))
-        self_loop_attr[:,-4] = 1 #bond type for self-loop edge
+        self_loop_attr[:,-5] = 1 #bond type for self-loop edge
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
 

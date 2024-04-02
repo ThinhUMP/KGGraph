@@ -132,7 +132,6 @@ class BRCISDecomposition:
         List[Tuple[int, int]]: List of edges representing the breaks.
         """
         edges = []
-        print(res_list + breaks_ring_bonds + break_intersections)
         for bond in res_list + breaks_ring_bonds + break_intersections:
             c1, c2 = None, None  # Initialize c1 and c2
             for c in range(len(cliques)):

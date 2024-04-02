@@ -30,6 +30,8 @@ class MotifDecomposition:
         list: Updated list of cliques after applying BRICS breaks.
         """
         res = list(BRICS.FindBRICSBonds(mol))
+        res_list = [[bond[0][0], bond[0][1]] for bond in res]
+        
         for bond in res:
             bond_indices = [bond[0][0], bond[0][1]]
             if bond_indices in cliques:
@@ -37,7 +39,7 @@ class MotifDecomposition:
             else:
                 cliques.remove(bond_indices[::-1])  # Reverse indices if not found in order
             cliques.extend([[bond[0][0]], [bond[0][1]]])
-        return cliques
+        return cliques, res_list
     
     @staticmethod
     def _merge_cliques(cliques, mol):
@@ -75,6 +77,7 @@ class MotifDecomposition:
         Returns:
         list: Refined list of cliques.
         """
+        break_ring_bonds = []
         n_atoms = mol.GetNumAtoms()
         num_cli = len(cliques)
         ssr_mol = Chem.GetSymmSSSR(mol)
@@ -92,6 +95,35 @@ class MotifDecomposition:
         return cliques
     
     @staticmethod
+    def find_edges(cliques, res_list):
+        """
+        Find edges based on the breaks.
+
+        Parameters:
+        cliques (List[List[int]]): The list of cliques.
+        res_list (List[Tuple]): BRICS breaks result.
+
+        Returns:
+        List[Tuple[int, int]]: List of edges representing the breaks.
+        """
+        edges = []
+        for bond in res_list:
+            c1, c2 = None, None  # Initialize c1 and c2
+            for c in range(len(cliques)):
+                if bond[0] in cliques[c]:
+                    c1 = c
+                if bond[1] in cliques[c]:
+                    c2 = c
+            if c1 is not None and c2 is not None:
+                edges.append((c1, c2))
+        for c in range(len(cliques)):
+            for i in range(c+1, len(cliques)):
+                if set(cliques[c]) & set(cliques[i]):
+                    c1, c2 = c, i
+                    edges.append((c1, c2))
+        return edges
+    
+    @staticmethod
     def defragment(mol):
         """
         Perform motif decomposition on the molecule.
@@ -104,7 +136,8 @@ class MotifDecomposition:
             return [[0]]
 
         cliques = MotifDecomposition._initial_cliques(mol)
-        cliques = MotifDecomposition._apply_brics_breaks(cliques, mol)
+        cliques, res_list = MotifDecomposition._apply_brics_breaks(cliques, mol)
         cliques = MotifDecomposition._merge_cliques(cliques, mol)
         cliques = MotifDecomposition._refine_cliques(cliques, mol)
-        return cliques
+        edges = MotifDecomposition.find_edges(cliques, res_list)
+        return cliques, edges

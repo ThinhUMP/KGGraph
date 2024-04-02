@@ -170,7 +170,7 @@ def main():
     smiles, mols, folds, labels = load_bace_dataset('dataset/classification/bace/raw/bace.csv')
     atom_types = get_atom_types(smiles)
     t1 = time.time()
-    x = Parallel(n_jobs=4)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))
+    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))
     t2 = time.time()
     print(t2-t1)
     print(x[0])

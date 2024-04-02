@@ -191,7 +191,7 @@ def main():
     from tqdm import tqdm
     smiles_list, mols_list, folds, labels = load_bace_dataset('./dataset/classification/bace/raw/bace.csv')
     t1 = time.time()
-    edges = Parallel(n_jobs=4)(delayed(edge_feature)(mol) for mol in tqdm(mols_list))
+    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in tqdm(mols_list))
     t2 = time.time()
     print(t2-t1)
     # Print the results

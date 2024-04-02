@@ -301,7 +301,7 @@ def get_stereo(bond: Chem.Bond) -> str:
     """Get the stereochemistry of the bond."""
     return bond.GetStereo().name
 
-def get_bond_polarity(bond: Chem.Bond) -> float:
+def get_bond_polarity(bond: Chem.Bond) -> int:
     """Estimate the polarity of the bond based on the electronegativity difference."""
     try:
         atom1 = bond.GetBeginAtom()

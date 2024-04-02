@@ -158,7 +158,7 @@ class EdgeFeature:
             super_edge_attr[:, -2] = 1  # Set bond type for the edge between motifs and supernode, 
             # we can access this feature via bond_dict json with key value 'MOTIFSUPERNODE'
             # Ensure that all tensors are of the same type and device
-            motif_node_edge_attr = motif_node_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
+            motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             # Concatenate edge attributes for the entire graph
             edge_attr = torch.cat((edge_attr_node, motif_edge_attr, super_edge_attr), dim=0)
@@ -191,7 +191,7 @@ def main():
     from tqdm import tqdm
     smiles_list, mols_list, folds, labels = load_bace_dataset('./dataset/classification/bace/raw/bace.csv')
     t1 = time.time()
-    edges = Parallel(n_jobs=-1)(delayed(edge_feature)(mol) for mol in tqdm(mols_list))
+    edges = Parallel(n_jobs=8)(delayed(edge_feature)(mol) for mol in tqdm(mols_list[:5]))
     t2 = time.time()
     print(t2-t1)
     # Print the results
@@ -200,7 +200,7 @@ def main():
     print(edges[0][1].size())
     print(edges[0][1])
     print(edges[0][2].size())
-    print(torch.unique(edges[0][2]))
+    print(torch.unique(edges[0][1]))
 
 if __name__ == '__main__':
     main()

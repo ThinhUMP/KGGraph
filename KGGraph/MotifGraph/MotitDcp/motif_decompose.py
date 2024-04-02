@@ -8,24 +8,6 @@ sys.path.append(root_dir)
 class MotifDecomposition:
 
     @staticmethod
-    def defragment(mol):
-        """
-        Perform motif decomposition on the molecule.
-
-        Returns:
-        list: A list of atom indices representing the decomposed motifs.
-        """
-        n_atoms = mol.GetNumAtoms()
-        if n_atoms == 1:
-            return [[0]]
-
-        cliques = MotifDecomposition._initial_cliques(mol)
-        cliques = MotifDecomposition._apply_brics_breaks(cliques, mol)
-        cliques = MotifDecomposition._merge_cliques(cliques, mol)
-        cliques = MotifDecomposition._refine_cliques(cliques, mol)
-        return cliques
-
-    @staticmethod
     def _initial_cliques(mol: Chem.Mol):
         """
         Create initial cliques based on the bonds of the molecule.
@@ -107,4 +89,22 @@ class MotifDecomposition:
                 cliques[i]=[]
     
         cliques = [c for c in cliques if n_atoms> len(c) > 0]
+        return cliques
+    
+    @staticmethod
+    def defragment(mol):
+        """
+        Perform motif decomposition on the molecule.
+
+        Returns:
+        list: A list of atom indices representing the decomposed motifs.
+        """
+        n_atoms = mol.GetNumAtoms()
+        if n_atoms == 1:
+            return [[0]]
+
+        cliques = MotifDecomposition._initial_cliques(mol)
+        cliques = MotifDecomposition._apply_brics_breaks(cliques, mol)
+        cliques = MotifDecomposition._merge_cliques(cliques, mol)
+        cliques = MotifDecomposition._refine_cliques(cliques, mol)
         return cliques

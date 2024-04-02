@@ -46,7 +46,6 @@ class EdgeFeature:
             edge_attr_list: A tensor of edge attributes.
             edges_index_list: A tensor of edge indices.
         """
-        # try:
         if len(mol.GetAtoms()) > 0:
         # Initialize lists to store edge attributes and indices
             edge_attr_list = []
@@ -80,10 +79,6 @@ class EdgeFeature:
         else:  
             edges_index_node = torch.empty((2, 0), dtype=torch.long)
             edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.long)
-        # except:
-        #     print(f'Error in get_edge_node_feature {Chem.MolToSmiles(mol)}')
-        #     edges_index_node = torch.empty((2, 0), dtype=torch.long)
-        #     edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.long)
         return edge_attr_node, edges_index_node
 
     def get_edge_index(self, mol: Chem.Mol) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:

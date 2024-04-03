@@ -28,9 +28,9 @@ def main():
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr_feat', type=float, default=0.0001,
                         help='learning rate (default: 0.0005)')
-    parser.add_argument('--lr_pred', type=float, default=0.0001,
+    parser.add_argument('--lr_pred', type=float, default=0.0005,
                         help='learning rate for the prediction layer (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0.1,
+    parser.add_argument('--decay', type=float, default=0.0,
                         help='weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=5, 
                         help='number of GNN message passing layers (default: 5).')
@@ -44,7 +44,7 @@ def main():
                         help='gnn_type (gin, gcn)')
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default = 'sider',
+    parser.add_argument('--dataset', type=str, default = 'bbbp',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")

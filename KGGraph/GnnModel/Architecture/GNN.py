@@ -4,7 +4,8 @@ from torch_geometric.nn import global_add_pool
 import torch
 import torch.nn.functional as F
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
-from .Conv import GINConv, GCNConv
+from .Conv.GINConv import GINConv
+from .Conv.GCNConv import GCNConv
 from .vocab_x_embedding import num_vocab_x_embedding
 
 
@@ -51,11 +52,11 @@ class GNN(torch.nn.Module):
 
         ###List of MLPs
         self.gnns = torch.nn.ModuleList()
-        for layer in range(num_layer):
+        for _ in range(num_layer):
             if gnn_type == "gin":
                 self.gnns.append(GINConv(dataset, emb_dim, aggr = "add"))
             elif gnn_type == "gcn":
-                self.gnns.append(GCNConv(dataset, emb_dim, aggr = "add"))
+                self.gnns.append(GCNConv(dataset, emb_dim))
             else:
                 raise ValueError("Undefined GNN type.")
 

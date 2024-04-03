@@ -68,32 +68,32 @@ class AtomFeature:
         
         return x_node, atom_feature_dic
     
-    def compute_basic_features(self, atom) -> List:
-        """
-        Compute basic features for the given atom and return a tensor of features.
-        """
-        basic_features = [
-            # get_period(atom),
-            # get_group(atom),
-            # get_atomicweight(atom),
-            # get_num_valence_e(atom),
-            # is_chiral_center(atom),
-            # get_formal_charge(atom),
-            # get_total_num_hs(atom),
-            # get_total_valence(atom),
-            # get_num_radical_electrons(atom),
-            # get_degree(atom),
-            # int(is_aromatic(atom)),
-            # int(is_hetero(atom)),
-            # int(is_hydrogen_donor(atom)),
-            # int(is_hydrogen_acceptor(atom)),
-            # get_ring_size(atom),
-            # int(is_in_ring(atom)),
-            # get_ring_membership_count(atom),
-            # int(is_in_aromatic_ring(atom)),
-            # get_electronegativity(atom),
-        ]
-        return basic_features
+    # def compute_basic_features(self, atom) -> List:
+    #     """
+    #     Compute basic features for the given atom and return a tensor of features.
+    #     """
+    #     basic_features = [
+    #         get_period(atom),
+    #         get_group(atom),
+    #         get_atomicweight(atom),
+    #         get_num_valence_e(atom),
+    #         is_chiral_center(atom),
+    #         get_formal_charge(atom),
+    #         get_total_num_hs(atom),
+    #         get_total_valence(atom),
+    #         get_num_radical_electrons(atom),
+    #         get_degree(atom),
+    #         int(is_aromatic(atom)),
+    #         int(is_hetero(atom)),
+    #         int(is_hydrogen_donor(atom)),
+    #         int(is_hydrogen_acceptor(atom)),
+    #         get_ring_size(atom),
+    #         int(is_in_ring(atom)),
+    #         get_ring_membership_count(atom),
+    #         int(is_in_aromatic_ring(atom)),
+    #         get_electronegativity(atom),
+    #     ]
+    #     return basic_features
 
 def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feature_dic: dict, decompose_type):
     """

@@ -12,12 +12,9 @@ import sys
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.GnnModel.Train.crawl_metrics import create_test_df, create_train_df
+from KGGraph.GnnModel.Train.crawl_metrics import create_test_round_df, create_train_round_df
 
-criterion = nn.BCEWithLogitsLoss(reduction = "none")
-device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-
-def train(model, device, loader, optimizer):
+def train(model, device, loader, optimizer, criterion):
     """
     Trains the model for one epoch over the provided data loader.
 
@@ -97,7 +94,7 @@ def train_reg(args, model, device, loader, optimizer):
         optimizer.step()
 
 
-def evaluate(args, model, device, loader, task_type):
+def evaluate(args, model, device, loader, task_type, criterion):
     """
     Evaluates the performance of a model on a given dataset.
 
@@ -203,7 +200,7 @@ def save_emb(model, device, loader, num_tasks, out_file):
 
     np.savez(out_file, emb=output_emb, label=output_label)
     
-def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, task_type):
+def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, criterion, task_type, training_round):
     """
     Trains a classification model for a specified number of epochs and returns the training metrics.
 
@@ -216,63 +213,38 @@ def train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, 
         test_loader (object): The data loader for the test dataset.
         optimizer (object): The optimizer used for training.
         task_type (str): The type of task (e.g., binary classification, multi-class classification).
+        training_rounds (int): The number of rounds of training to be performed.
 
     Returns:
         dict: A dictionary containing the training metrics for each epoch, including the training and validation loss, AUC, AP, and F1 scores.
     """
-    train_auc_list, val_auc_list, test_auc_list = [], [], []
-    train_ap_list, val_ap_list, test_ap_list = [], [], []
-    train_f1_list, val_f1_list, test_f1_list = [], [], []
-    train_loss_list, val_loss_list, test_loss_list = [], [], []
-    train_df = pd.DataFrame(columns=["train_loss", "train_auc", "train_ap", "train_f1", "val_loss", "val_auc", "val_ap", "val_f1"], index=range(args.epochs))
-    
-    test_math_auc = 0.0
+    train_df = pd.DataFrame(columns=["train_loss", "train_auc", "train_ap", "train_f1", 
+                                     "val_loss", "val_auc", "val_ap", "val_f1", "test_loss", "test_auc", "test_ap", "test_f1"], index=range(args.epochs))
     
     for epoch in range(1, args.epochs+1):
         print('====epoch:',epoch)
         
-        train_loss, train_auc, train_ap, train_f1 = train(model, device, train_loader, optimizer)
+        train_loss, train_auc, train_ap, train_f1 = train(model, device, train_loader, optimizer, criterion)
 
         print('====Evaluation')
         
-        val_auc, val_ap, val_f1, val_loss, _, _, _ = evaluate(args, model, device, val_loader, task_type)
-        test_auc, test_ap, test_f1, test_loss, roc_list, ap_list, f1_list = evaluate(args, model, device, test_loader, task_type)
+        val_auc, val_ap, val_f1, val_loss, _, _, _ = evaluate(args, model, device, val_loader, task_type, criterion)
+        test_auc, test_ap, test_f1, test_loss, roc_list, ap_list, f1_list = evaluate(args, model, device, test_loader, task_type, criterion)
         
-        train_loss_list.append(float('{:.4f}'.format(train_loss)))
-        val_loss_list.append(float('{:.4f}'.format(val_loss)))
-        test_loss_list.append(float('{:.4f}'.format(test_loss)))
+        create_train_round_df(
+            args, train_df, float(train_loss), train_auc, train_ap, train_f1, 
+            float(val_loss), val_auc, val_ap, val_f1, 
+            float(test_loss), test_auc, test_ap, test_f1,
+            task_type, epoch, training_round)
         
-        test_auc_list.append(float('{:.4f}'.format(test_auc)))
-        train_auc_list.append(float('{:.4f}'.format(train_auc)))
-        val_auc_list.append(float('{:.4f}'.format(val_auc)))
-        
-        train_ap_list.append(float('{:.4f}'.format(train_ap)))
-        test_ap_list.append(float('{:.4f}'.format(test_ap)))
-        val_ap_list.append(float('{:.4f}'.format(val_ap)))
-        
-        train_f1_list.append(float('{:.4f}'.format(train_f1)))
-        test_f1_list.append(float('{:.4f}'.format(test_f1)))
-        val_f1_list.append(float('{:.4f}'.format(val_f1)))
-        
-        create_train_df(args, train_df, float(train_loss), train_auc, train_ap, train_f1, float(val_loss), val_auc, val_ap, val_f1, task_type, epoch)
-        
-        if float(test_auc) > test_math_auc:
-            test_math_auc = test_auc
-            create_test_df(args, roc_list, ap_list, f1_list, task_type)
-            torch.save(model.state_dict(), f"{args.save_path+task_type}/{args.dataset}/{args.dataset}.pth")
+        create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_round)
+        torch.save(model.state_dict(), f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth")
         
         print("train_loss: %f val_loss: %f test_loss: %f" %(train_loss, val_loss, test_loss))
         print("train_auc: %f val_auc: %f test_auc: %f" %(train_auc, val_auc, test_auc))
         print("train_ap: %f val_ap: %f test_ap: %f" %(train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" %(train_f1, val_f1, test_f1))
 
-        metrics_training = {
-            'train loss': train_loss_list, 'val loss': val_loss_list, 'test loss': test_loss_list,
-            'train auc': train_auc_list, 'val auc': val_auc_list, 'test auc': test_auc_list,
-            'train ap': train_ap_list, 'val ap': val_ap_list, 'test ap': test_ap_list,
-            'train f1': train_f1_list, 'val f1': val_f1_list, 'test f1': test_f1_list
-        }       
-    return metrics_training
 def train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, model_save_path):
     train_list, test_list = [], []
     for epoch in range(1, args.epochs+1):

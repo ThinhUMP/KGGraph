@@ -7,8 +7,10 @@ from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.GnnModel.Train.visualize import plot_metrics
 from KGGraph.GnnModel.Train.get_task_type_num_tasks import get_num_task, get_task_type
 import torch
+import torch.nn as nn
 import argparse
 from torch import optim
+import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -19,7 +21,9 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=100,
+    parser.add_argument('--training_rounds', type=int, default=3,
+                        help='number of rounds to train to get the average test auc (default: 5)')
+    parser.add_argument('--epochs', type=int, default=1,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr_feat', type=float, default=0.0001,
                         help='learning rate (default: 0.0005)')
@@ -39,16 +43,26 @@ def main():
                         help='how the node features across layers are combined. last, sum, max or concat')
     parser.add_argument('--gnn_type', type=str, default="gin",
                         help='gnn_type (gat, gin, gcn, graphsage)')
+    parser.add_argument('--decompose_type', type=str, default="motif",
+                        help='decompose_type (brics, jin, motif, smotif) (default: motif).')
     parser.add_argument('--dataset', type=str, default = 'bace',
                         help='[bbbp, bace, sider, clintox, sider, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
+    parser.add_argument('--runseed', type=int, default=42, help = "Seed for minibatch selection, random initialization.")
     parser.add_argument('--split', type = str, default="scaffold", help = "random or scaffold or random_scaffold")
-    parser.add_argument('--num_workers', type=int, default = 20, help='number of workers for dataset loading')
+    parser.add_argument('--num_workers', type=int, default = 8, help='number of workers for dataset loading')
     parser.add_argument('--save_path', type=str, default = 'dataset/', help='path for saving training images, test_metrics csv, model')
     parser.add_argument('--GNN_different_lr', type=bool, default = True, help='if the learning rate of GNN backbone is different from the learning rate of prediction layers')
     args = parser.parse_args()
 
+    #set up seeds
+    torch.manual_seed(args.runseed)
+    np.random.seed(args.runseed)
+    device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.runseed)
+    
     #set up device
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -83,39 +97,40 @@ def main():
     val_loader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
 
-    #set up model
-    # model = GINNet(num_layer=args.num_layer, out_channels=num_tasks, dropout = args.dropout_ratio)
-    # model = gin(in_channels=dataset[0].x.size(1), dim_h=args.hidden_channels, out_channels=num_tasks, dropout=args.dropout_ratio)
-    # model = GINGenerate(emb_dim = dataset[0].x.size(1), dropout=args.dropout_ratio, out_channels=num_tasks)
-    model = GINTrain(dataset, args.num_layer, args.emb_dim, num_tasks, JK = args.JK, drop_ratio = args.dropout_ratio, gnn_type = args.gnn_type)
-    model.to(device)
+    for i in range(1, args.training_rounds+1):
+        print("====Round ", i)
+        #set up model
+        model = GINTrain(dataset, args.num_layer, args.emb_dim, num_tasks, JK = args.JK, drop_ratio = args.dropout_ratio, gnn_type = args.gnn_type)
+        model.to(device)
 
-    #set up optimizer
-    #different learning rate for different part of GNN
-    model_param_group = []
-    if args.GNN_different_lr:
-        print('GNN update')
-        model_param_group.append({"params": model.gnn.parameters(), "lr":args.lr_feat})
-    else:
-        print('No GNN update')
-    model_param_group.append({"params": model.graph_pred_linear.parameters(), "lr":args.lr_pred})
-    optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
-    print(optimizer)
-    
-    # #set up optimizer
-    # optimizer = optim.Adam(model.parameters(), lr= args.lr, weight_decay=args.decay)
-    # # optimizer = optim.SGD(model.parameters(), lr= args.lr, weight_decay=args.decay)
-    # print(optimizer)
+        #set up optimizer
+        #different learning rate for different part of GNN
+        model_param_group = []
+        if args.GNN_different_lr:
+            print('GNN update')
+            model_param_group.append({"params": model.gnn.parameters(), "lr":args.lr_feat})
+        else:
+            print('No GNN update')
+        model_param_group.append({"params": model.graph_pred_linear.parameters(), "lr":args.lr_pred})
+        # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
+        optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
+        print(optimizer)
+        
+        #set up criterion
+        if task_type == 'classification':
+            criterion = nn.BCEWithLogitsLoss(reduction = "none")
+        else:
+            pass
+        
+        # training based on task type
+        if task_type == 'classification':
+            metrics_training = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, criterion, task_type, training_round = i)
 
-    # training based on task type
-    if task_type == 'classification':
-        metrics_training = train_epoch_cls(args, model, device, train_loader, val_loader, test_loader, optimizer, task_type)
+        elif task_type == 'regression':
+            test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, args.save_path) 
 
-    elif task_type == 'regression':
-        test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, args.save_path) 
-
-    # plot training metrics
-    plot_metrics(args, metrics_training, task_type)
+        # plot training metrics
+        # plot_metrics(args, metrics_training, task_type)
     
 
 

@@ -44,7 +44,7 @@ def main():
                         help='how the node features across layers are combined. last, sum, max or concat')
     parser.add_argument('--gnn_type', type=str, default="gin",
                         help='gnn_type (gat, gin, gcn, graphsage)')
-    parser.add_argument('--decompose_type', type=str, default="brics",
+    parser.add_argument('--decompose_type', type=str, default="jin",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
     parser.add_argument('--dataset', type=str, default = 'bbbp',
                         help='[bbbp, bace, sider, clintox, sider, tox21, toxcast, esol, freesolv, lipophilicity]')

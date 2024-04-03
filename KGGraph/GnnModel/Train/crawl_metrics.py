@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import numpy as np
 def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_round):
     """
     Creates and saves a test metrics DataFrame for various datasets.
@@ -70,13 +71,13 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         test_metrics_sider.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv", index=False)
         
     elif args.dataset == "toxcast":
-        toxcast = pd.read_csv("dataset/classification/toxcast/raw/toxcast.csv")
-        tasks = list(toxcast.columns)[1:] 
+        # toxcast = pd.read_csv("dataset/classification/toxcast/raw/toxcast.csv")
+        tasks = ['General Class']
         test_metrics_toxcast = pd.DataFrame(columns=["AUC", "AP", "F1"], index=tasks)
-        test_metrics_toxcast['AUC'] = roc_list
-        test_metrics_toxcast['AP'] = ap_list
-        test_metrics_toxcast['F1'] = f1_list
-        test_metrics_toxcast.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv, index=False")
+        test_metrics_toxcast['AUC'] = np.mean(roc_list)
+        test_metrics_toxcast['AP'] = np.mean(ap_list)
+        test_metrics_toxcast['F1'] = np.mean(f1_list)
+        test_metrics_toxcast.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv", index=False)
         
     else:
         raise ValueError("Invalid dataset name.")

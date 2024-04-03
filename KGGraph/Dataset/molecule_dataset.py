@@ -15,7 +15,7 @@ from KGGraph.GraphEncode.x_feature import x_feature
 from KGGraph.GraphEncode.edge_feature import edge_feature
 from KGGraph.Chemistry.chemutils import get_atom_types
 from KGGraph.Dataset.loader import (
-        load_tox21_dataset, load_another_dataset, load_bace_dataset, load_bbbp_dataset, 
+        load_tox21_dataset, load_bace_dataset, load_bbbp_dataset, 
         load_clintox_dataset, load_sider_dataset, load_toxcast_dataset,
 )
 from joblib import Parallel, delayed

@@ -71,7 +71,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         
     elif args.dataset == "toxcast":
         toxcast = pd.read_csv("dataset/classification/toxcast/raw/toxcast.csv")
-        tasks = toxcast[1:].tolist()
+        tasks = list(toxcast.columns)[1:] 
         test_metrics_toxcast = pd.DataFrame(columns=["AUC", "AP", "F1"], index=tasks)
         test_metrics_toxcast['AUC'] = roc_list
         test_metrics_toxcast['AP'] = ap_list

@@ -25,7 +25,7 @@ def main():
                         help='learning rate (default: 0.0005)')
     parser.add_argument('--lr_pred', type=float, default=0.0001,
                         help='learning rate for the prediction layer (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0.1,
+    parser.add_argument('--decay', type=float, default=0.0,
                         help='weight decay (default: 0)')
     parser.add_argument('--hidden_channels', type=int, default=2048,
                         help='number of hidden nodes in the GNN network (default: 512).')

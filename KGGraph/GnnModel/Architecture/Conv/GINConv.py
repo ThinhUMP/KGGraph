@@ -42,7 +42,6 @@ class GINConv(MessagePassing):
             torch.nn.Linear(4*emb_dim, emb_dim),
             )
         vocab_edge_attr_embedding = num_vocab_edge_attr_embedding(dataset)
-        print(vocab_edge_attr_embedding)
         self.edge_embedding = torch.nn.Embedding(vocab_edge_attr_embedding, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.edge_embedding.weight.data)

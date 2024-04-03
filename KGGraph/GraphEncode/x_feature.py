@@ -18,7 +18,7 @@ from KGGraph.Chemistry.features import (
     is_chiral_center, get_ring_size, is_in_ring, get_ring_membership_count, 
     get_electronegativity, get_formal_charge, get_total_num_hs, get_total_valence,
     is_hydrogen_donor, is_hydrogen_acceptor, get_hybridization, get_symbol,
-    is_in_aromatic_ring,
+    is_in_aromatic_ring, get_atomic_number
 )
 from KGGraph.Chemistry.chemutils import get_atom_types, atomic_num_features
 
@@ -54,7 +54,7 @@ class AtomFeature:
             if hybri_feat == [0,0,0,0,0]:
                 print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
-            combined_features = [get_degree(atom)] + chemical_group + hybri_feat
+            combined_features = [get_degree(atom), get_atomic_number(atom)] + chemical_group + hybri_feat
             
             # Add atom feature to dictionary to use for motif feature extraction
             atom_feature = np.concatenate((combined_features, atomic_features[atom.GetIdx()]), axis=0)

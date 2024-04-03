@@ -47,14 +47,14 @@ class AtomFeature:
         atom_feature_dic = {}
         
         for atom in self.mol.GetAtoms():
-            basic_features = self.compute_basic_features(atom)
+            # basic_features = self.compute_basic_features(atom)
             chemical_group = get_chemical_group_block(atom)
 
             total_single_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
             if hybri_feat == [0,0,0,0,0]:
                 print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
-            combined_features = basic_features + chemical_group + hybri_feat
+            combined_features = [get_degree(atom)] + chemical_group + hybri_feat
             
             # Add atom feature to dictionary to use for motif feature extraction
             atom_feature = np.concatenate((combined_features, atomic_features[atom.GetIdx()]), axis=0)
@@ -73,8 +73,8 @@ class AtomFeature:
         Compute basic features for the given atom and return a tensor of features.
         """
         basic_features = [
-            get_period(atom),
-            get_group(atom),
+            # get_period(atom),
+            # get_group(atom),
             # get_atomicweight(atom),
             # get_num_valence_e(atom),
             # is_chiral_center(atom),
@@ -82,7 +82,7 @@ class AtomFeature:
             # get_total_num_hs(atom),
             # get_total_valence(atom),
             # get_num_radical_electrons(atom),
-            get_degree(atom),
+            # get_degree(atom),
             # int(is_aromatic(atom)),
             # int(is_hetero(atom)),
             # int(is_hydrogen_donor(atom)),

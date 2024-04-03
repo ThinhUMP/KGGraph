@@ -64,19 +64,20 @@ class EdgeFeature:
             
             # Iterate over all bonds in the molecule
             for bond in mol.GetBonds():
-                # Compute basic features for the bond
-                basic_features = [
-                    # is_rotatable(bond),
-                    # get_bond_polarity(bond),
-                    is_bond_in_ring(bond)
-                ]
+                
+                # # Compute basic features for the bond
+                # basic_features = [
+                #     # is_rotatable(bond),
+                #     # get_bond_polarity(bond),
+                #     is_bond_in_ring(bond)
+                # ]
                 
                 # Get bond type and stereo features from the dictionaries
                 bond_type_features = bond_type_feature(bond)
                 bond_stereo_features = bond_stereo_dict.get(get_stereo(bond), [0] * len(bond_stereo_dict))
                 
                 # Combine all features into a single list
-                combined_features = basic_features + bond_stereo_features + bond_type_features 
+                combined_features = [int(is_bond_in_ring(bond))] + bond_stereo_features + bond_type_features 
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()

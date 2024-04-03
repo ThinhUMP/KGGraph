@@ -142,4 +142,4 @@ def average_test_metrics(args, task_type, remove = True):
     df_std = dfs.groupby(dfs.index).std()
     df_avg.to_csv(f"dataset/{task_type}/{args.dataset}/test_metrics_avg.csv")
     df_std.to_csv(f"dataset/{task_type}/{args.dataset}/test_metrics_std.csv")
-    print(f"AUC test for {args.dataset} dataset over {args.training_rounds} training rounds: {df_avg.AUC.mean():.2f}±{df_std.AUC.mean():.2f}")
+    print(f"AUC test for {args.dataset} dataset over {args.training_rounds} training rounds: {df_avg.AUC.mean()*100:.2f}±{df_std.AUC.mean()*100:.2f}")

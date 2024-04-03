@@ -82,7 +82,7 @@ class AtomFeature:
             # get_total_num_hs(atom),
             # get_total_valence(atom),
             # get_num_radical_electrons(atom),
-            # get_degree(atom),
+            get_degree(atom),
             # int(is_aromatic(atom)),
             # int(is_hetero(atom)),
             # int(is_hydrogen_donor(atom)),

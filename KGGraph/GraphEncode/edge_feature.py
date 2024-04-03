@@ -32,7 +32,7 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 19
+        self.num_bond_features = 17
         
         if decompose_type == 'motif':
             self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
@@ -66,9 +66,9 @@ class EdgeFeature:
             for bond in mol.GetBonds():
                 # Compute basic features for the bond
                 basic_features = [
-                    is_rotatable(bond),
-                    get_bond_polarity(bond),
-                    is_bond_in_ring(bond) #TODO: remove
+                    # is_rotatable(bond),
+                    # get_bond_polarity(bond),
+                    is_bond_in_ring(bond)
                 ]
                 
                 # Get bond type and stereo features from the dictionaries

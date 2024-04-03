@@ -4,8 +4,9 @@ from torch_geometric.nn import global_add_pool
 import torch
 import torch.nn.functional as F
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
-from .Conv.GINConv import GINConv
+from .Conv import GINConv, GCNConv
 from .vocab_x_embedding import num_vocab_x_embedding
+
 
 class GNN(torch.nn.Module):
     """
@@ -54,11 +55,9 @@ class GNN(torch.nn.Module):
             if gnn_type == "gin":
                 self.gnns.append(GINConv(dataset, emb_dim, aggr = "add"))
             elif gnn_type == "gcn":
-                pass
-            elif gnn_type == "gat":
-                pass
-            elif gnn_type == "graphsage":
-                pass
+                self.gnns.append(GCNConv(dataset, emb_dim, aggr = "add"))
+            else:
+                raise ValueError("Undefined GNN type.")
 
         ###List of batchnorms
         self.batch_norms = torch.nn.ModuleList()

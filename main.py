@@ -22,7 +22,7 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--training_rounds', type=int, default=5,
+    parser.add_argument('--training_rounds', type=int, default=3,
                         help='number of rounds to train to get the average test auc (default: 5)')
     parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
@@ -32,21 +32,19 @@ def main():
                         help='learning rate for the prediction layer (default: 0.001)')
     parser.add_argument('--decay', type=float, default=0.0,
                         help='weight decay (default: 0)')
-    parser.add_argument('--hidden_channels', type=int, default=2048,
-                        help='number of hidden nodes in the GNN network (default: 512).')
     parser.add_argument('--num_layer', type=int, default=5, 
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 512)')
     parser.add_argument('--dropout_ratio', type=float, default=0.1,
-                        help='dropout ratio (default: 0.5)')
+                        help='dropout ratio (default: 0.3)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')
     parser.add_argument('--gnn_type', type=str, default="gin",
                         help='gnn_type (gat, gin, gcn, graphsage)')
-    parser.add_argument('--decompose_type', type=str, default="jin",
+    parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default = 'bbbp',
+    parser.add_argument('--dataset', type=str, default = 'bace',
                         help='[bbbp, bace, sider, clintox, sider, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -56,50 +54,51 @@ def main():
     parser.add_argument('--save_path', type=str, default = 'dataset/', help='path for saving training images, test_metrics csv, model')
     parser.add_argument('--GNN_different_lr', type=bool, default = True, help='if the learning rate of GNN backbone is different from the learning rate of prediction layers')
     args = parser.parse_args()
-
-    #set up seeds
-    torch.manual_seed(args.runseed)
-    np.random.seed(args.runseed)
-    device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(args.runseed)
     
-    #set up device
-    device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-
-    #set up task type
-    task_type = get_task_type(args)
-
-    #set up number of tasks
-    num_tasks = get_num_task(args)
-
-    #set up dataset
-    dataset = MoleculeDataset("dataset/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type)
-    print(dataset)
-    
-    #data split
-    if args.split == "scaffold":
-        smiles_list = pd.read_csv('dataset/' + task_type + '/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
-        train_dataset, valid_dataset, test_dataset, _ = scaffold_split(dataset, smiles_list, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1)
-        print("scaffold")
-    elif args.split == "random":
-        train_dataset, valid_dataset, test_dataset = random_split(dataset, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1, seed = args.seed)
-        print("random")
-    else:
-        raise ValueError("Invalid split option.")
-
-    print(train_dataset[0])
-
-    #data loader
-    if args.dataset == 'freesolv':
-        train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers = args.num_workers, drop_last=True)
-    else:
-        train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers = args.num_workers)
-    val_loader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
-
     for i in range(1, args.training_rounds+1):
         print("====Round ", i)
+        
+        #set up seeds
+        torch.manual_seed(args.runseed)
+        np.random.seed(args.runseed)
+        device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(args.runseed)
+        
+        #set up device
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+
+        #set up task type
+        task_type = get_task_type(args)
+
+        #set up number of tasks
+        num_tasks = get_num_task(args)
+
+        #set up dataset
+        dataset = MoleculeDataset("dataset/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type)
+        print(dataset)
+        
+        #data split
+        if args.split == "scaffold":
+            smiles_list = pd.read_csv('dataset/' + task_type + '/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
+            train_dataset, valid_dataset, test_dataset, _ = scaffold_split(dataset, smiles_list, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1)
+            print("scaffold")
+        elif args.split == "random":
+            train_dataset, valid_dataset, test_dataset = random_split(dataset, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1, seed = args.seed)
+            print("random")
+        else:
+            raise ValueError("Invalid split option.")
+
+        print(train_dataset[0])
+
+        #data loader
+        if args.dataset == 'freesolv':
+            train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers = args.num_workers, drop_last=True)
+        else:
+            train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers = args.num_workers)
+        val_loader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
+        test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
+
         #set up model
         model = GINTrain(dataset, args.num_layer, args.emb_dim, num_tasks, JK = args.JK, drop_ratio = args.dropout_ratio, gnn_type = args.gnn_type)
         model.to(device)

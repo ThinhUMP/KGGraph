@@ -30,7 +30,7 @@ def main():
                         help='learning rate (default: 0.0005)')
     parser.add_argument('--lr_pred', type=float, default=0.0001,
                         help='learning rate for the prediction layer (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0.0,
+    parser.add_argument('--decay', type=float, default=0.1,
                         help='weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=5, 
                         help='number of GNN message passing layers (default: 5).')

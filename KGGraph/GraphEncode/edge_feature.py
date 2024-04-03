@@ -24,7 +24,7 @@ with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 
 class EdgeFeature:
-    def __init__(self, mol: Chem.Mol, decompose_type = 'motif'):
+    def __init__(self, mol: Chem.Mol, decompose_type):
         """
         Initializes the class with the given molecule.
         
@@ -187,7 +187,7 @@ class EdgeFeature:
         
         return motif_edge_attr, super_edge_attr, edge_attr
 
-def edge_feature(mol, decompose_type = 'motif'):
+def edge_feature(mol, decompose_type):
     obj = EdgeFeature(mol, decompose_type=decompose_type)
     _, _, edge_index = obj.get_edge_index(mol)
     _, _, edge_attr = obj.get_edge_attr(mol)

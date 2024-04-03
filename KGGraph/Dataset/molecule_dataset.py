@@ -21,7 +21,7 @@ from KGGraph.Dataset.loader import (
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-def feature(mol, atom_types, decompose_type = 'motif'):
+def feature(mol, atom_types, decompose_type):
     x = x_feature(mol, atom_types, decompose_type=decompose_type)
     edge_index, edge_attr, directed_adj_matrix = edge_feature(mol, decompose_type=decompose_type)
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
@@ -31,11 +31,11 @@ class MoleculeDataset(InMemoryDataset):
     def __init__(
         self,
         root,
+        decompose_type,
         transform=None,
         pre_transform=None,
         pre_filter=None,
         dataset='tox21',
-        decompose_type = 'motif',
         empty=False
 ):
         self.dataset = dataset
@@ -75,6 +75,7 @@ class MoleculeDataset(InMemoryDataset):
     def process(self):
         data_smiles_list = []
         data_list = []
+        print('Decompose type:', self.decompose_type)
 
         if self.dataset == 'tox21':
             smiles_list, mols_list, labels = load_tox21_dataset(self.raw_paths[0])

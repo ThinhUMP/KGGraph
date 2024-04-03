@@ -95,7 +95,7 @@ class AtomFeature:
         ]
         return basic_features
 
-def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feature_dic: dict, decompose_type = 'motif'):
+def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feature_dic: dict, decompose_type):
     """
     Compute motif and supernode features for a given molecule.
     
@@ -141,7 +141,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feat
     return x_motif, x_supernode
 
 
-def x_feature(mol: Chem.Mol, atom_types: List[int], decompose_type = 'motif'):
+def x_feature(mol: Chem.Mol, atom_types: List[int], decompose_type):
     """
     Compute the feature vector for a given molecule.
     

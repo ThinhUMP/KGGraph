@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_round):
     """
     Creates and saves a test metrics DataFrame for various datasets.
@@ -17,7 +18,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         test_metrics_tox21['AUC'] = roc_list
         test_metrics_tox21['AP'] = ap_list
         test_metrics_tox21['F1'] = f1_list
-        test_metrics_tox21.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_tox21_round_{training_round}.csv")
+        test_metrics_tox21.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv", index=False)
         
     elif args.dataset == "bace":
         tasks = ['Class']
@@ -25,7 +26,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         test_metrics_bace['AUC'] = roc_list
         test_metrics_bace['AP'] = ap_list
         test_metrics_bace['F1'] = f1_list
-        test_metrics_bace.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_bace_round_{training_round}.csv")
+        test_metrics_bace.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv", index=False)
         
     elif args.dataset == "bbbp":
         tasks = ['p_np']
@@ -33,7 +34,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         test_metrics_bbbp['AUC'] = roc_list
         test_metrics_bbbp['AP'] = ap_list
         test_metrics_bbbp['F1'] = f1_list
-        test_metrics_bbbp.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_bbbp_round_{training_round}.csv")
+        test_metrics_bbbp.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv", index=False)
         
     elif args.dataset == "clintox":
         tasks = ['FDA_APPROVED', 'CT_TOX']
@@ -41,7 +42,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         test_metrics_clintox['AUC'] = roc_list
         test_metrics_clintox['AP'] = ap_list
         test_metrics_clintox['F1'] = f1_list
-        test_metrics_clintox.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_clintox_round_{training_round}.csv")
+        test_metrics_clintox.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv", index=False)
     
     elif args.dataset == "sider":
         tasks = ['Hepatobiliary disorders',
@@ -66,7 +67,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         test_metrics_sider['AUC'] = roc_list
         test_metrics_sider['AP'] = ap_list
         test_metrics_sider['F1'] = f1_list
-        test_metrics_sider.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_sider_round_{training_round}.csv")
+        test_metrics_sider.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv", index=False)
         
     elif args.dataset == "toxcast":
         toxcast = pd.read_csv("dataset/classification/toxcast/raw/toxcast.csv")
@@ -75,7 +76,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
         test_metrics_toxcast['AUC'] = roc_list
         test_metrics_toxcast['AP'] = ap_list
         test_metrics_toxcast['F1'] = f1_list
-        test_metrics_toxcast.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_toxcast_round_{training_round}.csv")
+        test_metrics_toxcast.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{training_round}.csv, index=False")
         
     else:
         raise ValueError("Invalid dataset name.")
@@ -114,4 +115,30 @@ def create_train_round_df(
     train_df.at[epoch-1, "test_auc"] = test_auc
     train_df.at[epoch-1, "test_ap"] = test_ap
     train_df.at[epoch-1, "test_f1"] = test_f1
-    train_df.to_csv(f"{args.save_path+task_type}/{args.dataset}/train_metrics_round_{training_round}.csv")
+    train_df.to_csv(f"{args.save_path+task_type}/{args.dataset}/train_metrics_round_{training_round}.csv", index=False)
+    
+def average_train_metrics(args, task_type, remove = False):
+    dfs = pd.DataFrame()
+    for i in range(1, args.training_rounds+1):
+        file_path = f"dataset/{task_type}/{args.dataset}/train_metrics_round_{i}.csv"
+        round_metrics = pd.read_csv(file_path)
+        dfs = pd.concat([dfs, round_metrics], axis=0)
+        if remove:
+            os.remove(file_path)  # Delete the file
+    df_avg = dfs.groupby(dfs.index).mean()
+    df_avg.to_csv(f"dataset/{task_type}/{args.dataset}/train_metrics.csv")
+    return df_avg
+    
+def average_test_metrics(args, task_type, remove = True):
+    dfs = pd.DataFrame()
+    for i in range(1, args.training_rounds+1):
+        file_path = f"dataset/{task_type}/{args.dataset}/test_metrics_round_{i}.csv"
+        round_metrics = pd.read_csv(file_path)
+        dfs = pd.concat([dfs, round_metrics], axis=0)
+        if remove:
+            os.remove(file_path)  # Delete the file
+    df_avg = dfs.groupby(dfs.index).mean()
+    df_std = dfs.groupby(dfs.index).std()
+    df_avg.to_csv(f"dataset/{task_type}/{args.dataset}/test_metrics_avg.csv")
+    df_std.to_csv(f"dataset/{task_type}/{args.dataset}/test_metrics_std.csv")
+    print(f"AUC test for {args.dataset} dataset over {args.training_rounds} training rounds: {df_avg.AUC.mean():.2f}±{df_std.AUC.mean():.2f}")

@@ -6,6 +6,7 @@ from KGGraph.GnnModel.Architecture import GINTrain
 from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.GnnModel.Train.visualize import plot_metrics
 from KGGraph.GnnModel.Train.get_task_type_num_tasks import get_num_task, get_task_type
+from KGGraph.GnnModel.Train.crawl_metrics import average_test_metrics, average_train_metrics
 import torch
 import torch.nn as nn
 import argparse
@@ -23,7 +24,7 @@ def main():
                         help='input batch size for training (default: 32)')
     parser.add_argument('--training_rounds', type=int, default=3,
                         help='number of rounds to train to get the average test auc (default: 5)')
-    parser.add_argument('--epochs', type=int, default=1,
+    parser.add_argument('--epochs', type=int, default=3,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr_feat', type=float, default=0.0001,
                         help='learning rate (default: 0.0005)')
@@ -129,8 +130,12 @@ def main():
         elif task_type == 'regression':
             test_mae_list = train_epoch_reg(args, model, device, train_loader, val_loader, test_loader, optimizer, args.save_path) 
 
-        # plot training metrics
-        # plot_metrics(args, metrics_training, task_type)
+    #craw metrics
+    average_test_metrics(args, task_type)
+    df_train = average_train_metrics(args, task_type, remove = True)
+    
+    # plot training metrics
+    plot_metrics(args, df_train, task_type)
     
 
 

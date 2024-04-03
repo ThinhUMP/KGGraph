@@ -266,8 +266,9 @@ class SMotifDecomposition:
                 for c2 in nei_cls[i + 1:]:
                     inter = set(fgs[c1]) & set(fgs[c2])
                     edges[(c1,c2)] = len(inter)
+        edges_list = [k for k, v in edges.items()]
 
-        return list(fgs),edges
+        return list(fgs), edges_list
 
     @staticmethod
     def defragment(mol: Chem.Mol) -> List[str]:

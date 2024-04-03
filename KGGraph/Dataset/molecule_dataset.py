@@ -21,9 +21,9 @@ from KGGraph.Dataset.loader import (
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-def feature(mol, atom_types):
-    x = x_feature(mol, atom_types)
-    edge_index, edge_attr, directed_adj_matrix = edge_feature(mol)
+def feature(mol, atom_types, decompose_type = 'motif'):
+    x = x_feature(mol, atom_types, decompose_type=decompose_type)
+    edge_index, edge_attr, directed_adj_matrix = edge_feature(mol, decompose_type=decompose_type)
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
     return data
 
@@ -35,9 +35,11 @@ class MoleculeDataset(InMemoryDataset):
         pre_transform=None,
         pre_filter=None,
         dataset='tox21',
+        decompose_type = 'motif',
         empty=False
 ):
         self.dataset = dataset
+        self.decompose_type = decompose_type
         self.root = root
 
         super(MoleculeDataset, self).__init__(root, transform, pre_transform, pre_filter)
@@ -77,7 +79,7 @@ class MoleculeDataset(InMemoryDataset):
         if self.dataset == 'tox21':
             smiles_list, mols_list, labels = load_tox21_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types, self.decompose_type) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])
@@ -87,7 +89,7 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'bace':
             smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types, self.decompose_type) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])
@@ -98,7 +100,7 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'bbbp':
             smiles_list, mols_list, labels = load_bbbp_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types, self.decompose_type) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])
@@ -108,7 +110,7 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'clintox':
             smiles_list, mols_list, labels = load_clintox_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types, self.decompose_type) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])
@@ -118,7 +120,7 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'sider':
             smiles_list, mols_list, labels = load_sider_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types, self.decompose_type) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])
@@ -128,16 +130,7 @@ class MoleculeDataset(InMemoryDataset):
         elif self.dataset == 'toxcast':
             smiles_list, mols_list, labels = load_toxcast_dataset(self.raw_paths[0])
             atom_types = get_atom_types(smiles_list)
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types) for mol in tqdm(mols_list))
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
-        elif self.dataset == 'another':
-            smiles_list, mols_list, labels = load_another_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, atom_types, self.decompose_type) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])

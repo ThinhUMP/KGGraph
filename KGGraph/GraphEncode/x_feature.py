@@ -10,7 +10,7 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 from KGGraph.Chemistry.chemutils import get_atom_types, get_smiles
-from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
+from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition, BRCISDecomposition, TreeDecomposition, SMotifDecomposition
 from KGGraph.Chemistry.hybridization import HybridizationFeaturize
 from KGGraph.Chemistry.features import (
     get_chemical_group_block, get_period, get_group, get_atomicweight,
@@ -95,7 +95,7 @@ class AtomFeature:
         ]
         return basic_features
 
-def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feature_dic: dict):
+def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feature_dic: dict, decompose_type = 'motif'):
     """
     Compute motif and supernode features for a given molecule.
     
@@ -107,9 +107,20 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feat
     Returns:
         A tuple of tensors representing motif and supernode features.
     """
-    cliques, _ = MotifDecomposition.defragment(mol)
+    if decompose_type == 'motif':
+        cliques, _ = MotifDecomposition.defragment(mol)
+    elif decompose_type == 'brics':
+        cliques, _ = BRCISDecomposition.defragment(mol)
+    elif decompose_type == 'jin':
+        cliques, _ = TreeDecomposition.defragment(mol)
+    elif decompose_type == 'smotif':
+        cliques, _ = SMotifDecomposition.defragment(mol)
+    else:
+        raise ValueError(f"Unknown decomposition type: {decompose_type}. It should be motif, brics, jin or smotif.")
+    
     num_motif = len(cliques)
     x_motif = []
+        
     
     if num_motif > 0:
         for k, motif_nodes in enumerate(cliques):
@@ -130,7 +141,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feat
     return x_motif, x_supernode
 
 
-def x_feature(mol: Chem.Mol, atom_types: List[int]):
+def x_feature(mol: Chem.Mol, atom_types: List[int], decompose_type = 'motif'):
     """
     Compute the feature vector for a given molecule.
     
@@ -143,7 +154,7 @@ def x_feature(mol: Chem.Mol, atom_types: List[int]):
     """
     atom_feature = AtomFeature(mol=mol, atom_types=atom_types)
     x_node, atom_feature_dic = atom_feature.feature()
-    x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), atom_feature_dic=atom_feature_dic)
+    x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), atom_feature_dic=atom_feature_dic, decompose_type = decompose_type)
 
     # Concatenate features
     x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)

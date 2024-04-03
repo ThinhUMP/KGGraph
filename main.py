@@ -22,9 +22,9 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--training_rounds', type=int, default=3,
+    parser.add_argument('--training_rounds', type=int, default=5,
                         help='number of rounds to train to get the average test auc (default: 5)')
-    parser.add_argument('--epochs', type=int, default=3,
+    parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr_feat', type=float, default=0.0001,
                         help='learning rate (default: 0.0005)')
@@ -74,7 +74,7 @@ def main():
     num_tasks = get_num_task(args)
 
     #set up dataset
-    dataset = MoleculeDataset("dataset/" + task_type + "/" + args.dataset, dataset=args.dataset)
+    dataset = MoleculeDataset("dataset/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type)
     print(dataset)
     
     #data split

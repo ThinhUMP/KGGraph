@@ -12,7 +12,7 @@ sys.path.append(str(root_dir))
     
 # Import necessary modules and functions
 from KGGraph.Chemistry.chemutils import get_smiles
-from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition
+from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition, BRCISDecomposition, TreeDecomposition, SMotifDecomposition
 from KGGraph.Chemistry.features import (
     is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
 )
@@ -24,7 +24,7 @@ with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 
 class EdgeFeature:
-    def __init__(self, mol: Chem.Mol):
+    def __init__(self, mol: Chem.Mol, decompose_type = 'motif'):
         """
         Initializes the class with the given molecule.
         
@@ -33,7 +33,18 @@ class EdgeFeature:
         """
         self.mol = mol
         self.num_bond_features = 19
-        self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
+        
+        if decompose_type == 'motif':
+            self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
+        elif decompose_type == 'brics':
+            self.cliques, self.clique_edges = BRCISDecomposition.defragment(mol)
+        elif decompose_type == 'jin':
+            self.cliques, self.clique_edges = TreeDecomposition.defragment(mol)
+        elif decompose_type == 'smotif':
+            self.cliques, self.clique_edges = SMotifDecomposition.defragment(mol)
+        else:
+            raise ValueError(f"Unknown decomposition type: {decompose_type}. It should be motif, brics, jin or smotif.")
+
         self.num_motif = len(self.cliques)
         self.num_atoms = mol.GetNumAtoms()
         
@@ -176,8 +187,8 @@ class EdgeFeature:
         
         return motif_edge_attr, super_edge_attr, edge_attr
 
-def edge_feature(mol):
-    obj = EdgeFeature(mol)
+def edge_feature(mol, decompose_type = 'motif'):
+    obj = EdgeFeature(mol, decompose_type=decompose_type)
     _, _, edge_index = obj.get_edge_index(mol)
     _, _, edge_attr = obj.get_edge_attr(mol)
     mol_charges, charges = renumber_and_calculate_charges(get_smiles(mol))

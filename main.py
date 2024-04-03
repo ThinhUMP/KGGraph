@@ -44,9 +44,9 @@ def main():
                         help='how the node features across layers are combined. last, sum, max or concat')
     parser.add_argument('--gnn_type', type=str, default="gin",
                         help='gnn_type (gat, gin, gcn, graphsage)')
-    parser.add_argument('--decompose_type', type=str, default="motif",
+    parser.add_argument('--decompose_type', type=str, default="brics",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default = 'bace',
+    parser.add_argument('--dataset', type=str, default = 'bbbp',
                         help='[bbbp, bace, sider, clintox, sider, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")

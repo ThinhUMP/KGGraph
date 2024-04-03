@@ -12,7 +12,7 @@ sys.path.append(str(root_dir))
     
 # Import necessary modules and functions
 from KGGraph.Chemistry.chemutils import get_smiles
-from KGGraph.MotifGraph.MotitDcp.motif_decompose import MotifDecomposition, BRCISDecomposition, TreeDecomposition, SMotifDecomposition
+from KGGraph.MotifGraph.MotitDcp import MotifDecomposition, BRCISDecomposition, TreeDecomposition, SMotifDecomposition
 from KGGraph.Chemistry.features import (
     is_rotatable, get_stereo, get_bond_polarity, is_bond_in_ring, 
 )

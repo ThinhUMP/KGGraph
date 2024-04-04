@@ -154,6 +154,10 @@ class BRCISDecomposition:
         Returns:
         Tuple[List[List[int]], List[Tuple[int, int]]]: List of cliques and list of edges representing the breaks.
         """
+        n_atoms = mol.GetNumAtoms()
+        if n_atoms == 1:
+            return [[0]], []
+        
         cliques = BRCISDecomposition.create_initial_cliques(mol)
         cliques, res_list = BRCISDecomposition.apply_brics_breaks(mol, cliques)
         cliques, break_ring_bonds = BRCISDecomposition.break_ring_bonds(mol, cliques)

@@ -281,6 +281,10 @@ class SMotifDecomposition:
         Returns:
         List[str]: List of SMILES strings representing the identified functional groups.
         """
+        n_atoms = mol.GetNumAtoms()
+        if n_atoms == 1:
+            return [[0]], []
+        
         marks = SMotifDecomposition.generate_mark_pattern(mol)
         rings = SMotifDecomposition.merge_rings(mol)
 

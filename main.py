@@ -22,9 +22,9 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--training_rounds', type=int, default=3,
+    parser.add_argument('--training_rounds', type=int, default=1,
                         help='number of rounds to train to get the average test auc (default: 5)')
-    parser.add_argument('--epochs', type=int, default=150,
+    parser.add_argument('--epochs', type=int, default=1,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr_feat', type=float, default=0.0001,
                         help='learning rate (default: 0.0005)')
@@ -42,9 +42,9 @@ def main():
                         help='how the node features across layers are combined. last, sum, max or concat')
     parser.add_argument('--gnn_type', type=str, default="gin",
                         help='gnn_type (gin, gcn)')
-    parser.add_argument('--decompose_type', type=str, default="motif",
+    parser.add_argument('--decompose_type', type=str, default="smotif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default = 'sider',
+    parser.add_argument('--dataset', type=str, default = 'bace',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
@@ -67,7 +67,8 @@ def main():
         
         #set up device
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-
+        print('device', device)
+        
         #set up task type
         task_type = get_task_type(args)
 

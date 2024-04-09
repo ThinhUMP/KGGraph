@@ -11,16 +11,9 @@ check.py
 data/Cora/
 data/alk/processed/
 data/tox21/processed/
-finetune/dataset/esol/
-finetune/dataset/tox21/
+finetune/dataset/
 saved_model/
-finetune/
-chemutils.py
 chemutils.ipynb
-data_utils.py
-decoder.py
-gnn_model.py
-pretrain.py
 data/*.pt
 data/raw/
 model/
@@ -43,3 +36,4 @@ KGGraph/GnnModel/Architecture/GIN_generate.py
 KGGraph/GnnModel/Architecture/GINNet.py
 test.ipynb
 test.py
+finetune/model_checkpoints/

@@ -8,6 +8,9 @@ from rdkit.Chem import Descriptors
 from rdkit.Chem import AllChem
 from torch_geometric.data import Batch
 from torch_geometric.data import Data
+from KGGraph.GraphEncode.edge_feature import edge_feature
+from KGGraph.GraphEncode.x_feature import x_feature
+from KGGraph.Chemistry.chemutils import get_atom_types
 from chemutils import get_mol, get_clique_mol
 
 
@@ -17,6 +20,7 @@ class MoleculeDataset(Dataset):
         with open(data_file) as f:
             self.data = [line.strip("\r\n ").split()[0] for line in f]
             # print('data',self.data)
+        # self.atom_types = get_atom_types(self.data)
 
     def __len__(self):
         return len(self.data)
@@ -24,7 +28,7 @@ class MoleculeDataset(Dataset):
     def __getitem__(self, idx):
         smiles = self.data[idx]
         # print('smiles',smiles)
-        mol_graph = MolGraph(smiles)  #motif
+        mol_graph = MolGraph(smiles, atom_types = [6, 7, 8, 9, 15, 16, 17, 35, 53])  #motif
         # mol_tree.recover()
         # mol_tree.assemble()
         return mol_graph
@@ -154,10 +158,9 @@ allowable_features = {
 
 class MolGraph(object):
 
-    def __init__(self, smiles):
+    def __init__(self, smiles, atom_types):
         self.smiles = smiles
         self.mol = get_mol(smiles)
-
         '''
         #Stereo Generation
         mol = Chem.MolFromSmiles(smiles)
@@ -165,88 +168,90 @@ class MolGraph(object):
         self.smiles2D = Chem.MolToSmiles(mol)
         self.stereo_cands = decode_stereo(self.smiles2D)
         '''
-        atom_features_list = []
-        for atom in self.mol.GetAtoms():
-            atom_feature = [allowable_features['possible_atomic_num_list'].index(
-                atom.GetAtomicNum())] + [allowable_features[
-                                         'possible_degree_list'].index(atom.GetDegree())]
+        self.x_nosuper, self.x, self.num_part = x_feature(self.mol, atom_types, decompose_type='motif')
+        self.edge_attr_nosuper, self.edge_index, self.edge_attr = edge_feature(self.mol, decompose_type='motif')
+        # atom_features_list = []
+        # for atom in self.mol.GetAtoms():
+        #     atom_feature = [allowable_features['possible_atomic_num_list'].index(
+        #         atom.GetAtomicNum())] + [allowable_features[
+        #                                  'possible_degree_list'].index(atom.GetDegree())]
 
             
-            atom_features_list.append(atom_feature)
-        self.x_nosuper = torch.tensor(np.array(atom_features_list), dtype=torch.long)
+        #     atom_features_list.append(atom_feature)
+        # self.x_nosuper = torch.tensor(np.array(atom_features_list), dtype=torch.long)
 
-        # bonds
-        num_bond_features = 2  # bond type, bond direction
-        if len(self.mol.GetBonds()) > 0:  # mol has bonds
-            edges_list = []
-            edge_features_list = []
-            for bond in self.mol.GetBonds():
-                i = bond.GetBeginAtomIdx()
-                j = bond.GetEndAtomIdx()
+        # # bonds
+        # num_bond_features = 2  # bond type, bond direction
+        # if len(self.mol.GetBonds()) > 0:  # mol has bonds
+        #     edges_list = []
+        #     edge_features_list = []
+        #     for bond in self.mol.GetBonds():
+        #         i = bond.GetBeginAtomIdx()
+        #         j = bond.GetEndAtomIdx()
 
-                edge_feature = [allowable_features['possible_bonds'].index(
-                 bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
-                 bond.IsInRing())]
+        #         edge_feature = [allowable_features['possible_bonds'].index(
+        #          bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
+        #          bond.IsInRing())]
 
-                edges_list.append((i, j))
-                edge_features_list.append(edge_feature)
-                edges_list.append((j, i))
-                edge_features_list.append(edge_feature)
+        #         edges_list.append((i, j))
+        #         edge_features_list.append(edge_feature)
+        #         edges_list.append((j, i))
+        #         edge_features_list.append(edge_feature)
 
-            # data.edge_index: Graph connectivity in COO format with shape [2, num_edges]
-            self.edge_index_nosuper = torch.tensor(np.array(edges_list).T, dtype=torch.long)
+        #     # data.edge_index: Graph connectivity in COO format with shape [2, num_edges]
+        #     self.edge_index_nosuper = torch.tensor(np.array(edges_list).T, dtype=torch.long)
 
-            # data.edge_attr: Edge feature matrix with shape [num_edges, num_edge_features]
-            self.edge_attr_nosuper = torch.tensor(np.array(edge_features_list),
-                                 dtype=torch.long) 
-        else:  
-            self.edge_index_nosuper = torch.empty((2, 0), dtype=torch.long) #edgeCOO索引，[[row索引],[col索引]]
-            self.edge_attr_nosuper = torch.empty((0, num_bond_features), dtype=torch.long)
+        #     # data.edge_attr: Edge feature matrix with shape [num_edges, num_edge_features]
+        #     self.edge_attr_nosuper = torch.tensor(np.array(edge_features_list),
+        #                          dtype=torch.long) 
+        # else:  
+        #     self.edge_index_nosuper = torch.empty((2, 0), dtype=torch.long) #edgeCOO索引，[[row索引],[col索引]]
+        #     self.edge_attr_nosuper = torch.empty((0, num_bond_features), dtype=torch.long)
 
-        # add super node
-        num_atoms = self.x_nosuper.size(0)
-        super_x = torch.tensor([[119, 0]]).to(self.x_nosuper.device)  
+        # # add super node
+        # num_atoms = self.x_nosuper.size(0)
+        # super_x = torch.tensor([[119, 0]]).to(self.x_nosuper.device)  
 
-        #add motif 
-        cliques = motif_decomp(self.mol)
-        num_motif = len(cliques)
-        if num_motif > 0:
-            motif_x = torch.tensor([[120, 0]]).repeat_interleave(num_motif, dim=0).to(self.x_nosuper.device)
-            self.x = torch.cat((self.x_nosuper, motif_x, super_x), dim=0)
+        # #add motif 
+        # cliques = motif_decomp(self.mol)
+        # num_motif = len(cliques)
+        # if num_motif > 0:
+        #     motif_x = torch.tensor([[120, 0]]).repeat_interleave(num_motif, dim=0).to(self.x_nosuper.device)
+        #     self.x = torch.cat((self.x_nosuper, motif_x, super_x), dim=0)
 
-            motif_edge_index = []
-            for k, motif in enumerate(cliques):
-                motif_edge_index = motif_edge_index + [[i, num_atoms+k] for i in motif]
-            motif_edge_index = torch.tensor(np.array(motif_edge_index).T, dtype=torch.long).to(self.edge_index_nosuper.device)
+        #     motif_edge_index = []
+        #     for k, motif in enumerate(cliques):
+        #         motif_edge_index = motif_edge_index + [[i, num_atoms+k] for i in motif]
+        #     motif_edge_index = torch.tensor(np.array(motif_edge_index).T, dtype=torch.long).to(self.edge_index_nosuper.device)
 
-            super_edge_index = [[num_atoms+i, num_atoms+num_motif] for i in range(num_motif)]
-            super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(self.edge_index_nosuper.device)
-            self.edge_index = torch.cat((self.edge_index_nosuper, motif_edge_index, super_edge_index), dim=1)
+        #     super_edge_index = [[num_atoms+i, num_atoms+num_motif] for i in range(num_motif)]
+        #     super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(self.edge_index_nosuper.device)
+        #     self.edge_index = torch.cat((self.edge_index_nosuper, motif_edge_index, super_edge_index), dim=1)
 
-            motif_edge_attr = torch.zeros(motif_edge_index.size()[1], 2)
-            motif_edge_attr[:,0] = 6 #bond type for self-loop edge
-            motif_edge_attr = motif_edge_attr.to(self.edge_attr_nosuper.dtype).to(self.edge_attr_nosuper.device)
+        #     motif_edge_attr = torch.zeros(motif_edge_index.size()[1], 2)
+        #     motif_edge_attr[:,0] = 6 #bond type for self-loop edge
+        #     motif_edge_attr = motif_edge_attr.to(self.edge_attr_nosuper.dtype).to(self.edge_attr_nosuper.device)
 
-            super_edge_attr = torch.zeros(num_motif, 2)
-            super_edge_attr[:,0] = 5 #bond type for self-loop edge
-            super_edge_attr = super_edge_attr.to(self.edge_attr_nosuper.dtype).to(self.edge_attr_nosuper.device)
-            self.edge_attr = torch.cat((self.edge_attr_nosuper, motif_edge_attr, super_edge_attr), dim = 0)
+        #     super_edge_attr = torch.zeros(num_motif, 2)
+        #     super_edge_attr[:,0] = 5 #bond type for self-loop edge
+        #     super_edge_attr = super_edge_attr.to(self.edge_attr_nosuper.dtype).to(self.edge_attr_nosuper.device)
+        #     self.edge_attr = torch.cat((self.edge_attr_nosuper, motif_edge_attr, super_edge_attr), dim = 0)
 
-            self.num_part = (num_atoms, num_motif, 1)
+        #     self.num_part = (num_atoms, num_motif, 1)
 
-        else:
-            self.x = torch.cat((self.x_nosuper, super_x), dim=0)
+        # else:
+        #     self.x = torch.cat((self.x_nosuper, super_x), dim=0)
 
-            super_edge_index = [[i, num_atoms] for i in range(num_atoms)]
-            super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(self.edge_index_nosuper.device)
-            self.edge_index = torch.cat((self.edge_index_nosuper, super_edge_index), dim=1)
+        #     super_edge_index = [[i, num_atoms] for i in range(num_atoms)]
+        #     super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(self.edge_index_nosuper.device)
+        #     self.edge_index = torch.cat((self.edge_index_nosuper, super_edge_index), dim=1)
 
-            super_edge_attr = torch.zeros(num_atoms, 2)
-            super_edge_attr[:,0] = 5 #bond type for self-loop edge
-            super_edge_attr = super_edge_attr.to(self.edge_attr_nosuper.dtype).to(self.edge_attr_nosuper.device)
-            self.edge_attr = torch.cat((self.edge_attr_nosuper, super_edge_attr), dim = 0)
+        #     super_edge_attr = torch.zeros(num_atoms, 2)
+        #     super_edge_attr[:,0] = 5 #bond type for self-loop edge
+        #     super_edge_attr = super_edge_attr.to(self.edge_attr_nosuper.dtype).to(self.edge_attr_nosuper.device)
+        #     self.edge_attr = torch.cat((self.edge_attr_nosuper, super_edge_attr), dim = 0)
 
-            self.num_part = (num_atoms, 0, 1)
+        #     self.num_part = (num_atoms, 0, 1)
 
 
     def size_node(self):

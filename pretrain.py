@@ -12,7 +12,7 @@ import sys
 import logging, time
 from tqdm import tqdm
 import numpy as np
-from gnn_model import GNN
+from KGGraph.GnnModel.Architecture.GNN import GNN
 from decoder import Model_decoder  
 
 sys.path.append('./util/')
@@ -144,7 +144,7 @@ def main():
 
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=lambda x:x, drop_last=True)
 
-    model = GNN(args.num_layer, args.emb_dim, JK=args.JK, drop_ratio=args.dropout_ratio, gnn_type=args.gnn_type).to(device)
+    model = GNN(dataset, args.num_layer, args.emb_dim, JK=args.JK, drop_ratio=args.dropout_ratio, gnn_type=args.gnn_type).to(device)
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 
     model_list = [model, model_decoder]

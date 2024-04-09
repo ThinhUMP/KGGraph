@@ -132,7 +132,7 @@ class EdgeFeature:
             super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(edge_index_node.device)
             edge_index = torch.cat((edge_index_node, super_edge_index), dim=1)
 
-        return motif_edge_index, super_edge_index, edge_index
+        return motif_edge_index, edge_index_node, edge_index
 
     def get_edge_attr(self, mol: Chem.Mol) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -186,33 +186,34 @@ class EdgeFeature:
             # # Concatenate edge attributes for the entire graph
             edge_attr = torch.cat((edge_attr_node, super_edge_attr), dim=0)
         
-        return motif_edge_attr, super_edge_attr, edge_attr
+        return edge_attr_node, edge_attr
 
 def edge_feature(mol, decompose_type):
     obj = EdgeFeature(mol, decompose_type=decompose_type)
     _, _, edge_index = obj.get_edge_index(mol)
-    _, _, edge_attr = obj.get_edge_attr(mol)
-    mol_charges, charges = renumber_and_calculate_charges(get_smiles(mol))
-    directed_adj_matrix = torch.tensor(calculate_directed_adjacency_matrix(mol_charges, charges), dtype=torch.long)
-    return edge_index, edge_attr, directed_adj_matrix
+    edge_attr_node, edge_attr = obj.get_edge_attr(mol)
+    # mol_charges, charges = renumber_and_calculate_charges(get_smiles(mol))
+    # directed_adj_matrix = torch.tensor(calculate_directed_adjacency_matrix(mol_charges, charges), dtype=torch.long)
+    return edge_attr_node, edge_index, edge_attr
 
 def main():
     import time
     from joblib import Parallel, delayed
-    from KGGraph import load_bace_dataset
+    from KGGraph import load_sider_dataset
     from tqdm import tqdm
-    smiles_list, mols_list, folds, labels = load_bace_dataset('./dataset/classification/bace/raw/bace.csv')
+    smiles_list, mols_list, labels = load_sider_dataset('./dataset/classification/sider/raw/sider.csv')
     t1 = time.time()
-    edges = Parallel(n_jobs=8)(delayed(edge_feature)(mol) for mol in tqdm(mols_list[:5]))
+    results = Parallel(n_jobs=8)(delayed(edge_feature)(mol, decompose_type='motif') for mol in tqdm(mols_list))
     t2 = time.time()
     print(t2-t1)
     # Print the results
-    print(edges[0][0].size())
-    print(edges[0][0])
-    print(edges[0][1].size())
-    print(edges[0][1])
-    print(edges[0][2].size())
-    print(torch.unique(edges[0][1]))
+    print(results[0][0].size())
+    print(results[0][0])
+    print(results[0][1].size())
+    print(results[0][1])
+    print(results[0][2])
+    print(results[0][2].size())
+    # print(torch.unique(results[0][1]))
 
 if __name__ == '__main__':
     main()

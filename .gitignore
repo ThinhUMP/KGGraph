@@ -37,3 +37,4 @@ KGGraph/GnnModel/Architecture/GINNet.py
 test.ipynb
 test.py
 finetune/model_checkpoints/
+saved_model/

@@ -158,8 +158,10 @@ def x_feature(mol: Chem.Mol, atom_types: List[int], decompose_type):
 
     # Concatenate features
     x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
-
-    return x
+    
+    num_part = (x_node.size(0), x_motif.size(0), x_supernode.size(0))
+    
+    return x_node, x, num_part
 
 def main():
     from joblib import Parallel, delayed
@@ -174,18 +176,20 @@ def main():
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
-    from KGGraph import load_bace_dataset
+    from KGGraph import load_sider_dataset
     # data = pd.read_csv('./dataset/classification/clintox/raw/clintox.csv')
     # smiles = data['smiles'].tolist()[:10]
     # mols = [get_mol(smile) for smile in smiles]
-    smiles, mols, folds, labels = load_bace_dataset('dataset/classification/bace/raw/bace.csv')
+    smiles, mols, labels = load_sider_dataset('dataset/classification/sider/raw/sider.csv')
     atom_types = get_atom_types(smiles)
     t1 = time.time()
-    x = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types) for mol in tqdm(mols))
+    results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types, decompose_type='motif') for mol in tqdm(mols))
     t2 = time.time()
     print(t2-t1)
-    print(x[0])
-    print(x[0].size())  # Print the size of the feature vector
+    for i in range(len(results)):
+        print(results[i][2])
+    # print(results[0][2])
+    # print(results[0][2].size())  # Print the size of the feature vector
 
 if __name__=='__main__':
     main()

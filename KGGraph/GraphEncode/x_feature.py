@@ -26,7 +26,8 @@ class AtomFeature:
     """
     Class to compute atom features for a given dataset of molecules.
     """
-    def __init__(self, mol: Chem.Mol, atom_types: List[int]):
+    def __init__(self, mol: Chem.Mol, ):
+                #  atom_types: List[int]):
         """
         Initializes the class with the given molecule.
         
@@ -34,27 +35,28 @@ class AtomFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.atom_types = atom_types
+        # self.atom_types = atom_types
         
     def feature(self):
         """
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
         x_node_list = []
-        atomic_features = atomic_num_features(self.mol, self.atom_types)
+        atomic_features = atomic_num_features(self.mol)
+                                            #   , self.atom_types)
         
         # Atom feature dictionary for each atom in the molecule with key as atom index and value as atom features
         atom_feature_dic = {}
         
         for atom in self.mol.GetAtoms():
             # basic_features = self.compute_basic_features(atom)
-            chemical_group = get_chemical_group_block(atom)
+            # chemical_group = get_chemical_group_block(atom)
 
             total_single_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
             if hybri_feat == [0,0,0,0,0]:
                 print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
-            combined_features = [get_degree(atom), get_atomic_number(atom)] + chemical_group + hybri_feat
+            combined_features = [get_atomic_number(atom), get_degree(atom)] + hybri_feat
             
             # Add atom feature to dictionary to use for motif feature extraction
             atom_feature = np.concatenate((combined_features, atomic_features[atom.GetIdx()]), axis=0)
@@ -127,21 +129,23 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feat
             motif_node_feature = torch.zeros(number_atom_node_attr, dtype=torch.long)
             for i in motif_nodes:
                 motif_node_feature += atom_feature_dic[i]
+            motif_node_feature = motif_node_feature / len(motif_nodes)
             x_motif.append(motif_node_feature)
 
         x_motif = torch.stack(x_motif, dim = 0)
-        x_supernode = torch.sum(x_motif, dim=0).unsqueeze(0)
+        x_supernode = torch.sum(x_motif, dim=0).unsqueeze(0) / x_motif.size(0)
     else:
         x_motif = torch.empty(0, number_atom_node_attr, dtype=torch.long) # Handle cases with no motifs
         x_supernode = torch.zeros(number_atom_node_attr, dtype=torch.long)
         for i in atom_feature_dic.keys():
             x_supernode += atom_feature_dic[i]
-        x_supernode = x_supernode.unsqueeze(0) 
+        x_supernode = x_supernode / len(atom_feature_dic)
+        x_supernode = x_supernode.unsqueeze(0)
         
     return x_motif, x_supernode
 
 
-def x_feature(mol: Chem.Mol, atom_types: List[int], decompose_type):
+def x_feature(mol: Chem.Mol, decompose_type):
     """
     Compute the feature vector for a given molecule.
     
@@ -152,7 +156,7 @@ def x_feature(mol: Chem.Mol, atom_types: List[int], decompose_type):
     Returns:
         A tensor representing the feature vector.
     """
-    atom_feature = AtomFeature(mol=mol, atom_types=atom_types)
+    atom_feature = AtomFeature(mol=mol)
     x_node, atom_feature_dic = atom_feature.feature()
     x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), atom_feature_dic=atom_feature_dic, decompose_type = decompose_type)
 
@@ -167,29 +171,22 @@ def main():
     from joblib import Parallel, delayed
     import time
     from tqdm import tqdm
-    from KGGraph import load_clintox_dataset
     from pathlib import Path
     import sys
-    import pandas as pd
-    from typing import List
     # Get the root directory
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
     from KGGraph import load_sider_dataset
-    # data = pd.read_csv('./dataset/classification/clintox/raw/clintox.csv')
-    # smiles = data['smiles'].tolist()[:10]
-    # mols = [get_mol(smile) for smile in smiles]
     smiles, mols, labels = load_sider_dataset('dataset/classification/sider/raw/sider.csv')
-    atom_types = get_atom_types(smiles)
+    # atom_types = get_atom_types(smiles)
     t1 = time.time()
-    results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, atom_types, decompose_type='motif') for mol in tqdm(mols))
+    results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
     t2 = time.time()
     print(t2-t1)
-    for i in range(len(results)):
-        print(results[i][2])
-    # print(results[0][2])
-    # print(results[0][2].size())  # Print the size of the feature vector
+    print(results[0][2])
+    print(results[0][0].size())
+    print(results[0][1].size())  # Print the size of the feature vector
 
 if __name__=='__main__':
     main()

@@ -101,7 +101,7 @@ def train(model_list, loader, optimizer_list, device):
 
             print('Batch:',step,'loss:',loss.item())
             if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0
-           
+
 
 def main():
     # Training settings
@@ -127,6 +127,8 @@ def main():
     parser.add_argument('--dataset', type=str, default='./data/zinc/all.txt',
                         help='root directory of dataset. For now, only classification.')
     parser.add_argument('--gnn_type', type=str, default="gin")
+    parser.add_argument('--decompose_type', type=str, default="motif",
+                        help='decompose_type (brics, jin, motif, smotif) (default: motif).')
     parser.add_argument('--output_model_file', type=str, default='./saved_model/pretrain.pth',
                         help='filename to output the pre-trained model')
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers for dataset loading')
@@ -140,7 +142,7 @@ def main():
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(0)
 
-    dataset = MoleculeDataset(args.dataset)
+    dataset = MoleculeDataset(args.dataset, args.decompose_type)
 
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=lambda x:x, drop_last=True)
 

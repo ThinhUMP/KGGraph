@@ -22,6 +22,16 @@ from KGGraph.Chemistry.gasteiger_adj import renumber_and_calculate_charges, calc
 # Load bond dictionaries for process of feature extraction: bond stereo.
 with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
+# allowable edge features
+allowable_features = {
+    'possible_bonds' : [
+        Chem.rdchem.BondType.SINGLE,
+        Chem.rdchem.BondType.DOUBLE,
+        Chem.rdchem.BondType.TRIPLE,
+        Chem.rdchem.BondType.AROMATIC
+    ],
+    'possible_bond_inring': [None, False, True]
+}
 
 class EdgeFeature:
     def __init__(self, mol: Chem.Mol, decompose_type):
@@ -32,7 +42,7 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 17
+        self.num_bond_features = 12
         
         if decompose_type == 'motif':
             self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
@@ -74,10 +84,12 @@ class EdgeFeature:
                 
                 # Get bond type and stereo features from the dictionaries
                 bond_type_features = bond_type_feature(bond)
-                bond_stereo_features = bond_stereo_dict.get(get_stereo(bond), [0] * len(bond_stereo_dict))
+                # bond_stereo_features = bond_stereo_dict.get(get_stereo(bond), [0] * len(bond_stereo_dict))
                 
                 # Combine all features into a single list
-                combined_features = [int(is_bond_in_ring(bond))] + bond_stereo_features + bond_type_features 
+                combined_features = [allowable_features['possible_bonds'].index(
+                 bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
+                 bond.IsInRing())] + bond_type_features
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()

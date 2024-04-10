@@ -174,7 +174,7 @@ def x_feature(mol: Chem.Mol, decompose_type):
     x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), atom_feature_dic=atom_feature_dic, decompose_type = decompose_type)
 
     # Concatenate features
-    x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0)
+    x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0).to(torch.long)
     
     num_part = (x_node.size(0), x_motif.size(0), x_supernode.size(0))
     

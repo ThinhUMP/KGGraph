@@ -4,8 +4,9 @@ from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
-from ..vocab_edge_attr_embedding import num_vocab_edge_attr_embedding
+# from ..vocab_edge_attr_embedding import num_vocab_edge_attr_embedding
 
+vocab_edge_attr_embedding = 4
 class GINConv(MessagePassing):
     """
     GINConv is an extension of the Graph Isomorphism Network (GIN) that incorporates edge information
@@ -21,7 +22,7 @@ class GINConv(MessagePassing):
         Xu, K., Hu, W., Leskovec, J., & Jegelka, S. (2018). How powerful are graph neural networks?
         https://arxiv.org/abs/1810.00826
     """
-    def __init__(self, dataset, emb_dim, aggr = "add"):
+    def __init__(self, emb_dim, aggr = "add"):
         """
         Initializes the GINConv layer with the specified parameters.
 
@@ -41,7 +42,6 @@ class GINConv(MessagePassing):
             # torch.nn.ReLU(),
             torch.nn.Linear(2*emb_dim, emb_dim),
             )
-        vocab_edge_attr_embedding = num_vocab_edge_attr_embedding(dataset)
         self.edge_embedding = torch.nn.Embedding(vocab_edge_attr_embedding, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.edge_embedding.weight.data)

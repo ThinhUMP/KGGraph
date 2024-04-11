@@ -6,7 +6,7 @@ root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.Chemistry.features import get_bond_type, is_conjugated
     
-with open(root_dir+'/data/feature/bond_dict.json', 'r') as f:
+with open(root_dir+'/dataset/feature/bond_dict.json', 'r') as f:
     bond_dict = json.load(f)
 
 def bond_type_feature(bond):

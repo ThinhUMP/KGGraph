@@ -20,7 +20,7 @@ from KGGraph.Chemistry.bond_type import bond_type_feature
 from KGGraph.Chemistry.gasteiger_adj import renumber_and_calculate_charges, calculate_directed_adjacency_matrix
 
 # Load bond dictionaries for process of feature extraction: bond stereo.
-with open(root_dir / 'data/feature/bond_stereo_dict.json', 'r') as f:
+with open(root_dir / 'dataset/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 # allowable edge features
 allowable_features = {

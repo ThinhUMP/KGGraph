@@ -11,8 +11,10 @@ setup(
     install_requires=[
         'rdkit==2023.9.5',
         'networkx==3.2.1',
-        'joblib==1.3.2'
+        'joblib==1.3.2',
+        'scipy==1.13.0',
+        'pytest==8.1.1'
     ],
-    python_requires='==3.11',
+    python_requires='>=3.11',
     # Additional metadata like classifiers, keywords, etc.
 )

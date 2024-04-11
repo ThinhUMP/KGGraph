@@ -4,7 +4,7 @@ from rdkit.Chem import Lipinski
 import json
 import sys
 import pathlib
-from mendeleev import element
+# from mendeleev import element
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from .chemutils import get_smiles

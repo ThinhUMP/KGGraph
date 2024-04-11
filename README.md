@@ -4,7 +4,7 @@
 ## Objective
 KGGraph aims to innovate in integrating chemical knowledge into graph representations, utilizing substructure graphs to develop graph neural network models for predicting molecular properties.
 
-![screenshot](./Image/repo_fig.webp)
+![screenshot](./Data/Image/repo_fig.webp)
 
 ## Overview
 KGGraph is a cutting-edge toolkit designed for scientists and researchers in computational chemistry and molecular modeling. It leverages graph neural networks to transform chemical substructures into predictive models, enhancing the accuracy and efficiency of molecular property prediction.

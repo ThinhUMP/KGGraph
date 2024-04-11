@@ -18,6 +18,9 @@ from decoder import Model_decoder
 sys.path.append('./util/')
 
 from data_utils import *
+import warnings
+warnings.filterwarnings('ignore')
+
 
 
 
@@ -67,7 +70,6 @@ def train(model_list, loader, optimizer_list, device):
     model_decoder.train()
     if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-        #batch内的每个item是MolTree类型
         batch_size = len(batch)
 
         graph_batch = molgraph_to_graph_data(batch)
@@ -141,6 +143,7 @@ def main():
     device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(0)
+    print('device', device)
 
     dataset = MoleculeDataset(args.dataset, args.decompose_type)
 

@@ -202,11 +202,11 @@ class EdgeFeature:
 
 def edge_feature(mol, decompose_type):
     obj = EdgeFeature(mol, decompose_type=decompose_type)
-    _, _, edge_index = obj.get_edge_index(mol)
+    _, edge_index_node, edge_index = obj.get_edge_index(mol)
     edge_attr_node, edge_attr = obj.get_edge_attr(mol)
     # mol_charges, charges = renumber_and_calculate_charges(get_smiles(mol))
     # directed_adj_matrix = torch.tensor(calculate_directed_adjacency_matrix(mol_charges, charges), dtype=torch.long)
-    return edge_attr_node, edge_index, edge_attr
+    return edge_attr_node, edge_index_node, edge_index, edge_attr
 
 def main():
     import time

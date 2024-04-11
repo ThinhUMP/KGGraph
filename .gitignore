@@ -38,3 +38,4 @@ test.ipynb
 test.py
 finetune/model_checkpoints/
 saved_model/
+finetune/

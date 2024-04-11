@@ -121,25 +121,25 @@ def create_train_round_df(
 def average_train_metrics(args, task_type, remove = False):
     dfs = pd.DataFrame()
     for i in range(1, args.training_rounds+1):
-        file_path = f"dataset/{task_type}/{args.dataset}/train_metrics_round_{i}.csv"
+        file_path = f"{args.save_path+task_type}/{args.dataset}/train_metrics_round_{i}.csv"
         round_metrics = pd.read_csv(file_path)
         dfs = pd.concat([dfs, round_metrics], axis=0)
         if remove:
             os.remove(file_path)  # Delete the file
     df_avg = dfs.groupby(dfs.index).mean()
-    df_avg.to_csv(f"dataset/{task_type}/{args.dataset}/train_metrics.csv")
+    df_avg.to_csv(f"{args.save_path+task_type}/{args.dataset}/train_metrics.csv")
     return df_avg
     
 def average_test_metrics(args, task_type, remove = True):
     dfs = pd.DataFrame()
     for i in range(1, args.training_rounds+1):
-        file_path = f"dataset/{task_type}/{args.dataset}/test_metrics_round_{i}.csv"
+        file_path = f"{args.save_path+task_type}/{args.dataset}/test_metrics_round_{i}.csv"
         round_metrics = pd.read_csv(file_path)
         dfs = pd.concat([dfs, round_metrics], axis=0)
         if remove:
             os.remove(file_path)  # Delete the file
     df_avg = dfs.groupby(dfs.index).mean()
     df_std = dfs.groupby(dfs.index).std()
-    df_avg.to_csv(f"dataset/{task_type}/{args.dataset}/test_metrics_avg.csv")
-    df_std.to_csv(f"dataset/{task_type}/{args.dataset}/test_metrics_std.csv")
+    df_avg.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_avg.csv")
+    df_std.to_csv(f"{args.save_path+task_type}/{args.dataset}/test_metrics_std.csv")
     print(f"AUC test for {args.dataset} dataset over {args.training_rounds} training rounds: {df_avg.AUC.mean()*100:.2f}±{df_std.AUC.mean()*100:.2f}")

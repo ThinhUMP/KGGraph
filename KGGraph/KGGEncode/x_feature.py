@@ -40,6 +40,7 @@ class AtomFeature:
         Parameters:
             mol: The input molecule for the class.
         """
+        self.mol = mol
         
     def feature(self):
         """

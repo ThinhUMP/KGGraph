@@ -15,7 +15,7 @@ from KGGraph.KGGDecompose.MotitDcp import MotifDecomposition, BRCISDecomposition
 from KGGraph.KGGChem.bond_type import bond_type_feature
 
 # Load bond dictionaries for process of feature extraction: bond stereo.
-with open(root_dir / 'dataset/feature/bond_stereo_dict.json', 'r') as f:
+with open(root_dir / 'Data/feature/bond_stereo_dict.json', 'r') as f:
     bond_stereo_dict = json.load(f)
 
 # allowable edge features

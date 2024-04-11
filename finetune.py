@@ -22,9 +22,9 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--training_rounds', type=int, default=3,
+    parser.add_argument('--training_rounds', type=int, default=1,
                         help='number of rounds to train to get the average test auc (default: 5)')
-    parser.add_argument('--epochs', type=int, default=150,
+    parser.add_argument('--epochs', type=int, default=1,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr_feat', type=float, default=0.0001,
                         help='learning rate (default: 0.0005)')
@@ -44,14 +44,14 @@ def main():
                         help='gnn_type (gin, gcn)')
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default = 'bace',
+    parser.add_argument('--dataset', type=str, default = 'bbbp',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
     parser.add_argument('--runseed', type=int, default=42, help = "Seed for minibatch selection, random initialization.")
     parser.add_argument('--split', type = str, default="scaffold", help = "random or scaffold or random_scaffold")
     parser.add_argument('--num_workers', type=int, default = 8, help='number of workers for dataset loading')
-    parser.add_argument('--save_path', type=str, default = 'dataset/', help='path for saving training images, test_metrics csv, model')
+    parser.add_argument('--save_path', type=str, default = 'Data/', help='path for saving training images, test_metrics csv, model')
     parser.add_argument('--GNN_different_lr', type=bool, default = True, help='if the learning rate of GNN backbone is different from the learning rate of prediction layers')
     args = parser.parse_args()
     
@@ -76,12 +76,12 @@ def main():
         num_tasks = get_num_task(args)
 
         #set up dataset
-        dataset = MoleculeDataset("dataset/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type)
+        dataset = MoleculeDataset("Data/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type)
         print(dataset)
         
         #data split
         if args.split == "scaffold":
-            smiles_list = pd.read_csv('dataset/' + task_type + '/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
+            smiles_list = pd.read_csv('Data/' + task_type + '/' + args.dataset + '/processed/smiles.csv', header=None)[0].tolist()
             train_dataset, valid_dataset, test_dataset, _ = scaffold_split(dataset, smiles_list, null_value=0, frac_train=0.8,frac_valid=0.1, frac_test=0.1)
             print("scaffold")
         elif args.split == "random":

@@ -117,7 +117,7 @@ def main():
                         help='dropout ratio (default: 0.2)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')
-    parser.add_argument('--dataset', type=str, default='./dataset/zinc/all.txt',
+    parser.add_argument('--dataset', type=str, default='./Data/zinc/all.txt',
                         help='root directory of dataset. For now, only classification.')
     parser.add_argument('--gnn_type', type=str, default="gin")
     parser.add_argument('--decompose_type', type=str, default="motif",

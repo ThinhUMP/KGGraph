@@ -15,9 +15,6 @@ from KGGraph.GraphDecode.data_utils import *
 import warnings
 warnings.filterwarnings('ignore')
 
-
-
-
 lg = rdkit.RDLogger.logger()
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 

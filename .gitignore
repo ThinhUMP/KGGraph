@@ -40,7 +40,6 @@ finetune/model_checkpoints/
 saved_model/
 finetune/
 gnn_model.py
-chemutils.py
 Manuscripts/
 KGGraph/KGGModel/Architecture/vocab_edge_attr_embedding.py
 KGGraph/KGGModel/Architecture/vocab_x_embedding.py

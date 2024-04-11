@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from .Conv.GINConv import GINConv
 from .Conv.GCNConv import GCNConv
-from .vocab_x_embedding import num_vocab_x_embedding
 
 vocab_x_embedding = 119
 class GNN(torch.nn.Module):

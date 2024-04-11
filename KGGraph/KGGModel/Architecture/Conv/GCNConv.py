@@ -3,9 +3,9 @@ from torch.nn import Linear, Parameter
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
-from ..vocab_edge_attr_embedding import num_vocab_edge_attr_embedding
 #TODO: rewrite this python file to adapt with new code
 
+vocab_edge_attr_embedding = 4
 
 class GCNConv(MessagePassing):
     def __init__(self, dataset, in_channels, out_channels):
@@ -13,8 +13,6 @@ class GCNConv(MessagePassing):
         self.out_channels = out_channels
         self.lin = Linear(in_channels, out_channels, bias=False)
         self.bias = Parameter(torch.empty(out_channels))
-        
-        vocab_edge_attr_embedding = num_vocab_edge_attr_embedding(dataset)
         self.edge_embedding = torch.nn.Embedding(vocab_edge_attr_embedding, out_channels)
         torch.nn.init.xavier_uniform_(self.edge_embedding.weight.data)
         self.reset_parameters()

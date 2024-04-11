@@ -2,14 +2,10 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.autograd import Variable
-from sklearn.metrics import roc_auc_score,average_precision_score,accuracy_score,precision_score
+from sklearn.metrics import roc_auc_score,average_precision_score
 
-# MAX_NB = 8
-# MAX_DECODE_LEN = 100
 MAX_BOND_TYPE = 4
 MAX_ATOM_TYPE = 118
-# MAX_ATOM_CHIRALITY = 4
-# MAX_BOND_DIR = 3
 
 def create_var(tensor, device, requires_grad=None):
     if requires_grad is None:

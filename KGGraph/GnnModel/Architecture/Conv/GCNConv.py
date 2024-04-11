@@ -3,16 +3,19 @@ from torch.nn import Linear, Parameter
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
+from ..vocab_edge_attr_embedding import num_vocab_edge_attr_embedding
 #TODO: rewrite this python file to adapt with new code
-unique_value_edge_attr = 2
+
 
 class GCNConv(MessagePassing):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, dataset, in_channels, out_channels):
         super().__init__(aggr='mean')  # "Mean" aggregation (Step 5).
         self.out_channels = out_channels
         self.lin = Linear(in_channels, out_channels, bias=False)
         self.bias = Parameter(torch.empty(out_channels))
-        self.edge_embedding = torch.nn.Embedding(unique_value_edge_attr, out_channels)
+        
+        vocab_edge_attr_embedding = num_vocab_edge_attr_embedding(dataset)
+        self.edge_embedding = torch.nn.Embedding(vocab_edge_attr_embedding, out_channels)
         torch.nn.init.xavier_uniform_(self.edge_embedding.weight.data)
         self.reset_parameters()
 
@@ -42,10 +45,8 @@ class GCNConv(MessagePassing):
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
         
-        edge_embeddings = torch.zeros(edge_attr.size(0), self.out_channels)
-
-        for i in range(edge_attr.size(1)):  # Iterate over the second dimension
-            edge_embeddings += self.edge_embedding(edge_attr[:, i])
+        edge_embeddings = self.edge_embedding(edge_attr).sum(dim=1)
+        
         # Step 2: Linearly transform node feature matrix.
         x = self.lin(x)
         # Step 3: Compute normalization.

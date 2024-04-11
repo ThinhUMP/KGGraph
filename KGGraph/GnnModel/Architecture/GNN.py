@@ -5,8 +5,10 @@ import torch
 import torch.nn.functional as F
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from .Conv.GINConv import GINConv
+from .Conv.GCNConv import GCNConv
 from .vocab_x_embedding import num_vocab_x_embedding
 
+vocab_x_embedding = 119
 class GNN(torch.nn.Module):
     """
     A generalized graph neural network (GNN) module that supports various GNN types and jump knowledge (JK) concatenation methods.
@@ -23,7 +25,7 @@ class GNN(torch.nn.Module):
         drop_ratio (float): The dropout rate applied to the node embeddings.
         gnn_type (str): The type of GNN layer to use. Options include 'gin', 'gcn', 'graphsage', and 'gat'.
     """
-    def __init__(self, dataset, num_layer, emb_dim, JK = "last", drop_ratio = 0, gnn_type = "gin"):
+    def __init__(self, num_layer, emb_dim, JK = "last", drop_ratio = 0, gnn_type = "gin"):
         """
         Initializes the GNN module with the specified architecture and parameters.
 
@@ -43,22 +45,20 @@ class GNN(torch.nn.Module):
 
         if self.num_layer < 2:
             raise ValueError("Number of GNN layers must be greater than 1.")
-        vocab_x_embedding = num_vocab_x_embedding(dataset)
+        # vocab_x_embedding = num_vocab_x_embedding(dataset)
         self.x_embedding = torch.nn.Embedding(vocab_x_embedding, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.x_embedding.weight.data)
 
         ###List of MLPs
         self.gnns = torch.nn.ModuleList()
-        for layer in range(num_layer):
+        for _ in range(num_layer):
             if gnn_type == "gin":
-                self.gnns.append(GINConv(dataset, emb_dim, aggr = "add"))
+                self.gnns.append(GINConv(emb_dim, aggr = "add"))
             elif gnn_type == "gcn":
-                pass
-            elif gnn_type == "gat":
-                pass
-            elif gnn_type == "graphsage":
-                pass
+                self.gnns.append(GCNConv(emb_dim))
+            else:
+                raise ValueError("Undefined GNN type.")
 
         ###List of batchnorms
         self.batch_norms = torch.nn.ModuleList()
@@ -88,8 +88,8 @@ class GNN(torch.nn.Module):
         else:
             raise ValueError("unmatched number of arguments.")
 
-        x_clamped = torch.clamp(x, 0, self.x_embedding.num_embeddings - 1)
-        x_embeddings = self.x_embedding(x_clamped).sum(dim=1)
+        # x_clamped = torch.clamp(x, 0, self.x_embedding.num_embeddings - 1)
+        x_embeddings = self.x_embedding(x).sum(dim=1)
         
         h_list = [x_embeddings]
         

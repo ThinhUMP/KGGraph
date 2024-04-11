@@ -33,13 +33,12 @@ class SMotifDecomposition:
                     if not bond.IsInRing():
                         marks.update(sub)
                 else:
-                    for idx in sub:
-                        atom = mol.GetAtomWithIdx(idx)
-                        if atom.IsInRing():
-                            break
-                        else:
-                            marks.add(idx)
-                            break
+                    atom = mol.GetAtomWithIdx(sub[1])    
+                    if atom.IsInRing():
+                        break
+                    else:
+                        marks.add(sub[1])
+                        break
 
         return marks
 
@@ -54,18 +53,19 @@ class SMotifDecomposition:
         Returns:
         List[Set[int]]: A list of sets, each representing a unique or fused ring system.
         """
-        rings = [set(x) for x in Chem.GetSymmSSSR(mol)]
-        merged_indices = set()
-
-        for i in range(len(rings)):
-            if i in merged_indices:
-                continue
-            for j in range(i + 1, len(rings)):
-                if rings[i].intersection(rings[j]):
-                    rings[i].update(rings[j])
-                    merged_indices.add(j)
-
-        return [rings[i] for i in range(len(rings)) if i not in merged_indices]
+        rings = [set(x) for x in Chem.GetSymmSSSR(mol)]  # get simple rings
+        flag = True  # flag == False: no rings can be merged
+        while flag:
+            flag = False
+            for i in range(len(rings)):
+                if len(rings[i]) == 0: continue
+                for j in range(i + 1, len(rings)):
+                    shared_atoms = rings[i] & rings[j]
+                    if len(shared_atoms) > 1:
+                        rings[i].update(rings[j])
+                        rings[j] = set()
+                        flag = True
+        return [list(r) for r in rings if len(r) > 0]
 
     @staticmethod
     def find_carbonyl(mol: Chem.Mol) -> Tuple[List[List[int]], List[Tuple[int]]]:
@@ -79,7 +79,7 @@ class SMotifDecomposition:
         Tuple[List[List[int]], List[Tuple[int]]]: 
         List of merged CO groups and list of merged COO groups.
         """
-        CO = list(mol.GetSubstructMatches(Chem.MolFromSmarts('[C;D3]([#0,#6,#7,#8,#17,#35])(=O)')))
+        CO = list(mol.GetSubstructMatches(Chem.MolFromSmarts('[C;D3](=O)([#0,#6,#7,#8,#17,#35,#53])')))
         COO = []
 
         for idx, sub1 in enumerate(CO):
@@ -96,8 +96,8 @@ class SMotifDecomposition:
                 bond = mol.GetBondBetweenAtoms(a1, a2)
                 if bond is not None:
                     COO.append(tuple(set(sub1 + sub2)))
-                    CO.remove(sub1)
-                    CO.remove(sub2)
+                    if sub1 in CO: CO.remove(sub1)
+                    if sub2 in CO: CO.remove(sub2)
 
         return CO, COO
 
@@ -120,16 +120,16 @@ class SMotifDecomposition:
 
         for value in CO:
             if mol.GetAtomWithIdx(value[0]).IsInRing():
-                if not mol.GetAtomWithIdx(value[0] + 1).IsInRing():
+                if not mol.GetAtomWithIdx(value[1]).IsInRing():
                     for i in rings:
-                        if mol.GetAtomWithIdx(value[0]):
-                            i.add((value[0] + 1))
+                        if value[0] in i:
+                            i.append(value[1])
                 for idx in value:
                     if idx in marks:
                         marks.remove(idx)
                 continue
 
-            atom_carbonyl = set((value[0], value[0] + 1))
+            atom_carbonyl = set((value[0], value[1]))
             for i in list(atom_carbonyl):
                 if i in marks:
                     marks.remove(i)
@@ -140,16 +140,20 @@ class SMotifDecomposition:
                 atom = mol.GetAtomWithIdx(k)
                 if atom.GetSymbol() == 'C':
                     if k in marks:
-                        nei = [c.GetIdx() for c in atom.GetNeighbors()]
-                        pre_cluster.append(list(set(nei + list(value))))
-                        marks.remove(k)
+                        if not atom.IsInRing():
+                            nei = [c.GetIdx() for c in atom.GetNeighbors()]
+                            pre_cluster.append(list(set(nei + list(value))))
+                            marks.remove(k)
+                        else:
+                            marks.remove(k)
                     else:
                         if list(value) not in pre_cluster:
                             pre_cluster.append(list(value))
                 else:
                     if list(value) not in pre_cluster:
                         pre_cluster.append(list(value))
-                    marks.remove(k)
+                    if k in marks:
+                        marks.remove(k)
 
         cluster = []
         for i in range(len(pre_cluster)):
@@ -237,6 +241,13 @@ class SMotifDecomposition:
         tmp = [list(fg) for fg in fgs if fg and (len(fg) > 1 or not mol.GetAtomWithIdx(list(fg)[0]).IsInRing())]
         fgs = tmp
         fgs.extend(cluster)
+        
+        for i, fg in enumerate(fgs):
+            for fg2 in fgs[i+1:]:
+                inter = set(fg) & set(fg2)
+                if len(inter) >1:
+                    fgs[i].extend(list(set(fg2).difference(set(fg))))
+                    fgs.remove(fg2)
 
         if 0 not in fgs[0]:
             for i, cls in enumerate(fgs):
@@ -255,14 +266,12 @@ class SMotifDecomposition:
                 for c2 in nei_cls[i + 1:]:
                     inter = set(fgs[c1]) & set(fgs[c2])
                     edges[(c1,c2)] = len(inter)
+        edges_list = [k for k, v in edges.items()]
 
-        # fg_smiles = set()
-        # for fg in fgs:
-        #     fg_smiles.add(Chem.MolFragmentToSmiles(mol, fg))
+        return list(fgs), edges_list
 
-        return list(fgs),edges
-
-    def defragment(self, mol: Chem.Mol) -> List[str]:
+    @staticmethod
+    def defragment(mol: Chem.Mol) -> List[str]:
         """
         Perform defragmentation of a molecule into functional groups.
 
@@ -272,6 +281,10 @@ class SMotifDecomposition:
         Returns:
         List[str]: List of SMILES strings representing the identified functional groups.
         """
+        n_atoms = mol.GetNumAtoms()
+        if n_atoms == 1:
+            return [[0]], []
+        
         marks = SMotifDecomposition.generate_mark_pattern(mol)
         rings = SMotifDecomposition.merge_rings(mol)
 

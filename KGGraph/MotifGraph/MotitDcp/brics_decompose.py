@@ -1,8 +1,8 @@
-import rdkit
 import rdkit.Chem as Chem
 from rdkit.Chem import BRICS
 from typing import List
 class BRCISDecomposition:
+    
     @staticmethod
     def create_initial_cliques(mol: Chem.Mol) -> List[List[int]]:
         """
@@ -37,6 +37,8 @@ class BRCISDecomposition:
         if len(res) == 0:
             return [list(range(mol.GetNumAtoms()))], []
 
+        res_list = [[bond[0][0], bond[0][1]] for bond in res]
+        
         for bond in res:
             if [bond[0][0], bond[0][1]] in cliques:
                 cliques.remove([bond[0][0], bond[0][1]])
@@ -44,7 +46,7 @@ class BRCISDecomposition:
                 cliques.remove([bond[0][1], bond[0][0]])
             cliques.append([bond[0][0]])
             cliques.append([bond[0][1]])
-        return cliques
+        return cliques, res_list
 
     @staticmethod
     def break_ring_bonds(mol, cliques):
@@ -58,18 +60,18 @@ class BRCISDecomposition:
         Returns:
         Tuple[List[List[int]], List[List[int]]]: Updated list of cliques and list of broken bonds.
         """
-        breaks = []
+        break_ring_bonds = []
         for c in cliques.copy():  # Use a copy to avoid modifying the list during iteration
             if len(c) > 1:
                 if mol.GetAtomWithIdx(c[0]).IsInRing() and not mol.GetAtomWithIdx(c[1]).IsInRing():
                     cliques.remove(c)
                     cliques.append([c[1]])
-                    breaks.append(c)
+                    break_ring_bonds.append(c)
                 elif mol.GetAtomWithIdx(c[1]).IsInRing() and not mol.GetAtomWithIdx(c[0]).IsInRing():
                     cliques.remove(c)
                     cliques.append([c[0]])
-                    breaks.append(c)
-        return cliques, breaks
+                    break_ring_bonds.append(c)
+        return cliques, break_ring_bonds
 
     @staticmethod
     def select_intersection_atoms(mol, cliques):
@@ -83,16 +85,19 @@ class BRCISDecomposition:
         Returns:
         List[List[int]]: Updated list of cliques with intersection atoms selected.
         """
+        break_intersections = []
         for atom in mol.GetAtoms():
             if len(atom.GetNeighbors()) > 2 and not atom.IsInRing():
                 cliques.append([atom.GetIdx()])
                 for nei in atom.GetNeighbors():
                     if [nei.GetIdx(), atom.GetIdx()] in cliques:
                         cliques.remove([nei.GetIdx(), atom.GetIdx()])
+                        break_intersections.append([nei.GetIdx(), atom.GetIdx()])
                     elif [atom.GetIdx(), nei.GetIdx()] in cliques:
                         cliques.remove([atom.GetIdx(), nei.GetIdx()])
+                        break_intersections.append([atom.GetIdx(), nei.GetIdx()])
                     cliques.append([nei.GetIdx()])
-        return cliques
+        return cliques, break_intersections
 
     @staticmethod
     def merge_cliques(cliques):
@@ -113,20 +118,21 @@ class BRCISDecomposition:
         return [c for c in cliques if c]
 
     @staticmethod
-    def find_edges(cliques, res, breaks):
+    def find_edges(cliques, res_list, breaks_ring_bonds, break_intersections):
         """
         Find edges based on the breaks.
 
         Parameters:
         cliques (List[List[int]]): The list of cliques.
-        res (List[Tuple]): BRICS breaks result.
-        breaks (List[List[int]]): List of broken bonds.
+        res_list (List[Tuple]): BRICS breaks result.
+        breaks_ring_bonds (List[List[int]]): List of broken bonds for ring and non-ring atoms.
+        break_intersections (List[List[int]]): List of atoms at intersections as individual motifs.
 
         Returns:
         List[Tuple[int, int]]: List of edges representing the breaks.
         """
         edges = []
-        for bond in res + breaks:
+        for bond in res_list + breaks_ring_bonds + break_intersections:
             c1, c2 = None, None  # Initialize c1 and c2
             for c in range(len(cliques)):
                 if bond[0] in cliques[c]:
@@ -137,7 +143,8 @@ class BRCISDecomposition:
                 edges.append((c1, c2))
         return edges
 
-    def defragment(self, mol):
+    @staticmethod
+    def defragment(mol):
         """
         Perform BRICS decomposition on a molecule.
 
@@ -147,10 +154,14 @@ class BRCISDecomposition:
         Returns:
         Tuple[List[List[int]], List[Tuple[int, int]]]: List of cliques and list of edges representing the breaks.
         """
+        n_atoms = mol.GetNumAtoms()
+        if n_atoms == 1:
+            return [[0]], []
+        
         cliques = BRCISDecomposition.create_initial_cliques(mol)
-        cliques = BRCISDecomposition.apply_brics_breaks(mol, cliques)
-        cliques, breaks = BRCISDecomposition.break_ring_bonds(mol, cliques)
-        cliques = BRCISDecomposition.select_intersection_atoms(mol, cliques)
+        cliques, res_list = BRCISDecomposition.apply_brics_breaks(mol, cliques)
+        cliques, break_ring_bonds = BRCISDecomposition.break_ring_bonds(mol, cliques)
+        cliques, break_intersections = BRCISDecomposition.select_intersection_atoms(mol, cliques)
         cliques = BRCISDecomposition.merge_cliques(cliques)
-        edges = BRCISDecomposition.find_edges(cliques, list(BRICS.FindBRICSBonds(mol)), breaks)
+        edges = BRCISDecomposition.find_edges(cliques, res_list, break_ring_bonds, break_intersections)
         return cliques, edges

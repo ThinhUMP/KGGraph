@@ -38,7 +38,22 @@ def get_atom_types(smiles: List[str]) -> List[int]:
     atom_types.sort()
     return atom_types
 
-def atomic_num_features(mol, atom_types):
+# def atomic_num_features(mol, atom_types):
+#     """_summary_
+
+#     Args:
+#         m (rdkit mol): Molecule to be transformed into a graph.
+
+#         atom_types (list): List of all atom types present in the dataset 
+#             represented by their atomic numbers.
+#     """
+#     atomic_features = np.zeros((mol.GetNumAtoms(), len(atom_types)))
+#     for idx, atom in enumerate(mol.GetAtoms()):
+#         atomic_features[idx] = get_atomic_number(atom)
+#     atomic_features = np.where(atomic_features == np.tile(atom_types, (mol.GetNumAtoms(), 1)), 1, 0)
+#     return atomic_features
+
+def atomic_num_features(mol, atom_types=list(range(1, 118))):
     """_summary_
 
     Args:

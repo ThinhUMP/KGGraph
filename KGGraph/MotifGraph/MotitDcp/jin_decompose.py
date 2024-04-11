@@ -5,8 +5,6 @@ from scipy.sparse.csgraph import minimum_spanning_tree
 from typing import List, Tuple, Dict
 
 class TreeDecomposition:
-    def __init__(self, mst_max_weight: int=100):
-        self.MST_MAX_WEIGHT = mst_max_weight
 
     @staticmethod
     def create_initial_cliques(mol: Chem.Mol) -> List[List[int]]:
@@ -44,24 +42,6 @@ class TreeDecomposition:
         return cliques
 
     @staticmethod
-    def create_neighbor_list(n_atoms: int, cliques: List[List[int]]) -> List[List[int]]:
-        """
-        Create a neighbor list for each atom based on cliques.
-
-        Parameters:
-        n_atoms (int): Number of atoms in the molecule.
-        cliques (List[List[int]]): List of cliques.
-
-        Returns:
-        List[List[int]]: Neighbor list for each atom.
-        """
-        nei_list = [[] for _ in range(n_atoms)]
-        for i, clique in enumerate(cliques):
-            for atom in clique:
-                nei_list[atom].append(i)
-        return nei_list
-
-    @staticmethod
     def merge_cliques(cliques: List[List[int]], nei_list: List[List[int]]) -> List[List[int]]:
         """
         Merge cliques with more than 2 atoms in common.
@@ -86,6 +66,24 @@ class TreeDecomposition:
         return [c for c in cliques if c]
 
     @staticmethod
+    def create_neighbor_list(n_atoms: int, cliques: List[List[int]]) -> List[List[int]]:
+        """
+        Create a neighbor list for each atom based on cliques.
+
+        Parameters:
+        n_atoms (int): Number of atoms in the molecule.
+        cliques (List[List[int]]): List of cliques.
+
+        Returns:
+        List[List[int]]: Neighbor list for each atom.
+        """
+        nei_list = [[] for _ in range(n_atoms)]
+        for i, clique in enumerate(cliques):
+            for atom in clique:
+                nei_list[atom].append(i)
+        return nei_list
+
+    @staticmethod
     def initialize_edges(n_atoms: int, cliques: List[List[int]], nei_list: List[List[int]]) -> Tuple[Dict[Tuple[int, int], int], List[List[int]]]:
         """
         Initialize edges between cliques.
@@ -98,11 +96,18 @@ class TreeDecomposition:
         Returns:
         Tuple[Dict[Tuple[int, int], int], List[List[int]]]: Dictionary of edges and updated cliques.
         """
+        # print(cliques)
+        # print(nei_list)
         edges = defaultdict(int)
         for atom in range(n_atoms):
             if len(nei_list[atom]) <= 1:
                 continue
             cnei = nei_list[atom]
+            # for c in cnei:
+            #     print(c)
+            #     if len(cliques[c]) == 2:
+            #         print(cnei)
+            #         print(c)
             bonds = [c for c in cnei if len(cliques[c]) == 2]
             rings = [c for c in cnei if len(cliques[c]) > 4]
 
@@ -125,7 +130,8 @@ class TreeDecomposition:
                             edges[(c1, c2)] = len(inter)
         return edges, cliques
 
-    def compute_mst(self, cliques: List[List[int]], edges: Dict[Tuple[int, int], int]) -> List[Tuple[int, int]]:
+    @staticmethod
+    def compute_mst(cliques: List[List[int]], edges: Dict[Tuple[int, int], int]) -> List[Tuple[int, int]]:
         """
         Compute the maximum spanning tree of the clique graph.
 
@@ -136,7 +142,8 @@ class TreeDecomposition:
         Returns:
         List[Tuple[int, int]]: List of edges in the maximum spanning tree.
         """
-        edge_data = [u + (self.MST_MAX_WEIGHT - v,) for u, v in edges.items()]
+        MST_MAX_WEIGHT = 100
+        edge_data = [u + (MST_MAX_WEIGHT - v,) for u, v in edges.items()]
         if len(edge_data) == 0:
             return []
 
@@ -146,10 +153,9 @@ class TreeDecomposition:
         junc_tree = minimum_spanning_tree(clique_graph)
         row, col = junc_tree.nonzero()
         return [(row[i], col[i]) for i in range(len(row))]
-
-    def defragment(self,
-                    mol: Chem.Mol,
-                    merge_rings: bool = True,) -> Tuple[List[List[int]], List[Tuple[int, int]]]:
+    
+    @staticmethod
+    def defragment(mol: Chem.Mol, merge_rings: bool = True,) -> Tuple[List[List[int]], List[Tuple[int, int]]]:
         """
         Perform tree decomposition on a molecule.
 
@@ -163,10 +169,11 @@ class TreeDecomposition:
         if n_atoms == 1:
             return [[0]], []
 
-        cliques = self.create_initial_cliques(mol)
-        cliques = self.add_ring_cliques(mol, cliques)
-        nei_list = self.create_neighbor_list(n_atoms, cliques)
+        cliques = TreeDecomposition.create_initial_cliques(mol)
+        cliques = TreeDecomposition.add_ring_cliques(mol, cliques)
+        nei_list = TreeDecomposition.create_neighbor_list(n_atoms, cliques)
         if merge_rings:
-            cliques = self.merge_cliques(cliques, nei_list)
-        edges, cliques = self.initialize_edges(n_atoms, cliques, nei_list)
-        return cliques, self.compute_mst(cliques, edges)
+            cliques = TreeDecomposition.merge_cliques(cliques, nei_list)
+        nei_list = TreeDecomposition.create_neighbor_list(n_atoms, cliques)
+        edges, cliques = TreeDecomposition.initialize_edges(n_atoms, cliques, nei_list)
+        return cliques, TreeDecomposition.compute_mst(cliques, edges)

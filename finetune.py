@@ -36,7 +36,7 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 512)')
-    parser.add_argument('--dropout_ratio', type=float, default=0.3,
+    parser.add_argument('--dropout_ratio', type=float, default=0.1,
                         help='dropout ratio (default: 0.3)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')

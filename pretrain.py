@@ -6,12 +6,12 @@ import rdkit
 import sys
 from tqdm import tqdm
 import numpy as np
-from KGGraph.GnnModel.Architecture.GNN import GNN
-from KGGraph.GraphDecode.decoder import Model_decoder  
+from KGGraph.KGGModel.Architecture.GNN import GNN
+from KGGraph.KGGDecode.decoder import Model_decoder  
 
 sys.path.append('./util/')
 
-from KGGraph.GraphDecode.data_utils import *
+from KGGraph.KGGDecode.data_utils import *
 import warnings
 warnings.filterwarnings('ignore')
 

@@ -4,7 +4,7 @@ import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from rdkit import Chem
-from KGGraph.Chemistry.features import (
+from KGGraph.KGGChem.features import (
     get_symbol, get_atomic_number, get_period, get_group, get_atomicweight, get_num_valence_e, 
     get_chemical_group_block, get_hybridization, get_cip_code, is_chiral_center,
     get_formal_charge, get_total_num_hs, get_total_valence, get_num_radical_electrons,

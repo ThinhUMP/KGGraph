@@ -1,12 +1,12 @@
-from KGGraph.Dataset.molecule_dataset import MoleculeDataset
+from KGGraph.KGGProcessor.molecule_dataset import MoleculeDataset
 import pandas as pd
-from KGGraph.Dataset.split import scaffold_split, random_split
+from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.GnnModel.Architecture import GINTrain
-from KGGraph.GnnModel.Train.train_utils import train_epoch_cls, train_epoch_reg
-from KGGraph.GnnModel.Train.visualize import plot_metrics
-from KGGraph.GnnModel.Train.get_task_type_num_tasks import get_num_task, get_task_type
-from KGGraph.GnnModel.Train.crawl_metrics import average_test_metrics, average_train_metrics
+from KGGraph.KGGModel.Architecture import GINTrain
+from KGGraph.KGGModel.Train.train_utils import train_epoch_cls, train_epoch_reg
+from KGGraph.KGGModel.Train.visualize import plot_metrics
+from KGGraph.KGGModel.Train.get_task_type_num_tasks import get_num_task, get_task_type
+from KGGraph.KGGModel.Train.crawl_metrics import average_test_metrics, average_train_metrics
 import torch
 import torch.nn as nn
 import argparse

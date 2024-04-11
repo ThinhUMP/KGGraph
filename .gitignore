@@ -41,3 +41,4 @@ saved_model/
 finetune/
 gnn_model.py
 chemutils.py
+Manuscripts/

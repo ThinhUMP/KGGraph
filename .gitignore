@@ -39,3 +39,5 @@ test.py
 finetune/model_checkpoints/
 saved_model/
 finetune/
+gnn_model.py
+chemutils.py

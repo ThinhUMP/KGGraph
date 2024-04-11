@@ -54,22 +54,10 @@ def plot_metrics(args, df, task_type):
     plt.savefig(f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png", dpi=600)
     plt.show()
     
-def plot_targets(pred, ground_truth):
-    """
-    Plot predicted values against ground truth values.
-
-    Parameters:
-    pred (array-like): Predicted values.
-    ground_truth (array-like): True values.
-
-    The function displays a scatter plot comparing predictions to true values.
-    """
-    f, ax = plt.subplots(figsize=(6, 6))
-    ax.scatter(pred, ground_truth, s=0.5)
-    plt.xlim(-2, 7)
-    plt.ylim(-2, 7)
-    ax.plot([1, 1], [1, 1], color='red', lw=2)  # Ideal line for perfect predictions
-    plt.xlabel("Predicted Value")
-    plt.ylabel("Ground Truth")
-    plt.title("Ground Truth vs Prediction")
+def plot_pretrain_loss(pretrain_loss):
+    plt.plot(pretrain_loss['loss'], label = 'Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Pretraining Loss')
+    plt.savefig(f"Data/pretraining.png", dpi=600)
     plt.show()

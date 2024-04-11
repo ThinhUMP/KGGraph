@@ -43,3 +43,4 @@ gnn_model.py
 Manuscripts/
 KGGraph/KGGModel/Architecture/vocab_edge_attr_embedding.py
 KGGraph/KGGModel/Architecture/vocab_x_embedding.py
+pretrain.pth

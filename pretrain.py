@@ -7,9 +7,12 @@ import sys
 from tqdm import tqdm
 import numpy as np
 from KGGraph.KGGModel.Architecture.GNN import GNN
-from KGGraph.KGGDecode.decoder import Model_decoder  
+from KGGraph.KGGDecode.decoder import Model_decoder
+from KGGraph.KGGModel.Train.visualize import plot_pretrain_loss
+import os
+import pandas as pd
 
-sys.path.append('./util/')
+# sys.path.append('./util/')
 
 from KGGraph.KGGDecode.data_utils import *
 import warnings
@@ -54,12 +57,13 @@ Examples:
     return group, super_group
 
 
-def train(model_list, loader, optimizer_list, device):
+def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch):
     model, model_decoder = model_list
 
     model.train()
     model_decoder.train()
     if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0
+    
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch_size = len(batch)
 
@@ -94,6 +98,9 @@ def train(model_list, loader, optimizer_list, device):
 
             print('Batch:',step,'loss:',loss.item())
             if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0
+        pretrain_loss['loss'][epoch-1] = loss.item()
+    pretrain_loss.to_csv('Data/pretrain_loss.csv')
+    return pretrain_loss
 
 
 def main():
@@ -141,17 +148,27 @@ def main():
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=lambda x:x, drop_last=True)
 
     model = GNN(args.num_layer, args.emb_dim, JK=args.JK, drop_ratio=args.dropout_ratio, gnn_type=args.gnn_type).to(device)
+    
+    if not os.path.isdir('./saved_model'):
+        os.mkdir('./saved_model')
+    if 'pretrain.pth' in os.listdir('saved_model'):
+        print('Continue pretraining')
+        model.load_state_dict(torch.load(args.output_model_file))
+    
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 
     model_list = [model, model_decoder]
     optimizer = optim.Adam([{"params":model.parameters()},{"params":model_decoder.parameters()}], lr=args.lr, weight_decay=args.decay)
 
+    pretrain_loss = pd.DataFrame(columns = ['loss'], index = range(args.epochs))
     for epoch in range(1, args.epochs + 1):
         print('====epoch',epoch)
-        train(model_list, loader, optimizer, device)
+        pretrain_loss = train(args, model_list, loader, optimizer, device, pretrain_loss, epoch)
 
         if not args.output_model_file == "":
             torch.save(model.state_dict(), args.output_model_file)
+    
+    plot_pretrain_loss(pretrain_loss)
 
 
 if __name__ == "__main__":

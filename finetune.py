@@ -44,8 +44,9 @@ def main():
                         help='gnn_type (gin, gcn)')
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default = 'bbbp',
+    parser.add_argument('--dataset', type=str, default = 'bace',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
+    parser.add_argument('--input_model_file', type=str, default = './saved_model/pretrain.pth', help='filename to read the model (if there is any)')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
     parser.add_argument('--runseed', type=int, default=42, help = "Seed for minibatch selection, random initialization.")
@@ -102,6 +103,9 @@ def main():
 
         #set up model
         model = GINTrain(args.num_layer, args.emb_dim, num_tasks, JK = args.JK, drop_ratio = args.dropout_ratio, gnn_type = args.gnn_type)
+        if not args.input_model_file == "":
+            model.from_pretrained(args.input_model_file)
+        
         model.to(device)
 
         #set up optimizer

@@ -56,6 +56,10 @@ class GINTrain(torch.nn.Module):
             torch.nn.Linear(self.emb_dim, (self.emb_dim)//2),
             torch.nn.ELU(),
             torch.nn.Linear((self.emb_dim)//2, self.num_tasks))
+    
+    def from_pretrained(self, model_file):
+        print("Loading pre-trained model from %s" % model_file)
+        self.gnn.load_state_dict(torch.load(model_file))
 
     def super_node_rep(self, node_rep, batch):
         """

@@ -22,21 +22,21 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--training_rounds', type=int, default=3,
-                        help='number of rounds to train to get the average test auc (default: 5)')
+    parser.add_argument('--training_rounds', type=int, default=1,
+                        help='number of rounds to train to get the average test auc (default: 3)')
     parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
-    parser.add_argument('--lr_feat', type=float, default=0.001,
+    parser.add_argument('--lr_feat', type=float, default=0.0001,
                         help='learning rate (default: 0.0005)')
-    parser.add_argument('--lr_pred', type=float, default=0.001,
+    parser.add_argument('--lr_pred', type=float, default=0.0001,
                         help='learning rate for the prediction layer (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0.0,
+    parser.add_argument('--decay', type=float, default=0,
                         help='weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=5, 
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 512)')
-    parser.add_argument('--dropout_ratio', type=float, default=0.2,
+    parser.add_argument('--dropout_ratio', type=float, default=0.3,
                         help='dropout ratio (default: 0.3)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')

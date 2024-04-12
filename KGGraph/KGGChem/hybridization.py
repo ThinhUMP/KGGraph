@@ -1,5 +1,5 @@
 from rdkit import Chem
-from KGGraph.KGGChem.features import (
+from .atom_features import (
     get_degree, get_total_num_hs, get_hybridization,
 )
 
@@ -8,7 +8,7 @@ class HybridizationFeaturize:
     Class to compute hybridization features for a given dataset of molecules.
     """
     #five features are in the order of (numbers of orbital s, numbers of orbital p, 
-    # number of orbital d, total neighbors including Hydrogens, number of lone pairs)
+    # number of orbital d, total neighbors including hydrogens, number of lone pairs)
     HYBRIDIZATION = {
         (4,-3): [0,0,0,4,0], #AX4E0 => UNSPECIFIED => Ex: Pt smiles: N[Pt](N)(Cl)Cl
         (3,-2): [0,0,0,3,0], #AX3E0 => UNSPECIFIED => Ex: Yb smiles: Cl[Yb](Cl)Cl
@@ -45,7 +45,7 @@ class HybridizationFeaturize:
     }
 
     @staticmethod
-    def total_single_bond(atom: Chem.Atom) -> int:
+    def total_sigma_bond(atom: Chem.Atom) -> int:
         """
         Compute the total number of single bonds for a given atom, including the bonds with hydrogen atoms.
 
@@ -55,8 +55,8 @@ class HybridizationFeaturize:
         Returns:
         int: The total number of single bonds for the given atom.
         """
-        total_single_bonds = get_degree(atom) + get_total_num_hs(atom)
-        return total_single_bonds
+        total_sigma_bond = get_degree(atom) + get_total_num_hs(atom)
+        return total_sigma_bond
 
     @staticmethod
     def num_bond_hybridization(atom: Chem.Atom) -> int:

@@ -9,13 +9,13 @@ root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
 
-from KGGraph.KGGChem.chemutils import get_smiles
+from KGGraph.KGGChem.atom_utils import get_smiles
 from KGGraph.KGGDecompose.MotitDcp import MotifDecomposition, BRCISDecomposition, TreeDecomposition, SMotifDecomposition
 from KGGraph.KGGChem.hybridization import HybridizationFeaturize
-from KGGraph.KGGChem.features import (
+from KGGraph.KGGChem.atom_features import (
     get_degree, get_hybridization, get_symbol, get_atomic_number
 )
-from KGGraph.KGGChem.chemutils import atomic_num_features
+from KGGraph.KGGChem.atom_utils import atomic_num_features
 
 # allowable node and edge features
 allowable_features = {

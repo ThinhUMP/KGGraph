@@ -7,7 +7,7 @@ import sys
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.KGGChem.chemutils import get_inter_label, set_atommap, get_smiles, get_assm_cands
+from KGGraph.KGGChem.atom_utils import get_inter_label, set_atommap, get_smiles, get_assm_cands
 from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
 from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition

@@ -6,7 +6,7 @@ import pandas as pd
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.KGGChem.chemutils import get_mol
+from KGGraph.KGGChem.atom_utils import get_mol
         
 def load_tox21_dataset(input_path):
     tox21_dataset = pd.read_csv(input_path, sep=',')

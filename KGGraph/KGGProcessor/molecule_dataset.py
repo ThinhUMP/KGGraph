@@ -13,7 +13,7 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 from KGGraph.KGGEncode.x_feature import x_feature
 from KGGraph.KGGEncode.edge_feature import edge_feature
-from KGGraph.KGGChem.chemutils import get_atom_types
+from KGGraph.KGGChem.atom_utils import get_atom_types
 from KGGraph.KGGProcessor.loader import (
         load_tox21_dataset, load_bace_dataset, load_bbbp_dataset, 
         load_clintox_dataset, load_sider_dataset, load_toxcast_dataset,

@@ -4,7 +4,7 @@ import sys
 import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGChem.features import get_bond_type, is_conjugated
+from KGGraph.KGGChem.atom_features import get_bond_type, is_conjugated
     
 with open(root_dir+'/Data/feature/bond_dict.json', 'r') as f:
     bond_dict = json.load(f)
@@ -26,7 +26,7 @@ def bond_type_feature(bond):
     # Get the bond type as a string representation
     bond_type = get_bond_type(bond)
 
-    # Check for aromatic bond type
+    # Check for aromatic bond type because aromatic bond also means conjugation
     if bond.GetBondType() == Chem.rdchem.BondType.AROMATIC:
         return bond_dict.get(bond_type)
     

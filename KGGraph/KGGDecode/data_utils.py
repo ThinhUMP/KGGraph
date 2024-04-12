@@ -3,7 +3,7 @@ from torch_geometric.data import Batch
 from torch_geometric.data import Data
 from KGGraph.KGGEncode.edge_feature import edge_feature
 from KGGraph.KGGEncode.x_feature import x_feature
-from KGGraph.KGGChem.chemutils import get_mol
+from KGGraph.KGGChem.atom_utils import get_mol
 
 
 class MoleculeDataset(Dataset):

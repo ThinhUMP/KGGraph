@@ -20,10 +20,10 @@ class TestHybridizationFeaturize(unittest.TestCase):
         self.atom_ethene = self.mol_ethene.GetAtomWithIdx(0)  # Carbon atom in ethene
         self.atom_ethyne = self.mol_ethyne.GetAtomWithIdx(0)  # Carbon atom in ethyne
 
-    def test_total_single_bond(self):
-        self.assertEqual(HybridizationFeaturize.total_single_bond(self.atom_ethane), 4)  # 3 single bonds in ethane
-        self.assertEqual(HybridizationFeaturize.total_single_bond(self.atom_ethene), 2)  # 2 single bonds in ethene
-        self.assertEqual(HybridizationFeaturize.total_single_bond(self.atom_ethyne), 2)  # 1 single bond in ethyne
+    def test_total_sigma_bond(self):
+        self.assertEqual(HybridizationFeaturize.total_sigma_bond(self.atom_ethane), 4)  # 3 single bonds in ethane
+        self.assertEqual(HybridizationFeaturize.total_sigma_bond(self.atom_ethene), 2)  # 2 single bonds in ethene
+        self.assertEqual(HybridizationFeaturize.total_sigma_bond(self.atom_ethyne), 2)  # 1 single bond in ethyne
 
     def test_num_bond_hybridization(self):
         # Assuming get_hybridization returns 'SP3' for ethane, 'SP2' for ethene, and 'SP' for ethyne

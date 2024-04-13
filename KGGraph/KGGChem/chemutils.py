@@ -1,6 +1,6 @@
 from rdkit import Chem
 from typing import Optional, List, Set, Tuple
-from .atom_utils import copy_atom, idxfunc, set_atommap
+from .atom_utils import copy_atom, idxfunc, set_atommap, sanitize
 
 def get_leaves(mol: Chem.Mol) -> List[int]:
     """

@@ -56,9 +56,9 @@ class AtomFeature:
         atom_feature_dic = {}
         
         for atom in self.mol.GetAtoms():
-            total_single_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
+            total_sigma_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
             if hybri_feat == [0,0,0,0,0]:
-                print(f'Error key:{(total_single_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
+                print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
             combined_features = [allowable_features['possible_atomic_num_list'].index(
                 get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] 

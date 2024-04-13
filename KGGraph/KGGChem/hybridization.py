@@ -96,11 +96,11 @@ class HybridizationFeaturize:
         int: The estimated number of lone pairs on the atom. The value is computed based on the atom's hybridization and its single bonds.
         
         Note:
-        This method relies on the `num_bond_hybridization` and `total_single_bond` methods from the `HybridizationFeaturize` class. Ensure that 
+        This method relies on the `num_bond_hybridization` and `total_sigma_bond` methods from the `HybridizationFeaturize` class. Ensure that 
         these methods correctly compute the atom's expected bonding capacity based on hybridization and the actual count of single bonds, 
         respectively, for accurate results.
         """
-        num_lone_pairs = HybridizationFeaturize.num_bond_hybridization(atom) - HybridizationFeaturize.total_single_bond(atom)
+        num_lone_pairs = HybridizationFeaturize.num_bond_hybridization(atom) - HybridizationFeaturize.total_sigma_bond(atom)
         return num_lone_pairs
 
     @staticmethod
@@ -118,7 +118,7 @@ class HybridizationFeaturize:
         the number of lone electron pairs on the atom, and a list representing the hybridization feature vector. The hybridization 
         feature vector is predefined and retrieved based on the total number of single bonds and the number of lone pairs.
         """
-        total_single_bonds = HybridizationFeaturize.total_single_bond(atom)
+        total_sigma_bonds = HybridizationFeaturize.total_sigma_bond(atom)
         num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
-        hybri_feat = HybridizationFeaturize.HYBRIDIZATION.get((total_single_bonds, num_lone_pairs), [0, 0, 0, 0, 0])
-        return total_single_bonds, num_lone_pairs, hybri_feat
+        hybri_feat = HybridizationFeaturize.HYBRIDIZATION.get((total_sigma_bonds, num_lone_pairs), [0, 0, 0, 0, 0])
+        return total_sigma_bonds, num_lone_pairs, hybri_feat

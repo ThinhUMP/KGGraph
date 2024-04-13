@@ -2,54 +2,6 @@ from rdkit import Chem
 from typing import Optional, List, Set, Tuple
 from .atom_utils import copy_atom, idxfunc, set_atommap
 
-def get_mol(smiles: str) -> Optional[Chem.Mol]:
-    """
-    Generate a molecule object from a SMILES string.
-
-    Parameters:
-    - smiles (str): The SMILES string representing the molecule.
-
-    Returns:
-    - Optional[Chem.Mol]: The generated molecule object, or None if molecule generation fails.
-    """
-    try:
-        mol = Chem.MolFromSmiles(smiles)
-    except:
-        mol = None
-    # if mol is not None: 
-    #     Chem.Kekulize(mol, clearAromaticFlags=False)
-    return mol
-
-def get_smiles(mol: Chem.Mol) -> str:
-    """
-    Convert a molecule object to a SMILES string.
-
-    Parameters:
-    - mol (Chem.Mol): The RDKit molecule object.
-
-    Returns:
-    - str: The SMILES representation of the molecule.
-    """
-    return Chem.MolToSmiles(mol, kekuleSmiles=False)
-
-def sanitize(mol: Chem.Mol, kekulize: bool = False) -> Optional[Chem.Mol]:
-    """
-    Sanitize the given molecule and optionally kekulize it.
-
-    Parameters:
-    - mol (Chem.Mol): The molecule to sanitize.
-    - kekulize (bool): If True, kekulize the molecule.
-
-    Returns:
-    - Optional[Chem.Mol]: The sanitized molecule, or None if an error occurs.
-    """
-    try:
-        smiles = get_smiles(mol) if kekulize else Chem.MolToSmiles(mol)
-        mol = get_mol(smiles) if kekulize else Chem.MolFromSmiles(smiles)
-    except:
-        mol = None
-    return mol
-
 def get_leaves(mol: Chem.Mol) -> List[int]:
     """
     Identify the leaf atoms (degree 1) and rings in a molecule.
@@ -73,6 +25,7 @@ def get_leaves(mol: Chem.Mol) -> List[int]:
     clusters.extend(rings)
 
     leaf_rings = []
+    
     for r in rings:
         inters = [c for c in clusters if r != c and len(r & c) > 0]
         if len(inters) > 1: continue

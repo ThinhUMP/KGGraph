@@ -2,7 +2,7 @@ from KGGraph.KGGProcessor.molecule_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.Architecture import GINTrain
+from KGGraph.KGGModel.Architecture.GIN_train import GINTrain
 from KGGraph.KGGModel.Train.train_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.KGGModel.Train.visualize import plot_metrics
 from KGGraph.KGGModel.Train.get_task_type_num_tasks import get_num_task, get_task_type

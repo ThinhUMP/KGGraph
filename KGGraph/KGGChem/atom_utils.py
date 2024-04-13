@@ -1,12 +1,59 @@
 import rdkit
 import rdkit.Chem as Chem
 from typing import List, Tuple, Set, Optional
-from .chemutils import get_mol, get_smiles
 import numpy as np
 lg = rdkit.RDLogger.logger() 
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
-idxfunc = lambda a : a.GetAtomMapNum() - 1
+idxfunc = lambda a: a.GetAtomMapNum() - 1
+
+def get_mol(smiles: str) -> Optional[Chem.Mol]:
+    """
+    Generate a molecule object from a SMILES string.
+
+    Parameters:
+    - smiles (str): The SMILES string representing the molecule.
+
+    Returns:
+    - Optional[Chem.Mol]: The generated molecule object, or None if molecule generation fails.
+    """
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+    except:
+        mol = None
+    # if mol is not None: 
+    #     Chem.Kekulize(mol, clearAromaticFlags=False)
+    return mol
+
+def get_smiles(mol: Chem.Mol) -> str:
+    """
+    Convert a molecule object to a SMILES string.
+
+    Parameters:
+    - mol (Chem.Mol): The RDKit molecule object.
+
+    Returns:
+    - str: The SMILES representation of the molecule.
+    """
+    return Chem.MolToSmiles(mol, kekuleSmiles=False)
+
+def sanitize(mol: Chem.Mol, kekulize: bool = False) -> Optional[Chem.Mol]:
+    """
+    Sanitize the given molecule and optionally kekulize it.
+
+    Parameters:
+    - mol (Chem.Mol): The molecule to sanitize.
+    - kekulize (bool): If True, kekulize the molecule.
+
+    Returns:
+    - Optional[Chem.Mol]: The sanitized molecule, or None if an error occurs.
+    """
+    try:
+        smiles = get_smiles(mol) if kekulize else Chem.MolToSmiles(mol)
+        mol = get_mol(smiles) if kekulize else Chem.MolFromSmiles(smiles)
+    except:
+        mol = None
+    return mol
 
 def get_atomic_number(atom: Chem.Atom) -> int:
     """Get the atomic number of the atom."""

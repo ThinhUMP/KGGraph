@@ -1,7 +1,7 @@
 from .atom_utils import get_smiles
 from rdkit import Chem
 from rdkit.Chem import Lipinski
-from .atom_utils import ELECTRONEGATIVITY
+from .atom_features import ELECTRONEGATIVITY
 
 #### Bond type
 def get_bond_type(bond: Chem.Bond) -> str:

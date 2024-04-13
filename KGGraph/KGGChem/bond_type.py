@@ -4,7 +4,7 @@ import sys
 import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGChem.atom_features import get_bond_type, is_conjugated
+from KGGraph.KGGChem.bond_features import get_bond_type, is_conjugated
     
 with open(root_dir+'/Data/feature/bond_dict.json', 'r') as f:
     bond_dict = json.load(f)

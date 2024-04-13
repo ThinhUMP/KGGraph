@@ -11,7 +11,10 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
     
 # Import necessary modules and functions
-from KGGraph.KGGDecompose.MotitDcp import MotifDecomposition, BRCISDecomposition, TreeDecomposition, SMotifDecomposition
+from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
+from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
+from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
+from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGChem.bond_type import bond_type_feature
 
 # Load bond dictionaries for process of feature extraction: bond stereo.

@@ -6,7 +6,7 @@ import sys
 import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from .atom_utils import get_smiles
+from .chemutils import get_smiles
 from mendeleev import element
 
 with open(root_dir+'/Data/feature/group_block_onehot.json', 'r') as f:

@@ -10,7 +10,10 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 from KGGraph.KGGChem.atom_utils import get_smiles
-from KGGraph.KGGDecompose.MotitDcp import MotifDecomposition, BRCISDecomposition, TreeDecomposition, SMotifDecomposition
+from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
+from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
+from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
+from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGChem.hybridization import HybridizationFeaturize
 from KGGraph.KGGChem.atom_features import (
     get_degree, get_hybridization, get_symbol, get_atomic_number

@@ -46,3 +46,4 @@ KGGraph/KGGModel/Architecture/vocab_x_embedding.py
 pretrain.pth
 Data/*.csv
 Data/*.png
+saved_model_randweights/

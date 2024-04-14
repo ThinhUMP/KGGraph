@@ -27,7 +27,8 @@ allowable_features = {
         Chem.rdchem.BondType.SINGLE,
         Chem.rdchem.BondType.DOUBLE,
         Chem.rdchem.BondType.TRIPLE,
-        Chem.rdchem.BondType.AROMATIC
+        Chem.rdchem.BondType.AROMATIC,
+        Chem.rdchem.BondType.DATIVE
     ],
     'possible_bond_inring': [None, False, True]
 }
@@ -199,20 +200,34 @@ def edge_feature(mol, decompose_type):
 def main():
     import time
     from joblib import Parallel, delayed
-    from KGGraph import load_sider_dataset
+    from KGGraph.KGGProcessor.loader import load_clintox_dataset
     from tqdm import tqdm
-    smiles_list, mols_list, labels = load_sider_dataset('./dataset/classification/sider/raw/sider.csv')
+    from pathlib import Path
+    import sys
+    # Get the root directory
+    root_dir = Path(__file__).resolve().parents[2]
+    # Add the root directory to the system path
+    sys.path.append(str(root_dir))
+    smiles_list, mols_list, labels = load_clintox_dataset('./Data/classification/clintox/raw/clintox.csv')
     t1 = time.time()
-    results = Parallel(n_jobs=8)(delayed(edge_feature)(mol, decompose_type='motif') for mol in tqdm(mols_list))
+    # results = Parallel(n_jobs=8)(delayed(edge_feature)(mol, decompose_type='motif') for mol in tqdm(mols_list))
+    for mol in mols_list:
+        try:
+            edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif')
+        except:
+            if mol is None:
+                print(mol)
+            else:
+                print(AllChem.MolToSmiles(mol))
     t2 = time.time()
     print(t2-t1)
     # Print the results
-    print(results[0][0].size())
-    print(results[0][0])
-    print(results[0][1].size())
-    print(results[0][1])
-    print(results[0][2])
-    print(results[0][2].size())
+    # print(results[0][0].size())
+    # print(results[0][0])
+    # print(results[0][1].size())
+    # print(results[0][1])
+    # print(results[0][2])
+    # print(results[0][2].size())
 
 if __name__ == '__main__':
     main()

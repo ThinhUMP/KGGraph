@@ -13,7 +13,7 @@ def load_tox21_dataset(input_path):
     smiles_list = tox21_dataset['smiles']
     mols_list = [get_mol(smile) for smile in smiles_list]
     tasks = ['NR-AR', 'NR-AR-LBD', 'NR-AhR', 'NR-Aromatase', 'NR-ER', 'NR-ER-LBD',
-       'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
+    'NR-PPAR-gamma', 'SR-ARE', 'SR-ATAD5', 'SR-HSE', 'SR-MMP', 'SR-p53']
     labels = tox21_dataset[tasks]
     # convert 0 to -1
     labels = labels.replace(0, -1)
@@ -112,23 +112,23 @@ def load_sider_dataset(input_path):
     smiles_list = input_df['smiles']
     mols_list = [get_mol(smile) for smile in smiles_list]
     tasks = ['Hepatobiliary disorders',
-       'Metabolism and nutrition disorders', 'Product issues', 'Eye disorders',
-       'Investigations', 'Musculoskeletal and connective tissue disorders',
-       'Gastrointestinal disorders', 'Social circumstances',
-       'Immune system disorders', 'Reproductive system and breast disorders',
-       'Neoplasms benign, malignant and unspecified (incl cysts and polyps)',
-       'General disorders and administration site conditions',
-       'Endocrine disorders', 'Surgical and medical procedures',
-       'Vascular disorders', 'Blood and lymphatic system disorders',
-       'Skin and subcutaneous tissue disorders',
-       'Congenital, familial and genetic disorders',
-       'Infections and infestations',
-       'Respiratory, thoracic and mediastinal disorders',
-       'Psychiatric disorders', 'Renal and urinary disorders',
-       'Pregnancy, puerperium and perinatal conditions',
-       'Ear and labyrinth disorders', 'Cardiac disorders',
-       'Nervous system disorders',
-       'Injury, poisoning and procedural complications']
+    'Metabolism and nutrition disorders', 'Product issues', 'Eye disorders',
+    'Investigations', 'Musculoskeletal and connective tissue disorders',
+    'Gastrointestinal disorders', 'Social circumstances',
+    'Immune system disorders', 'Reproductive system and breast disorders',
+    'Neoplasms benign, malignant and unspecified (incl cysts and polyps)',
+    'General disorders and administration site conditions',
+    'Endocrine disorders', 'Surgical and medical procedures',
+    'Vascular disorders', 'Blood and lymphatic system disorders',
+    'Skin and subcutaneous tissue disorders',
+    'Congenital, familial and genetic disorders',
+    'Infections and infestations',
+    'Respiratory, thoracic and mediastinal disorders',
+    'Psychiatric disorders', 'Renal and urinary disorders',
+    'Pregnancy, puerperium and perinatal conditions',
+    'Ear and labyrinth disorders', 'Cardiac disorders',
+    'Nervous system disorders',
+    'Injury, poisoning and procedural complications']
     labels = input_df[tasks]
     # convert 0 to -1
     labels = labels.replace(0, -1)
@@ -155,7 +155,7 @@ def load_toxcast_dataset(input_path):
 
     # Handle labels: convert 0 to -1, then ensure there are no NaN values
     labels = input_df[tasks].replace(0, -1)
-     # convert nan to 0
+    # convert nan to 0
     labels = labels.fillna(0)
 
     # Assertions to check list lengths

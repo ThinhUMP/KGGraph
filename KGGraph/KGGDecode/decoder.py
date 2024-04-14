@@ -4,7 +4,7 @@ import numpy as np
 from torch.autograd import Variable
 from sklearn.metrics import roc_auc_score,average_precision_score
 
-MAX_BOND_TYPE = 4
+MAX_BOND_TYPE = 5
 MAX_ATOM_TYPE = 119
 
 def create_var(tensor, device, requires_grad=None):

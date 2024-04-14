@@ -6,7 +6,7 @@ from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 # from ..vocab_edge_attr_embedding import num_vocab_edge_attr_embedding
 
-vocab_edge_attr_embedding = 4
+vocab_edge_attr_embedding = 5
 class GINConv(MessagePassing):
     """
     GINConv is an extension of the Graph Isomorphism Network (GIN) that incorporates edge information

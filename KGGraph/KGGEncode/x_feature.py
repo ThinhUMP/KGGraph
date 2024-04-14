@@ -22,7 +22,7 @@ from KGGraph.KGGChem.atom_utils import atomic_num_features
 
 # allowable node and edge features
 allowable_features = {
-    'possible_atomic_num_list' : list(range(1, 119)),
+    'possible_atomic_num_list' : list(range(0, 119)),
     'possible_hybridization_list' : [
         Chem.rdchem.HybridizationType.S,
         Chem.rdchem.HybridizationType.SP, Chem.rdchem.HybridizationType.SP2,
@@ -156,15 +156,17 @@ def main():
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
-    from KGGraph import load_sider_dataset
-    _, mols, _ = load_sider_dataset('dataset/classification/sider/raw/sider.csv')
+    from KGGraph.KGGProcessor.loader import load_clintox_dataset
+    _, mols, _ = load_clintox_dataset('Data/classification/clintox/raw/clintox.csv')
     t1 = time.time()
-    results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
+    # results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
+    for mol in mols:
+        x_node, x, num_part = x_feature(mol, decompose_type='motif')
     t2 = time.time()
     print(t2-t1)
-    print(results[0][2])
-    print(results[0][0].size())
-    print(results[0][1].size())  # Print the size of the feature vector
+    print(num_part)
+    print(x_node.size())
+    print(x.size())  # Print the size of the feature vector
 
 if __name__=='__main__':
     main()

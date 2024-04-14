@@ -5,7 +5,7 @@ from torch.autograd import Variable
 from sklearn.metrics import roc_auc_score,average_precision_score
 
 MAX_BOND_TYPE = 4
-MAX_ATOM_TYPE = 118
+MAX_ATOM_TYPE = 119
 
 def create_var(tensor, device, requires_grad=None):
     if requires_grad is None:
@@ -112,7 +112,7 @@ class Model_decoder(nn.Module):
                 mol_atom_rep_proj = self.feat_drop(self.bond_if_proj(mol_rep))
             
                 bond_if_input = torch.cat([mol_atom_rep_proj.repeat(1, num_atoms).view(num_atoms * num_atoms, -1), 
-                                       mol_atom_rep_proj.repeat(num_atoms, 1)], dim=1).view(num_atoms, num_atoms, -1) 
+                                    mol_atom_rep_proj.repeat(num_atoms, 1)], dim=1).view(num_atoms, num_atoms, -1) 
                 bond_if_pred = self.bond_if_s(bond_if_input).squeeze(-1)
                 a = torch.zeros(num_atoms, num_atoms)
                 bond_if_target = a.index_put(indices=[mol.edge_index_nosuper[0,:], mol.edge_index_nosuper[1,:]], values=torch.tensor(1.)).to(self.device)

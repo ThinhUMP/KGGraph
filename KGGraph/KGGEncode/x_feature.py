@@ -60,16 +60,16 @@ class AtomFeature:
             if hybri_feat == [0,0,0,0,0]:
                 print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
-            combined_features = [allowable_features['possible_atomic_num_list'].index(
+            atom_feature = [allowable_features['possible_atomic_num_list'].index(
                 get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] 
             [allowable_features['possible_hybridization_list'].index(atom.GetHybridization())] + hybri_feat
             
             # Add atom feature to dictionary to use for motif feature extraction
-            atom_feature = np.concatenate((combined_features, atomic_features[atom.GetIdx()]), axis=0)
+            # atom_feature = np.concatenate((combined_features, atomic_features[atom.GetIdx()]), axis=0)
             atom_feature_tensor = torch.tensor(atom_feature, dtype=torch.long)
             atom_feature_dic[atom.GetIdx()] = atom_feature_tensor
             
-            x_node_list.append(combined_features)
+            x_node_list.append(atom_feature)
         
         x_node_array = np.array(x_node_list)
         x_node = torch.tensor(np.concatenate((x_node_array, atomic_features), axis=1), dtype=torch.long)

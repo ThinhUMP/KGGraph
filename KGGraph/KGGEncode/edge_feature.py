@@ -17,9 +17,9 @@ from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGChem.bond_type import bond_type_feature
 
-# Load bond dictionaries for process of feature extraction: bond stereo.
-with open(root_dir / 'Data/feature/bond_stereo_dict.json', 'r') as f:
-    bond_stereo_dict = json.load(f)
+# # Load bond dictionaries for process of feature extraction: bond stereo.
+# with open(root_dir / 'Data/feature/bond_stereo_dict.json', 'r') as f:
+#     bond_stereo_dict = json.load(f)
 
 # allowable edge features
 allowable_features = {
@@ -78,8 +78,8 @@ class EdgeFeature:
                 
                 # Combine all features into a single list
                 combined_features = [allowable_features['possible_bonds'].index(
-                 bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
-                 bond.IsInRing())] + bond_type_features
+                bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
+                bond.IsInRing())] + bond_type_features
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()

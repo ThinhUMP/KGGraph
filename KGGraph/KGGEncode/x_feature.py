@@ -50,7 +50,7 @@ class AtomFeature:
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
         x_node_list = []
-        atomic_features = atomic_num_features(self.mol)
+        # atomic_features = atomic_num_features(self.mol)
         
         # Atom feature dictionary for each atom in the molecule with key as atom index and value as atom features
         atom_feature_dic = {}
@@ -72,7 +72,7 @@ class AtomFeature:
             x_node_list.append(atom_feature)
         
         x_node_array = np.array(x_node_list)
-        x_node = torch.tensor(np.concatenate((x_node_array, atomic_features), axis=1), dtype=torch.long)
+        x_node = torch.tensor(x_node_array, dtype=torch.long)
         
         return x_node, atom_feature_dic
 

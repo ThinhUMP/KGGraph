@@ -16,7 +16,8 @@ from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGChem.hybridization import HybridizationFeaturize
 from KGGraph.KGGChem.atom_features import (
-    get_degree, get_hybridization, get_symbol, get_atomic_number
+    get_degree, get_hybridization, get_symbol, get_atomic_number, 
+    get_period, get_group, get_chemical_group_block
 )
 from KGGraph.KGGChem.atom_utils import atomic_num_features
 
@@ -61,8 +62,8 @@ class AtomFeature:
                 print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
             atom_feature = [allowable_features['possible_atomic_num_list'].index(
-                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] 
-            [allowable_features['possible_hybridization_list'].index(atom.GetHybridization())] + hybri_feat
+                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] + hybri_feat
+                # [get_period(atom)] + [get_group(atom)] + get_chemical_group_block(atom) + hybri_feat
             
             # Add atom feature to dictionary to use for motif feature extraction
             # atom_feature = np.concatenate((combined_features, atomic_features[atom.GetIdx()]), axis=0)
@@ -104,22 +105,28 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, atom_feat
         
     
     if num_motif > 0:
-        for k, motif_nodes in enumerate(cliques):
-            motif_node_feature = torch.zeros(number_atom_node_attr, dtype=torch.long)
-            for i in motif_nodes:
-                motif_node_feature += atom_feature_dic[i]
-            motif_node_feature = motif_node_feature / len(motif_nodes)
-            x_motif.append(motif_node_feature)
+        template_motif = torch.zeros((1, number_atom_node_attr), dtype=torch.long)
+        template_motif[0, 0] = 120
+        x_motif = template_motif.repeat_interleave(num_motif, dim=0)
+        # for k, motif_nodes in enumerate(cliques):
+        #     motif_node_feature = torch.zeros(number_atom_node_attr, dtype=torch.long)
+        #     for i in motif_nodes:
+        #         motif_node_feature += atom_feature_dic[i]
+        #     motif_node_feature = motif_node_feature / len(motif_nodes)
+        #     x_motif.append(motif_node_feature)
 
-        x_motif = torch.stack(x_motif, dim = 0)
-        x_supernode = torch.sum(x_motif, dim=0).unsqueeze(0) / x_motif.size(0)
+        # x_motif = torch.stack(x_motif, dim = 0)
+        x_supernode = torch.zeros((1, number_atom_node_attr), dtype=torch.long)
+        x_supernode[0, 0] = 119
     else:
         x_motif = torch.empty(0, number_atom_node_attr, dtype=torch.long) # Handle cases with no motifs
-        x_supernode = torch.zeros(number_atom_node_attr, dtype=torch.long)
-        for i in atom_feature_dic.keys():
-            x_supernode += atom_feature_dic[i]
-        x_supernode = x_supernode / len(atom_feature_dic)
-        x_supernode = x_supernode.unsqueeze(0)
+        # x_supernode = torch.zeros(number_atom_node_attr, dtype=torch.long)
+        # for i in atom_feature_dic.keys():
+        #     x_supernode += atom_feature_dic[i]
+        # x_supernode = x_supernode / len(atom_feature_dic)
+        # x_supernode = x_supernode.unsqueeze(0)
+        x_supernode = torch.zeros((1, number_atom_node_attr), dtype=torch.long)
+        x_supernode[0, 0] = 119
         
     return x_motif, x_supernode
 
@@ -159,14 +166,14 @@ def main():
     from KGGraph.KGGProcessor.loader import load_clintox_dataset
     _, mols, _ = load_clintox_dataset('Data/classification/clintox/raw/clintox.csv')
     t1 = time.time()
-    # results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
-    for mol in mols:
-        x_node, x, num_part = x_feature(mol, decompose_type='motif')
+    results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
+    # for mol in mols:
+    #     x_node, x, num_part = x_feature(mol, decompose_type='motif')
     t2 = time.time()
     print(t2-t1)
-    print(num_part)
-    print(x_node.size())
-    print(x.size())  # Print the size of the feature vector
+    print(results[0][0])
+    print(results[0][1])
+    print(results[0][2])
 
 if __name__=='__main__':
     main()

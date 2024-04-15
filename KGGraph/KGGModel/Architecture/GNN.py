@@ -7,7 +7,7 @@ from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from .Conv.GINConv import GINConv
 from .Conv.GCNConv import GCNConv
 
-vocab_x_embedding = 119
+vocab_x_embedding = 121
 class GNN(torch.nn.Module):
     """
     A generalized graph neural network (GNN) module that supports various GNN types and jump knowledge (JK) concatenation methods.

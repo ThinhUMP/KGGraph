@@ -28,7 +28,6 @@ allowable_features = {
         Chem.rdchem.BondType.DOUBLE,
         Chem.rdchem.BondType.TRIPLE,
         Chem.rdchem.BondType.AROMATIC,
-        Chem.rdchem.BondType.DATIVE
     ],
     'possible_bond_inring': [None, False, True]
 }
@@ -42,7 +41,7 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 12
+        self.num_bond_features = 2
         
         if decompose_type == 'motif':
             self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
@@ -80,7 +79,8 @@ class EdgeFeature:
                 # Combine all features into a single list
                 combined_features = [allowable_features['possible_bonds'].index(
                 bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
-                bond.IsInRing())] + bond_type_features
+                bond.IsInRing())] 
+                # + bond_type_features
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
@@ -158,7 +158,8 @@ class EdgeFeature:
             
             # Initialize motif edge attributes
             motif_edge_attr = torch.zeros((motif_edge_index.size(1), self.num_bond_features))
-            motif_edge_attr[:, -3] = 1  # Set bond type for the edge between atoms and motif, 
+            # motif_edge_attr[:, -3] = 1  # Set bond type for the edge between atoms and motif, 
+            motif_edge_attr[0, :] = 6
             # we can access this feature via bond_dict json with key value 'NODEMOTIF'
             
             # Initialize motif-motif edge attributes
@@ -170,7 +171,8 @@ class EdgeFeature:
 
             # Initialize super edge attributes
             super_edge_attr = torch.zeros((self.num_motif, self.num_bond_features))
-            super_edge_attr[:, -2] = 1  # Set bond type for the edge between motifs and supernode, 
+            # super_edge_attr[:, -2] = 1  # Set bond type for the edge between motifs and supernode, 
+            super_edge_attr[0, :] = 5
             # we can access this feature via bond_dict json with key value 'MOTIFSUPERNODE'
             # Ensure that all tensors are of the same type and device
             motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
@@ -182,7 +184,7 @@ class EdgeFeature:
             motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((self.num_atoms, self.num_bond_features))
-            super_edge_attr[:, -4] = 1  # Set bond type for the edge between nodes and supernode, 
+            super_edge_attr[0, :] = 5  # Set bond type for the edge between nodes and supernode, 
             # we can access this feature via bond_dict json with key value 'NODESUPERNODE'
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
@@ -212,13 +214,15 @@ def main():
     t1 = time.time()
     # results = Parallel(n_jobs=8)(delayed(edge_feature)(mol, decompose_type='motif') for mol in tqdm(mols_list))
     for mol in mols_list:
-        try:
-            edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif')
-        except:
-            if mol is None:
-                print(mol)
-            else:
-                print(Chem.MolToSmiles(mol))
+        # try:
+        edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif')
+        print(edge_attr)
+        
+        # except:
+        #     if mol is None:
+        #         print(mol)
+        #     else:
+        #         print(Chem.MolToSmiles(mol))
     t2 = time.time()
     print(t2-t1)
     # Print the results

@@ -23,13 +23,7 @@ from KGGraph.KGGChem.atom_utils import atomic_num_features
 
 # allowable node and edge features
 allowable_features = {
-    'possible_atomic_num_list' : list(range(0, 119)),
-    'possible_hybridization_list' : [
-        Chem.rdchem.HybridizationType.S,
-        Chem.rdchem.HybridizationType.SP, Chem.rdchem.HybridizationType.SP2,
-        Chem.rdchem.HybridizationType.SP3, Chem.rdchem.HybridizationType.SP3D,
-        Chem.rdchem.HybridizationType.SP3D2, Chem.rdchem.HybridizationType.UNSPECIFIED
-    ],
+    'possible_atomic_num_list' : list(range(1, 119)),
     'possible_degree_list' : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 }
 
@@ -62,7 +56,8 @@ class AtomFeature:
                 print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
             atom_feature = [allowable_features['possible_atomic_num_list'].index(
-                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] + hybri_feat
+                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] 
+            #+ hybri_feat
                 # [get_period(atom)] + [get_group(atom)] + get_chemical_group_block(atom) + hybri_feat
             
             # Add atom feature to dictionary to use for motif feature extraction

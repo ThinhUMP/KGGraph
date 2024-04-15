@@ -22,7 +22,7 @@ from KGGraph.KGGChem.atom_utils import atomic_num_features
 
 # allowable node and edge features
 allowable_features = {
-    'possible_atomic_num_list' : list(range(1, 119)),
+    'possible_atomic_num_list' : list(range(0, 119)),
     'possible_degree_list' : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 }
 

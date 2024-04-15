@@ -5,7 +5,7 @@ from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 
-num_bond_type = 7
+num_bond_type = 8
 num_bond_in_ring = 3
 num_bondtype_1 = 2
 num_bondtype_2 = 3
@@ -80,7 +80,7 @@ class GINConv(MessagePassing):
 
         #add features corresponding to self-loop edges.
         self_loop_attr = torch.zeros(x.size(0), edge_attr.size(1))
-        self_loop_attr[:,0] = 4 #bond type for self-loop edge
+        self_loop_attr[:,0] = 7 #bond type for self-loop edge
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
 

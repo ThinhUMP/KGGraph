@@ -16,8 +16,7 @@ from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGChem.hybridization import HybridizationFeaturize
 from KGGraph.KGGChem.atom_features import (
-    get_degree, get_hybridization, get_symbol, get_atomic_number, 
-    get_period, get_group, get_chemical_group_block
+    get_degree, get_hybridization, get_symbol, get_atomic_number,
 )
 from KGGraph.KGGChem.atom_utils import atomic_num_features
 
@@ -52,7 +51,7 @@ class AtomFeature:
                 print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
             atom_feature = [allowable_features['possible_atomic_num_list'].index(
-                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] 
+                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] + hybri_feat
             
             x_node_list.append(atom_feature)
         

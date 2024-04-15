@@ -7,6 +7,12 @@ from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 
 num_bond_type = 7
 num_bond_in_ring = 3
+num_bondtype_1 = 2
+num_bondtype_2 = 3
+num_bondtype_3 = 2
+num_bondtype_4 = 2
+num_bondtype_5 = 2
+
 class GINConv(MessagePassing):
     """
     GINConv is an extension of the Graph Isomorphism Network (GIN) that incorporates edge information
@@ -41,9 +47,20 @@ class GINConv(MessagePassing):
 
         self.edge_embedding1 = torch.nn.Embedding(num_bond_type, emb_dim)
         self.edge_embedding2 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
+        self.edge_embedding3 = torch.nn.Embedding(num_bond_type, emb_dim)
+        self.edge_embedding4 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
+        self.edge_embedding5 = torch.nn.Embedding(num_bond_type, emb_dim)
+        self.edge_embedding6 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
+        self.edge_embedding7 = torch.nn.Embedding(num_bond_type, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.edge_embedding1.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
+        torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
+        torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
+        torch.nn.init.xavier_uniform_(self.edge_embedding5.weight.data)
+        torch.nn.init.xavier_uniform_(self.edge_embedding6.weight.data)
+        torch.nn.init.xavier_uniform_(self.edge_embedding7.weight.data)
+
         self.aggr = aggr
 
     def forward(self, x, edge_index, edge_attr):
@@ -67,7 +84,10 @@ class GINConv(MessagePassing):
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
 
-        edge_embeddings = self.edge_embedding1(edge_attr[:,0]) + self.edge_embedding2(edge_attr[:,1])
+        edge_embeddings = self.edge_embedding1(edge_attr[:,0]) + self.edge_embedding2(edge_attr[:,1]) +\
+        self.edge_embedding3(edge_attr[:,2]) + self.edge_embedding4(edge_attr[:,3]) +\
+        self.edge_embedding5(edge_attr[:,4]) + self.edge_embedding6(edge_attr[:,5]) +\
+        self.edge_embedding7(edge_attr[:,6])
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 

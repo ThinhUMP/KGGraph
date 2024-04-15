@@ -37,7 +37,7 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 2
+        self.num_bond_features = 7
         
         if decompose_type == 'motif':
             self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
@@ -72,7 +72,7 @@ class EdgeFeature:
                 # Combine all features into a single list
                 combined_features = [allowable_features['possible_bonds'].index(
                 bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
-                bond.IsInRing())] 
+                bond.IsInRing())] + bond_type_feature(bond)
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()

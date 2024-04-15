@@ -35,7 +35,7 @@ def bond_type_feature(bond):
         return bond_dict.get('CONJUGATE')
     
     # Return the bond type feature or a default 'other' type feature vector
-    return bond_dict.get(bond_type, [0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+    return bond_dict.get(bond_type, [0, 0, 0, 0, 1])
 
 # Auxiliary functions and dictionary must be defined:
 # get_bond_type(bond): Should return a string representation of the bond type.

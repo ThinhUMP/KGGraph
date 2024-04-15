@@ -4,7 +4,6 @@ from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
-# from ..vocab_edge_attr_embedding import num_vocab_edge_attr_embedding
 
 vocab_edge_attr_embedding = 7
 num_bond_type = 7
@@ -37,11 +36,7 @@ class GINConv(MessagePassing):
         #multi-layer perceptron
         self.mlp = torch.nn.Sequential(
             torch.nn.Linear(emb_dim, 2*emb_dim),
-            # torch.nn.BatchNorm1d(2*emb_dim),
             torch.nn.ReLU(),
-            # torch.nn.Linear(2*emb_dim, 4*emb_dim),
-            # torch.nn.BatchNorm1d(4*emb_dim),
-            # torch.nn.ReLU(),
             torch.nn.Linear(2*emb_dim, emb_dim),
             )
         self.edge_embedding = torch.nn.Embedding(vocab_edge_attr_embedding, emb_dim)
@@ -55,8 +50,6 @@ class GINConv(MessagePassing):
         # torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
 
         self.aggr = aggr
-        self.in_channels = emb_dim
-        self.emb_dim = emb_dim
 
     def forward(self, x, edge_index, edge_attr):
         """
@@ -75,7 +68,7 @@ class GINConv(MessagePassing):
 
         #add features corresponding to self-loop edges.
         self_loop_attr = torch.zeros(x.size(0), edge_attr.size(1))
-        self_loop_attr[0,:] = 4 #bond type for self-loop edge
+        self_loop_attr[:,0] = 4 #bond type for self-loop edge
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
 
@@ -107,7 +100,6 @@ class GINConv(MessagePassing):
         Returns:
             Tensor: The updated node features.
         """
-        aggr_out = torch.tensor(aggr_out, dtype=torch.float)
         return self.mlp(aggr_out)
     
 

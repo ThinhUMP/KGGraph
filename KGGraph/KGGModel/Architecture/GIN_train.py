@@ -106,9 +106,6 @@ class GINTrain(torch.nn.Module):
             x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
         else:
             raise ValueError("unmatched number of arguments.")
-        print(x)
-        print(edge_index)
-        print(edge_attr)
         node_representation = self.gnn(x, edge_index, edge_attr)
 
         super_rep = self.super_node_rep(node_representation, batch)

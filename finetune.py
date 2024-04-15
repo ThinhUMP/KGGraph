@@ -24,7 +24,7 @@ def main():
                         help='input batch size for training (default: 32)')
     parser.add_argument('--training_rounds', type=int, default=1,
                         help='number of rounds to train to get the average test auc (default: 3)')
-    parser.add_argument('--epochs', type=int, default=1,
+    parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr_feat', type=float, default=0.001,
                         help='learning rate (default: 0.0005)')

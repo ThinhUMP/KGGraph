@@ -144,11 +144,11 @@ class EdgeFeature:
             
             # Initialize motif edge attributes
             motif_edge_attr = torch.zeros((motif_edge_index.size(1), self.num_bond_features))
-            motif_edge_attr[0, :] = 6
+            motif_edge_attr[:, 0] = 6
 
             # Initialize super edge attributes
             super_edge_attr = torch.zeros((self.num_motif, self.num_bond_features))
-            super_edge_attr[0, :] = 5
+            super_edge_attr[:, 0] = 5
             motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             # Concatenate edge attributes for the entire graph
@@ -158,7 +158,7 @@ class EdgeFeature:
             motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((self.num_atoms, self.num_bond_features))
-            super_edge_attr[0, :] = 5  # Set bond type for the edge between nodes and supernode, 
+            super_edge_attr[:, 0] = 5  # Set bond type for the edge between nodes and supernode, 
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
             # Concatenate edge attributes for the entire graph

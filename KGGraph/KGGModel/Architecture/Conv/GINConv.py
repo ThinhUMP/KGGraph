@@ -5,13 +5,8 @@ from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 
-num_bond_type = 8
+num_bond_type = 9
 num_bond_in_ring = 3
-num_bondtype_1 = 2
-num_bondtype_2 = 3
-num_bondtype_3 = 2
-num_bondtype_4 = 2
-num_bondtype_5 = 2
 
 class GINConv(MessagePassing):
     """

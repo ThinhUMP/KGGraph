@@ -46,12 +46,12 @@ class AtomFeature:
         x_node_list = []
         
         for atom in self.mol.GetAtoms():
-            total_sigma_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
-            if hybri_feat == [0,0,0,0,0]:
-                print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
+            # total_sigma_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
+            # if hybri_feat == [0,0,0,0,0]:
+                # print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
             
             atom_feature = [allowable_features['possible_atomic_num_list'].index(
-                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] + hybri_feat
+                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))]
             
             x_node_list.append(atom_feature)
         

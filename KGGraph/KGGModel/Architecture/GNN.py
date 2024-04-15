@@ -103,7 +103,7 @@ num_chirality_tag = 12  #degree
 #         for layer in range(self.num_layer):
 #             h = self.gnns[layer](h_list[layer], edge_index, edge_attr)
 #             h = self.batch_norms[layer](h)
-#             if layer == self.num_layer - 1:
+#             if layer == self.num_layer - 1:777777777777777777777777777777777777777777777777777777777777777777777777777777777u
 #                 h = F.dropout(h, self.drop_ratio, training = self.training)
 #             else:
 #                 h = F.dropout(F.elu(h), self.drop_ratio, training = self.training)  #relu->elu

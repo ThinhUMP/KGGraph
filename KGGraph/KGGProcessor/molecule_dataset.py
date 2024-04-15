@@ -148,6 +148,6 @@ class MoleculeDataset(InMemoryDataset):
             torch.save((data, slices), self.processed_paths[0])
             
 if __name__ == '__main__':
-    dataset = MoleculeDataset('./Data/classification/bbbp/', dataset='bbbp', decompose_type='jin')
+    dataset = MoleculeDataset('./Data/classification/bace/', dataset='bace', decompose_type='jin')
     print(dataset)
-    print(dataset[0])
+    print(dataset.edge_index[0])

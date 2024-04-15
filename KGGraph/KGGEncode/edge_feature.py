@@ -28,7 +28,6 @@ allowable_features = {
         Chem.rdchem.BondType.DOUBLE,
         Chem.rdchem.BondType.TRIPLE,
         Chem.rdchem.BondType.AROMATIC,
-        Chem.rdchem.BondType.DATIVE
     ],
     'possible_bond_inring': [None, False, True]
 }

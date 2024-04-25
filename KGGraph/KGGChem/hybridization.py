@@ -10,13 +10,14 @@ class HybridizationFeaturize:
     #five features are in the order of (numbers of orbital s, numbers of orbital p, 
     # number of orbital d, total neighbors including hydrogens, number of lone pairs)
     HYBRIDIZATION = {
-        (4,-3): [0,0,0,4,0], #AX4E0 => UNSPECIFIED => Ex: Pt smiles: N[Pt](N)(Cl)Cl
-        (3,-2): [0,0,0,3,0], #AX3E0 => UNSPECIFIED => Ex: Yb smiles: Cl[Yb](Cl)Cl
-        (2,-1): [0,0,0,2,0], #AX2E0 => UNSPECIFIED => Ex: Au and hybridization: UNSPECIFIED smiles: N#C[Au-]C#N
-        (6,-5): [0,0,0,6,0], #AX6E0 => UNSPECIFIED => Ex: Fe and hybridization: UNSPECIFIED smiles: N#C[Fe-2](C#N)(C#N)(C#N)(C#N)N=O
-        (1,-1): [1,0,0,1,0], #AX1E0 => s 
+        # (4,-3): [0,0,0,4,0], #AX4E0 => UNSPECIFIED => Ex: Pt smiles: N[Pt](N)(Cl)Cl
+        # (3,-2): [0,0,0,3,0], #AX3E0 => UNSPECIFIED => Ex: Yb smiles: Cl[Yb](Cl)Cl
+        # (2,-1): [0,0,0,2,0], #AX2E0 => UNSPECIFIED => Ex: Au and hybridization: UNSPECIFIED smiles: N#C[Au-]C#N
+        # (6,-5): [0,0,0,6,0], #AX6E0 => UNSPECIFIED => Ex: Fe and hybridization: UNSPECIFIED smiles: N#C[Fe-2](C#N)(C#N)(C#N)(C#N)N=O
+        # (1,-1): [1,0,0,1,0], #AX1E0 => s 
         (1,0): [1,0,0,1,0], #AX1E0 => s => Ex: Na in NaI
         (0,0): [1,0,0,0,0], #AX0E0 => s => Ex: Zn2+
+        (0,1): [1,0,0,1,0], #AX0E1 => s => Ex: H+
         (1,1): [1,1,0,1,1], #AX1E1 => sp => Ex: N of HCN
         (2,0): [1,1,0,2,0], #AX2E0 => sp => Ex: C#C
         (0,2): [1,1,0,0,2], #AX0E2 => sp => Ex: Cr smiles: [Cr+3]
@@ -75,7 +76,7 @@ class HybridizationFeaturize:
             'SP3': 4,
             'SP2': 3,
             'SP': 2,
-            'UNSPECIFIED': 1,
+            'S': 1,
         }
         
         num_bonds_hybridization = max_bond_hybridization.get(get_hybridization(atom), 0)
@@ -120,5 +121,9 @@ class HybridizationFeaturize:
         """
         total_sigma_bonds = HybridizationFeaturize.total_sigma_bond(atom)
         num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
-        hybri_feat = HybridizationFeaturize.HYBRIDIZATION.get((total_sigma_bonds, num_lone_pairs), [0, 0, 0, 0, 0])
+        if get_hybridization(atom) == 'UNSPECIFIED':
+            hybri_feat = [0, 0, 0, 0, 0]
+        else:
+            hybri_feat = HybridizationFeaturize.HYBRIDIZATION.get((total_sigma_bonds, num_lone_pairs), [0, 0, 0, 0, 0])
+        
         return total_sigma_bonds, num_lone_pairs, hybri_feat

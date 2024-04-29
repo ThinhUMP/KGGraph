@@ -29,7 +29,7 @@ class GNN(torch.nn.Module):
         node representations
 
     """
-    def __init__(self, num_layer, emb_dim, JK = "last", drop_ratio = 0, gnn_type = "gin"):
+    def __init__(self, num_layer, emb_dim, JK = "last", drop_ratio = 0, gnn_type = "gin", pretrain=False):
         super(GNN, self).__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
@@ -37,7 +37,12 @@ class GNN(torch.nn.Module):
 
         if self.num_layer < 2:
             raise ValueError("Number of GNN layers must be greater than 1.")
-
+        
+        if not pretrain:
+            num_atom_type = 121
+        else:
+            num_atom_type = 122 #121 is the masked atom
+        
         self.x_embedding1 = torch.nn.Embedding(num_atom_type, emb_dim)
         self.x_embedding2 = torch.nn.Embedding(num_chirality_tag, emb_dim)
         self.x_embedding3 = torch.nn.Embedding(num_hybri_1, emb_dim)

@@ -24,7 +24,7 @@ class GINTrain(torch.nn.Module):
         drop_ratio (float): The dropout rate applied after GNN layers.
         gnn_type (str): The type of GNN layer to use. Options include 'gin', 'gcn', 'graphsage', and 'gat'.
     """
-    def __init__(self, num_layer, emb_dim, num_tasks, JK = "last", drop_ratio = 0, gnn_type = "gin"):
+    def __init__(self, num_layer, emb_dim, num_tasks, JK = "last", drop_ratio = 0, gnn_type = "gin", pretrain=False):
         """
         Initializes the GINTrain model with the specified architecture and parameters.
 
@@ -46,7 +46,7 @@ class GINTrain(torch.nn.Module):
         if self.num_layer < 2:
             raise ValueError("Number of GNN layers must be greater than 1.")
 
-        self.gnn = GNN(num_layer, emb_dim, JK, drop_ratio, gnn_type = gnn_type)
+        self.gnn = GNN(num_layer, emb_dim, JK, drop_ratio, gnn_type = gnn_type, pretrain=pretrain)
         
 
         if self.JK == "concat":

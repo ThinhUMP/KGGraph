@@ -21,9 +21,10 @@ from KGGraph.KGGProcessor.loader import (
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-def feature(mol, decompose_type):
-    x_node, x, num_part = x_feature(mol, decompose_type=decompose_type)
+def feature(mol, decompose_type, pretrain, fix_ratio):
+    x_node, x, num_part = x_feature(mol, decompose_type=decompose_type, pretrain=pretrain, fix_ratio=fix_ratio)
     edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type=decompose_type)
+
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
     return data
 
@@ -32,6 +33,8 @@ class MoleculeDataset(InMemoryDataset):
         self,
         root,
         decompose_type,
+        pretrain=False,
+        fix_ratio = False,
         transform=None,
         pre_transform=None,
         pre_filter=None,
@@ -40,6 +43,8 @@ class MoleculeDataset(InMemoryDataset):
 ):
         self.dataset = dataset
         self.decompose_type = decompose_type
+        self.pretrain = pretrain
+        self.fix_ratio = fix_ratio
         self.root = root
 
         super(MoleculeDataset, self).__init__(root, transform, pre_transform, pre_filter)
@@ -86,7 +91,7 @@ class MoleculeDataset(InMemoryDataset):
                 
         elif self.dataset == 'bace':
             smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, self.decompose_type) for mol in tqdm(mols_list))
+            data_result_list = Parallel(n_jobs=-1)(delayed(feature)(mol, self.decompose_type, self.pretrain, self.fix_ratio) for mol in tqdm(mols_list))
             for idx, data in enumerate(data_result_list):
                 data.id = torch.tensor([idx])  # id here is the index of the mol in the dataset
                 data.y = torch.tensor(labels[idx])

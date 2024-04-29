@@ -1,4 +1,7 @@
 import torch
+import math
+import random
+from copy import deepcopy
 import numpy as np
 from rdkit import Chem
 from pathlib import Path
@@ -30,25 +33,27 @@ class AtomFeature:
     """
     Class to compute atom features for a given dataset of molecules.
     """
-    def __init__(self, mol: Chem.Mol, ):
-        """
-        Initializes the class with the given molecule.
+    # def __init__(self, mol: Chem.Mol, pretrain: bool = False):
+    #     """
+    #     Initializes the class with the given molecule.
         
-        Parameters:
-            mol: The input molecule for the class.
-        """
-        self.mol = mol
-        
-    def feature(self):
+    #     Parameters:
+    #         mol: The input molecule for the class.
+    #     """
+    #     self.mol = mol
+    #     self.pretrain = pretrain
+
+    @staticmethod
+    def feature(mol: Chem.Mol):
         """
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
         x_node_list = []
         
-        for atom in self.mol.GetAtoms():
+        for atom in mol.GetAtoms():
             total_sigma_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
             if hybri_feat == [0,0,0,0,0]:
-                print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(self.mol)}')
+                print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(mol)}')
             
             atom_feature = [allowable_features['possible_atomic_num_list'].index(
                 get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] + hybri_feat
@@ -59,6 +64,23 @@ class AtomFeature:
         x_node = torch.tensor(x_node_array, dtype=torch.long)
         
         return x_node
+    
+    @staticmethod
+    def masked_atom_feature(mol: Chem.Mol, x_node, fix_ratio):
+        
+        num_node = mol.GetNumAtoms()
+        if not fix_ratio:
+            num_masked_node = max([1, math.floor(0.25*num_node)])
+        else:
+            num_masked_node = math.floor(0.25*num_node)
+
+        masked_node = random.sample(list(range(num_node)), num_masked_node)
+
+        x_node_masked = deepcopy(x_node)
+        for atom_idx in masked_node:
+            x_node_masked[atom_idx, :] = torch.tensor([121,0,0,0,0,0,0]) #121 implies masked atom
+
+        return x_node_masked
 
 def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose_type):
     """
@@ -101,7 +123,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
     return x_motif, x_supernode
 
 
-def x_feature(mol: Chem.Mol, decompose_type):
+def x_feature(mol: Chem.Mol, decompose_type, fix_ratio, pretrain):
     """
     Compute the feature vector for a given molecule.
     
@@ -112,12 +134,16 @@ def x_feature(mol: Chem.Mol, decompose_type):
     Returns:
         A tensor representing the feature vector.
     """
-    atom_feature = AtomFeature(mol=mol)
-    x_node = atom_feature.feature()
+    atom_feature = AtomFeature()
+    x_node = AtomFeature.feature(mol=mol)
     x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), decompose_type = decompose_type)
 
-    # Concatenate features
-    x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0).to(torch.long)
+    if not pretrain:
+        # Concatenate features
+        x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0).to(torch.long)
+    else:
+        x_node_masked = AtomFeature.masked_atom_feature(mol=mol, x_node=x_node, fix_ratio=fix_ratio)
+        x = torch.cat((x_node_masked, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0).to(torch.long)
     
     num_part = (x_node.size(0), x_motif.size(0), x_supernode.size(0))
     
@@ -138,7 +164,7 @@ def main():
     t1 = time.time()
     # results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
     for mol in mols:
-        x_node, x, num_part = x_feature(mol, decompose_type='motif')
+        x_node, x, num_part = x_feature(mol, decompose_type='motif', pretrain=True)
         print(x)
     t2 = time.time()
     print(t2-t1)

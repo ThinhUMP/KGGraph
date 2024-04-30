@@ -8,10 +8,14 @@ from KGGraph.KGGChem.atom_utils import get_mol
 
 class MoleculeDataset(Dataset):
 
-    def __init__(self, data_file, decompose_type):
+    def __init__(self, data_file, decompose_type, pretrain, fix_ratio):
         self.decompose_type = decompose_type
+        self.pretrain = pretrain
+        self.fix_ratio = fix_ratio
         with open(data_file) as f:
             self.data = [line.strip("\r\n ").split()[0] for line in f]
+        if pretrain:
+            print('Pretrain with fixed ratio at 0.25', fix_ratio)
         print('Decompose type', decompose_type)
     
     def __len__(self):
@@ -19,7 +23,7 @@ class MoleculeDataset(Dataset):
 
     def __getitem__(self, idx):
         smiles = self.data[idx]
-        mol_graph = MolGraph(smiles, self.decompose_type)
+        mol_graph = MolGraph(smiles, self.decompose_type, self.pretrain, self.fix_ratio)
         return mol_graph
 
 class MolGraph(object):

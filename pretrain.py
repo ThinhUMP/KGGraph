@@ -8,14 +8,11 @@ from tqdm import tqdm
 import numpy as np
 from KGGraph.KGGModel.Architecture.GNN import GNN
 from KGGraph.KGGDecode.decoder import Model_decoder
-from KGGraph.KGGDecode.data_utils import MoleculeDataset
+from KGGraph.KGGDecode.data_utils import MoleculeDataset, molgraph_to_graph_data
 from KGGraph.KGGModel.Train.visualize import plot_pretrain_loss
 import os
 import pandas as pd
 
-# sys.path.append('./util/')
-
-from KGGraph.KGGDecode.data_utils import *
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -111,7 +108,7 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=100,
+    parser.add_argument('--epochs', type=int, default=40,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
@@ -134,7 +131,7 @@ def main():
                         help='filename to output the pre-trained model')
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers for dataset loading')
     parser.add_argument("--hidden_size", type=int, default=512, help='hidden size')
-    parser.add_argument('--pretrain', type=bool, default = False, help='if finetune is conducting, this should be False, otherwise')
+    parser.add_argument('--pretrain', type=bool, default = True, help='if finetune is conducting, this should be False, otherwise')
     parser.add_argument('--fix_ratio', type=bool, default = False, help='Fixing ratio of removal nodes and edges or not')
     args = parser.parse_args()
 

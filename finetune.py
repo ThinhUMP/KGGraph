@@ -30,7 +30,7 @@ def main():
                         help='learning rate (default: 0.0005)')
     parser.add_argument('--lr_pred', type=float, default=0.001,
                         help='learning rate for the prediction layer (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0,
+    parser.add_argument('--decay', type=float, default=1e-4,
                         help='weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=5, 
                         help='number of GNN message passing layers (default: 5).')
@@ -46,7 +46,7 @@ def main():
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
     parser.add_argument('--dataset', type=str, default = 'bace',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
-    parser.add_argument('--input_model_file', type=str, default = '', help='filename to read the model (if there is any)')
+    parser.add_argument('--input_model_file', type=str, default = 'saved_model/pretrain.pth', help='filename to read the model (if there is any)')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
     parser.add_argument('--runseed', type=int, default=42, help = "Seed for minibatch selection, random initialization.")
@@ -54,7 +54,7 @@ def main():
     parser.add_argument('--num_workers', type=int, default = 8, help='number of workers for dataset loading')
     parser.add_argument('--save_path', type=str, default = 'Data/', help='path for saving training images, test_metrics csv, model')
     parser.add_argument('--GNN_different_lr', type=bool, default = True, help='if the learning rate of GNN backbone is different from the learning rate of prediction layers')
-    parser.add_argument('--pretrain', type=bool, default = True, help='if finetune is conducting, this should be False, otherwise')
+    parser.add_argument('--pretrain', type=bool, default = False, help='if finetune is conducting, this should be False, otherwise')
     parser.add_argument('--fix_ratio', type=bool, default = False, help='Fixing ratio of removal nodes and edges or not')
     args = parser.parse_args()
     

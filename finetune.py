@@ -54,8 +54,6 @@ def main():
     parser.add_argument('--num_workers', type=int, default = 8, help='number of workers for dataset loading')
     parser.add_argument('--save_path', type=str, default = 'Data/', help='path for saving training images, test_metrics csv, model')
     parser.add_argument('--GNN_different_lr', type=bool, default = True, help='if the learning rate of GNN backbone is different from the learning rate of prediction layers')
-    parser.add_argument('--pretrain', type=bool, default = False, help='if finetune is conducting, this should be False, otherwise')
-    parser.add_argument('--fix_ratio', type=bool, default = False, help='Fixing ratio of removal nodes and edges or not')
     args = parser.parse_args()
     
     for i in range(1, args.training_rounds+1):
@@ -79,9 +77,8 @@ def main():
         num_tasks = get_num_task(args)
 
         #set up dataset
-        dataset = MoleculeDataset("Data/" + task_type + "/" + args.dataset, dataset=args.dataset, 
-                                  decompose_type=args.decompose_type, pretrain=args.pretrain, fix_ratio=args.fix_ratio)
-        print(dataset[0].x)
+        dataset = MoleculeDataset("Data/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type)
+        print(dataset)
         
         #data split
         if args.split == "scaffold":
@@ -105,7 +102,7 @@ def main():
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers = args.num_workers)
 
         #set up model
-        model = GINTrain(args.num_layer, args.emb_dim, num_tasks, JK = args.JK, drop_ratio = args.dropout_ratio, gnn_type = args.gnn_type, pretrain=args.pretrain)
+        model = GINTrain(args.num_layer, args.emb_dim, num_tasks, JK = args.JK, drop_ratio = args.dropout_ratio, gnn_type = args.gnn_type)
         if not args.input_model_file == "":
             model.from_pretrained(args.input_model_file)
         

@@ -24,11 +24,11 @@ class MoleculeDataset(Dataset):
 
 class MolGraph(object):
 
-    def __init__(self, smiles, decompose_type):
+    def __init__(self, smiles, decompose_type, pretrain, fix_ratio):
         self.smiles = smiles
         self.mol = get_mol(smiles)
-        self.x_nosuper, self.x, self.num_part = x_feature(self.mol, decompose_type=decompose_type)
-        self.edge_attr_nosuper, self.edge_index_nosuper, self.edge_index, self.edge_attr = edge_feature(self.mol, decompose_type=decompose_type)
+        self.x_nosuper, self.x, self.num_part = x_feature(self.mol, decompose_type, pretrain, fix_ratio)
+        self.edge_attr_nosuper, self.edge_index_nosuper, self.edge_index, self.edge_attr = edge_feature(self.mol, decompose_type)
 
 
     def size_node(self):

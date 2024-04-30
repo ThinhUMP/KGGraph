@@ -33,15 +33,6 @@ class AtomFeature:
     """
     Class to compute atom features for a given dataset of molecules.
     """
-    # def __init__(self, mol: Chem.Mol, pretrain: bool = False):
-    #     """
-    #     Initializes the class with the given molecule.
-        
-    #     Parameters:
-    #         mol: The input molecule for the class.
-    #     """
-    #     self.mol = mol
-    #     self.pretrain = pretrain
 
     @staticmethod
     def feature(mol: Chem.Mol):
@@ -123,7 +114,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
     return x_motif, x_supernode
 
 
-def x_feature(mol: Chem.Mol, decompose_type, fix_ratio, pretrain):
+def x_feature(mol: Chem.Mol, decompose_type, pretrain, fix_ratio):
     """
     Compute the feature vector for a given molecule.
     

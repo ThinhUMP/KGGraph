@@ -32,11 +32,11 @@ def main():
                         help='learning rate for the prediction layer (default: 0.001)')
     parser.add_argument('--decay', type=float, default=1e-5,
                         help='weight decay (default: 0)')
-    parser.add_argument('--num_layer', type=int, default=5, 
+    parser.add_argument('--num_layer', type=int, default=5,
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 512)')
-    parser.add_argument('--dropout_ratio', type=float, default=0.5,
+    parser.add_argument('--dropout_ratio', type=float, default=0.8,
                         help='dropout ratio (default: 0.5)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')

@@ -108,7 +108,7 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=20,
+    parser.add_argument('--epochs', type=int, default=48,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')

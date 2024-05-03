@@ -25,11 +25,11 @@ class HybridizationFeaturize:
         (1,2): [1,2,0,1,2], #AX1E2 => sp2 => Ex: O of C=O
         (3,0): [1,2,0,3,0], #AX3E0 => sp2 => Ex: N of pyrrole
         (0,3): [1,2,0,0,3], #AX0E3 => sp2 => Ex: Fe2+
-        (1,3): [1,2,0,1,3], #AX1E3 => sp3 => Ex: R-X (X is halogen)
+        (1,3): [1,3,0,1,3], #AX1E3 => sp3 => Ex: R-X (X is halogen)
         (2,2): [1,3,0,2,2], #AX2E2 => sp3 => Ex: O of R-O-R'
-        (3,1): [1,2,0,3,1], #AX3E1 => sp3 => Ex: N of NR3
+        (3,1): [1,3,0,3,1], #AX3E1 => sp3 => Ex: N of NR3
         (4,0): [1,3,0,4,0], #AX4E0 => sp3 => Ex: C of CR4
-        (0,4): [1,2,0,0,4], #AX0E4 => sp3 => Ex: X- (X is halogen) (KI)
+        (0,4): [1,3,0,0,4], #AX0E4 => sp3 => Ex: X- (X is halogen) (KI)
         (6,-2): [1,3,0,6,0], #AX6E0 => sp3 => Ex: Sb and hybridization: SP3 smiles: [SbH6+3]
         (2,3): [1,3,1,2,3], #AX2E3 => sp3d => Ex:Co
         (3,2): [1,3,1,3,2], #AX3E2 => sp3d 

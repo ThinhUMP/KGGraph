@@ -46,7 +46,7 @@ def main():
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
     parser.add_argument('--dataset', type=str, default='bace',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
-    parser.add_argument('--input_model_file', type=str, default = 'saved_model_masknode60ran/pretrain.pth', help='filename to read the model (if there is any)')
+    parser.add_argument('--input_model_file', type=str, default = '', help='filename to read the model (if there is any)')
     parser.add_argument('--filename', type=str, default = '', help='output filename')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
     parser.add_argument('--runseed', type=int, default=42, help = "Seed for minibatch selection, random initialization.")

@@ -1,6 +1,8 @@
 import sys
 import json
 import torch
+import math
+import random
 from pathlib import Path
 from rdkit import Chem
 from typing import Tuple
@@ -23,7 +25,7 @@ allowable_features = {
 }
 
 class EdgeFeature:
-    def __init__(self, mol: Chem.Mol, decompose_type):
+    def __init__(self, mol: Chem.Mol, decompose_type, mask_node_edge, fix_ratio):
         """
         Initializes the class with the given molecule.
         
@@ -46,6 +48,7 @@ class EdgeFeature:
 
         self.num_motif = len(self.cliques)
         self.num_atoms = mol.GetNumAtoms()
+        self.num_bonds = mol.GetNumBonds()
         
     
     def get_edge_node_feature(self, mol: Chem.Mol) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -81,7 +84,7 @@ class EdgeFeature:
             edge_attr_node = torch.empty((0, self.num_bond_features), dtype=torch.long)
         return edge_attr_node, edges_index_node
 
-    def get_edge_index(self, mol: Chem.Mol) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def get_edge_index(self, edge_index_node) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Construct edge indices for a molecule with motif supernodes.
 
@@ -91,7 +94,7 @@ class EdgeFeature:
         Returns:
             torch.Tensor: Tensor representing the edge indices including motif supernodes.
         """
-        _, edge_index_node = self.get_edge_node_feature(mol)
+        # _, edge_index_node = self.get_edge_node_feature(mol)
 
         # If there are motifs, create edges between atoms and motifs
         if self.num_motif > 0:
@@ -121,9 +124,9 @@ class EdgeFeature:
             super_edge_index = torch.tensor(np.array(super_edge_index).T, dtype=torch.long).to(edge_index_node.device)
             edge_index = torch.cat((edge_index_node, super_edge_index), dim=1)
 
-        return motif_edge_index, edge_index_node, edge_index
+        return motif_edge_index, edge_index
 
-    def get_edge_attr(self, mol: Chem.Mol) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def get_edge_attr(self, edge_attr_node, edge_index_node) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Generate edge attributes for a molecule, including attributes for edges connecting
         atoms, motifs, and a super supernode.
@@ -135,12 +138,12 @@ class EdgeFeature:
             Tuple containing tensors for motif edge attributes, super edge attributes,
             and the concatenated edge attributes for the entire molecular graph.
         """
-        # Get the edge attributes and indices for nodes
-        edge_attr_node, _ = self.get_edge_node_feature(mol)
+        # # Get the edge attributes and indices for nodes
+        # edge_attr_node, _ = self.get_edge_node_feature(mol)
 
         if self.num_motif > 0:
             # Get indices for edges connected to motifs
-            motif_edge_index, _, _ = self.get_edge_index(mol)
+            motif_edge_index, _ = self.get_edge_index(edge_index_node)
             
             # Initialize motif edge attributes
             motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(self.clique_edges)*2, self.num_bond_features))
@@ -172,12 +175,40 @@ class EdgeFeature:
             # Concatenate edge attributes for the entire graph
             edge_attr = torch.cat((edge_attr_node, super_edge_attr), dim=0)
         
-        return edge_attr_node, edge_attr
+        return edge_attr
+    
 
-def edge_feature(mol, decompose_type):
-    obj = EdgeFeature(mol, decompose_type=decompose_type)
-    _, edge_index_node, edge_index = obj.get_edge_index(mol)
-    edge_attr_node, edge_attr = obj.get_edge_attr(mol)
+    def masked_edge_feature(self, edge_index_node, edge_attr_node, fix_ratio):
+        if fix_ratio:
+            num_masked_edges = max(1, math.floor(0.25*self.num_bonds))
+        else:
+            num_masked_edges = random.randint(1, math.floor(0.25*self.num_bonds))
+
+        masked_edges_single = random.sample(list(range(self.num_bonds)), num_masked_edges)
+        masked_edges = [2*i for i in masked_edges_single] + [2*i+1 for i in masked_edges_single]
+        
+        edge_index_masked = torch.zeros((2, 2*(self.num_bonds-num_masked_edges)), dtype=torch.long)
+        edge_attr_masked = torch.zeros((2*(self.num_bonds-num_masked_edges), 6), dtype=torch.long)
+        count = 0
+
+        for bond_idx in range(2*self.num_bonds):
+            if bond_idx not in masked_edges:
+                edge_index_masked[:,count] = edge_index_node[:, bond_idx]
+                edge_attr_masked[count, :] = edge_attr_node[bond_idx, :]
+                count += 1
+        return edge_attr_masked, edge_index_masked
+
+
+def edge_feature(mol, decompose_type, mask_node_edge, fix_ratio):
+    obj = EdgeFeature(mol, decompose_type=decompose_type, mask_node_edge=mask_node_edge, fix_ratio=fix_ratio)
+    edge_attr_node, edge_index_node = obj.get_edge_node_feature(mol)
+    if not mask_node_edge:
+        edge_index = obj.get_edge_index(edge_index_node)
+        edge_attr = obj.get_edge_attr(edge_attr_node, edge_index_node)
+    else:
+        edge_attr_masked, edge_index_masked = obj.masked_edge_feature(edge_index_node, edge_attr_node, fix_ratio=fix_ratio)
+        edge_index = obj.get_edge_index(edge_index_masked)
+        edge_attr = obj.get_edge_attr(edge_attr_masked, edge_index_masked)
     return edge_attr_node, edge_index_node, edge_index, edge_attr
 
 def main():
@@ -191,15 +222,16 @@ def main():
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
-    # smiles_list, mols_list, folds, abels = load_bace_dataset('./Data/classification/bace/raw/bace.csv')
+    smiles_list, mols_list, folds, abels = load_bace_dataset('./Data/classification/bace/raw/bace.csv')
     t1 = time.time()
     # results = Parallel(n_jobs=8)(delayed(edge_feature)(mol, decompose_type='motif') for mol in tqdm(mols_list))
-    smiles = ['c1ccccc1']
-    mols_list = [Chem.MolFromSmiles(smile) for smile in smiles]
+    # smiles = ['c1ccccc1']
+    # mols_list = [Chem.MolFromSmiles(smile) for smile in smiles]
     for mol in mols_list:
         # try:
-        edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif')
-        print(edge_attr, edge_index)
+        edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif', mask_node_edge=True, fix_ratio=False)
+        print(edge_attr.size())
+        print(edge_index[1].size())
         break
     t2 = time.time()
     print(t2-t1)

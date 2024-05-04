@@ -63,7 +63,7 @@ class AtomFeature:
         if fix_ratio:
             num_masked_node = max([1, math.floor(0.25*num_node)])
         else:
-            num_masked_node = math.floor(0.25*num_node)
+            num_masked_node = random.randint(1, math.floor(0.25*num_node))
 
         masked_node = random.sample(list(range(num_node)), num_masked_node)
 
@@ -114,7 +114,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
     return x_motif, x_supernode
 
 
-def x_feature(mol: Chem.Mol, decompose_type, pretrain, fix_ratio):
+def x_feature(mol: Chem.Mol, decompose_type, mask_node_edge, fix_ratio):
     """
     Compute the feature vector for a given molecule.
     
@@ -129,7 +129,7 @@ def x_feature(mol: Chem.Mol, decompose_type, pretrain, fix_ratio):
     x_node = AtomFeature.feature(mol=mol)
     x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), decompose_type = decompose_type)
 
-    if not pretrain:
+    if not mask_node_edge:
         # Concatenate features
         x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0).to(torch.long)
     else:
@@ -155,7 +155,7 @@ def main():
     t1 = time.time()
     # results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
     for mol in mols:
-        x_node, x, num_part = x_feature(mol, decompose_type='motif', pretrain=True)
+        x_node, x, num_part = x_feature(mol, decompose_type='motif', mask_node_edge=True)
         print(x)
     t2 = time.time()
     print(t2-t1)

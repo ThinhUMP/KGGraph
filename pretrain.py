@@ -130,7 +130,7 @@ def main():
                         help='filename to output the pre-trained model')
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers for dataset loading')
     parser.add_argument("--hidden_size", type=int, default=512, help='hidden size')
-    parser.add_argument('--pretrain', type=bool, default = True, help='if finetune is conducting, this should be False, otherwise')
+    parser.add_argument('--mask_node_edge', type=bool, default = True, help='Mask node and edge for pretrain and finetune')
     parser.add_argument('--fix_ratio', type=bool, default = False, help='Fixing ratio of removal nodes and edges or not')
     args = parser.parse_args()
 
@@ -142,7 +142,7 @@ def main():
         torch.cuda.manual_seed_all(42)
     print('device', device)
 
-    dataset = MoleculeDataset(args.dataset, args.decompose_type, args.pretrain, args.fix_ratio)
+    dataset = MoleculeDataset(args.dataset, args.decompose_type, args.mask_node_edge, args.fix_ratio)
 
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=lambda x:x, drop_last=True)
 

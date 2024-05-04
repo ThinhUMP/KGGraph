@@ -180,9 +180,9 @@ class EdgeFeature:
 
     def masked_edge_feature(self, edge_index_node, edge_attr_node, fix_ratio):
         if fix_ratio:
-            num_masked_edges = max(1, math.floor(0.25*self.num_bonds))
+            num_masked_edges = max(0, math.floor(0.25*self.num_bonds))
         else:
-            num_masked_edges = random.randint(1, math.floor(0.25*self.num_bonds))
+            num_masked_edges = random.randint(0, math.floor(0.25*self.num_bonds))
 
         masked_edges_single = random.sample(list(range(self.num_bonds)), num_masked_edges)
         masked_edges = [2*i for i in masked_edges_single] + [2*i+1 for i in masked_edges_single]

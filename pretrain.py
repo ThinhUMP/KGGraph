@@ -107,11 +107,11 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=1,
+    parser.add_argument('--epochs', type=int, default=60,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=1e-5,
+    parser.add_argument('--decay', type=float, default=5e-5,
                         help='weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=5,
                         help='number of GNN message passing layers (default: 5)')
@@ -131,7 +131,7 @@ def main():
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers for dataset loading')
     parser.add_argument("--hidden_size", type=int, default=512, help='hidden size')
     parser.add_argument('--mask_node_edge', type=bool, default = True, help='Mask node and edge for pretrain and finetune')
-    parser.add_argument('--fix_ratio', type=bool, default = False, help='Fixing ratio of removal nodes and edges or not')
+    parser.add_argument('--fix_ratio', type=bool, default = True, help='Fixing ratio of removal nodes and edges or not')
     args = parser.parse_args()
 
 

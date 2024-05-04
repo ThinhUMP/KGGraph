@@ -25,17 +25,15 @@ def bond_type_feature(bond):
     
     # Get the bond type as a string representation
     bond_type = get_bond_type(bond)
-
-    # Check for aromatic bond type because aromatic bond also means conjugation
-    if bond.GetBondType() == Chem.rdchem.BondType.AROMATIC:
-        return bond_dict.get(bond_type)
     
     # Check for conjugated bond type
     if is_conjugated(bond):
-        return bond_dict.get('CONJUGATE')
+        bond_type_feature = bond_dict.get(bond_type, [0,0,0,0,1])
+        bond_type_feature[2] = 1
+        return bond_type_feature
     
     # Return the bond type feature or a default 'other' type feature vector
-    return bond_dict.get(bond_type, [0, 0, 0, 0, 1])
+    return bond_dict.get(bond_type, [0,0,0,0,1])
 
 # Auxiliary functions and dictionary must be defined:
 # get_bond_type(bond): Should return a string representation of the bond type.

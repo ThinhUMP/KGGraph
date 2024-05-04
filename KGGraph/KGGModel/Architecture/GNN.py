@@ -53,6 +53,7 @@ class GNN(torch.nn.Module):
         torch.nn.init.xavier_uniform_(self.x_embedding5.weight.data)
         torch.nn.init.xavier_uniform_(self.x_embedding6.weight.data)
         torch.nn.init.xavier_uniform_(self.x_embedding7.weight.data)
+        
         ###List of MLPs
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):
@@ -80,10 +81,7 @@ class GNN(torch.nn.Module):
         else:
             raise ValueError("unmatched number of arguments.")
         # + self.x_embedding2(x[:,1])
-        x = self.x_embedding1(x[:,0]) + self.x_embedding2(x[:,1]) +\
-        self.x_embedding3(x[:,2]) + self.x_embedding4(x[:,3]) +\
-        self.x_embedding5(x[:,4]) + self.x_embedding6(x[:,5]) +\
-        self.x_embedding7(x[:,6])
+        x = self.x_embedding1(x[:,0]) + self.x_embedding2(x[:,1]) + self.x_embedding3(x[:,2]) + self.x_embedding4(x[:,3]) + self.x_embedding5(x[:,4]) + self.x_embedding6(x[:,5]) + self.x_embedding7(x[:,6])
 
         h_list = [x]
         

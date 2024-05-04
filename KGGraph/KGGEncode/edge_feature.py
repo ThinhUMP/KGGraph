@@ -19,13 +19,6 @@ from KGGraph.KGGChem.bond_type import bond_type_feature
 
 # allowable edge features
 allowable_features = {
-    'possible_bonds' : [
-        Chem.rdchem.BondType.SINGLE,
-        Chem.rdchem.BondType.DOUBLE,
-        Chem.rdchem.BondType.TRIPLE,
-        Chem.rdchem.BondType.AROMATIC,
-        Chem.rdchem.BondType.DATIVE,
-    ],
     'possible_bond_inring': [None, False, True]
 }
 
@@ -38,7 +31,7 @@ class EdgeFeature:
             mol: The input molecule for the class.
         """
         self.mol = mol
-        self.num_bond_features = 2
+        self.num_bond_features = 6
         
         if decompose_type == 'motif':
             self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
@@ -71,9 +64,8 @@ class EdgeFeature:
             # Iterate over all bonds in the molecule
             for bond in mol.GetBonds():                             
                 # Combine all features into a single list
-                combined_features = [allowable_features['possible_bonds'].index(
-                bond.GetBondType())] + [allowable_features['possible_bond_inring'].index(
-                bond.IsInRing())]
+                combined_features = [allowable_features['possible_bond_inring'].index(
+                bond.IsInRing())] + bond_type_feature(bond)
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
@@ -107,6 +99,13 @@ class EdgeFeature:
             motif_edge_index = []
             for k, motif_nodes in enumerate(self.cliques):
                 motif_edge_index.extend([[i, self.num_atoms + k] for i in motif_nodes])
+                
+            for k in range(len(self.cliques)):
+                for h in range(k+1, len(self.cliques)):
+                    for bond in self.clique_edges:
+                        if (bond[0] == k and bond[1] == h) or (bond[0] == h and bond[1] == k):
+                            motif_edge_index.extend([[self.num_atoms + k, self.num_atoms + h], [self.num_atoms + h, self.num_atoms + k]])
+
             motif_edge_index = torch.tensor(np.array(motif_edge_index).T, dtype=torch.long).to(edge_index_node.device)
 
             # Create edges between motif and a supernode
@@ -144,12 +143,20 @@ class EdgeFeature:
             motif_edge_index, _, _ = self.get_edge_index(mol)
             
             # Initialize motif edge attributes
-            motif_edge_attr = torch.zeros((motif_edge_index.size(1), self.num_bond_features))
-            motif_edge_attr[:, 0] = 6
+            motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(self.clique_edges)*2, self.num_bond_features))
+            motif_node_edge_attr[:, -1] = 3  # Set bond type for the edge between atoms and motif, 
+            # we can access this feature via bond_dict json with key value 'NODEMOTIF'
+            
+            # Initialize motif-motif edge attributes
+            motif_motif_edge_attr = torch.zeros((len(self.clique_edges)*2, self.num_bond_features))
+            motif_motif_edge_attr[:, -1] = 4  # Set bond type for the edge between motif and motif
+            
+            # Motif edge attributes
+            motif_edge_attr = torch.cat((motif_node_edge_attr, motif_motif_edge_attr), dim=0)
 
             # Initialize super edge attributes
             super_edge_attr = torch.zeros((self.num_motif, self.num_bond_features))
-            super_edge_attr[:, 0] = 5
+            super_edge_attr[:, -1] = 5
             motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             # Concatenate edge attributes for the entire graph
@@ -159,7 +166,7 @@ class EdgeFeature:
             motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((self.num_atoms, self.num_bond_features))
-            super_edge_attr[:, 0] = 5  # Set bond type for the edge between nodes and supernode, 
+            super_edge_attr[:, -1] = 5  # Set bond type for the edge between nodes and supernode, 
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
             # Concatenate edge attributes for the entire graph
@@ -184,20 +191,16 @@ def main():
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
-    smiles_list, mols_list, folds, abels = load_bace_dataset('./Data/classification/bace/raw/bace.csv')
+    # smiles_list, mols_list, folds, abels = load_bace_dataset('./Data/classification/bace/raw/bace.csv')
     t1 = time.time()
     # results = Parallel(n_jobs=8)(delayed(edge_feature)(mol, decompose_type='motif') for mol in tqdm(mols_list))
+    smiles = ['c1ccccc1']
+    mols_list = [Chem.MolFromSmiles(smile) for smile in smiles]
     for mol in mols_list:
         # try:
         edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif')
         print(edge_attr, edge_index)
         break
-        
-        # except:
-        #     if mol is None:
-        #         print(mol)
-        #     else:
-        #         print(Chem.MolToSmiles(mol))
     t2 = time.time()
     print(t2-t1)
     # Print the results

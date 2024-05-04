@@ -71,7 +71,7 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
         num_part = graph_batch.num_part
         node_rep, super_node_rep = group_node_rep(node_rep, batch_size, num_part)
 
-        loss, bond_if_auc, bond_if_ap, bond_type_acc, atom_type_acc, atom_num_rmse, bond_num_rmse = model_decoder(batch, node_rep, super_node_rep)
+        loss, bond_if_auc, bond_if_ap, atom_type_acc, atom_num_rmse, bond_num_rmse = model_decoder(batch, node_rep, super_node_rep)
 
         optimizer_list.zero_grad()
 
@@ -81,7 +81,6 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
 
         if_auc += bond_if_auc
         if_ap += bond_if_ap
-        type_acc += bond_type_acc
         a_type_acc += atom_type_acc
         a_num_rmse += atom_num_rmse
         b_num_rmse += bond_num_rmse
@@ -108,11 +107,11 @@ def main():
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=17,
+    parser.add_argument('--epochs', type=int, default=1,
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=0,
+    parser.add_argument('--decay', type=float, default=1e-5,
                         help='weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=5,
                         help='number of GNN message passing layers (default: 5)')
@@ -127,7 +126,7 @@ def main():
     parser.add_argument('--gnn_type', type=str, default="gin")
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--output_model_file', type=str, default='./saved_model/pretrain.pth',
+    parser.add_argument('--output_model_file', type=str, default='./saved_model_kgg/pretrain.pth',
                         help='filename to output the pre-trained model')
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers for dataset loading')
     parser.add_argument("--hidden_size", type=int, default=512, help='hidden size')
@@ -149,9 +148,9 @@ def main():
 
     model = GNN(args.num_layer, args.emb_dim, JK=args.JK, drop_ratio=args.dropout_ratio, gnn_type=args.gnn_type).to(device)
     
-    if not os.path.isdir('./saved_model'):
-        os.mkdir('./saved_model')
-    if 'pretrain.pth' in os.listdir('saved_model'):
+    if not os.path.isdir('./saved_model_kgg'):
+        os.mkdir('./saved_model_kgg')
+    if 'pretrain.pth' in os.listdir('saved_model_kgg'):
         print('Continue pretraining')
         model.load_state_dict(torch.load(args.output_model_file))
     

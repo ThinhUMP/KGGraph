@@ -203,11 +203,11 @@ def edge_feature(mol, decompose_type, mask_node_edge, fix_ratio):
     obj = EdgeFeature(mol, decompose_type=decompose_type, mask_node_edge=mask_node_edge, fix_ratio=fix_ratio)
     edge_attr_node, edge_index_node = obj.get_edge_node_feature(mol)
     if not mask_node_edge:
-        edge_index = obj.get_edge_index(edge_index_node)
+        _, edge_index = obj.get_edge_index(edge_index_node)
         edge_attr = obj.get_edge_attr(edge_attr_node, edge_index_node)
     else:
         edge_attr_masked, edge_index_masked = obj.masked_edge_feature(edge_index_node, edge_attr_node, fix_ratio=fix_ratio)
-        edge_index = obj.get_edge_index(edge_index_masked)
+        _, edge_index = obj.get_edge_index(edge_index_masked)
         edge_attr = obj.get_edge_attr(edge_attr_masked, edge_index_masked)
     return edge_attr_node, edge_index_node, edge_index, edge_attr
 
@@ -231,8 +231,7 @@ def main():
         # try:
         edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif', mask_node_edge=True, fix_ratio=False)
         print(edge_attr.size())
-        print(edge_index[1].size())
-        break
+        print(edge_index.size())
     t2 = time.time()
     print(t2-t1)
     # Print the results

@@ -125,7 +125,6 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node_edge, fix_ratio):
     Returns:
         A tensor representing the feature vector.
     """
-    atom_feature = AtomFeature()
     x_node = AtomFeature.feature(mol=mol)
     x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), decompose_type = decompose_type)
 
@@ -155,7 +154,7 @@ def main():
     t1 = time.time()
     # results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
     for mol in mols:
-        x_node, x, num_part = x_feature(mol, decompose_type='motif', mask_node_edge=True)
+        x_node, x, num_part = x_feature(mol, decompose_type='motif', mask_node_edge=True, fix_ratio=True)
         print(x)
     t2 = time.time()
     print(t2-t1)

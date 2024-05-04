@@ -54,8 +54,8 @@ def main():
     parser.add_argument('--num_workers', type=int, default = 8, help='number of workers for dataset loading')
     parser.add_argument('--save_path', type=str, default = 'Data/', help='path for saving training images, test_metrics csv, model')
     parser.add_argument('--GNN_different_lr', type=bool, default = True, help='if the learning rate of GNN backbone is different from the learning rate of prediction layers')
-    parser.add_argument('--mask_node_edge', type=bool, default = False, help='Mask node and edge for pretrain and finetune')
-    parser.add_argument('--fix_ratio', type=bool, default = False, help='Fixing ratio of removal nodes and edges or not')
+    parser.add_argument('--mask_node_edge', type=bool, default = True, help='Mask node and edge for pretrain and finetune')
+    parser.add_argument('--fix_ratio', type=bool, default = True, help='Fixing ratio of removal nodes and edges or not')
     args = parser.parse_args()
     
     for i in range(1, args.training_rounds+1):
@@ -79,7 +79,7 @@ def main():
         num_tasks = get_num_task(args)
 
         #set up dataset
-        dataset = MoleculeDataset("Data/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type)
+        dataset = MoleculeDataset("Data/" + task_type + "/" + args.dataset, dataset=args.dataset, decompose_type=args.decompose_type, mask_node_edge=args.mask_node_edge, fix_ratio=args.fix_ratio)
         print(dataset)
         
         #data split

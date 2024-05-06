@@ -7,13 +7,15 @@ from sklearn.metrics import roc_auc_score,average_precision_score
 # MAX_BOND_TYPE = 5
 MAX_ATOM_TYPE = 119
 
-
 def create_var(tensor, device, requires_grad=None):
+    """Create a PyTorch Variable tensor on the specified device."""
+
+    # If requires_grad is not specified, create a Variable that requires gradients
+    # if tensor requires them. Otherwise, create a Variable that does not require gradients.
     if requires_grad is None:
         return Variable(tensor).to(device)
     else:
         return Variable(tensor, requires_grad=requires_grad).to(device)
-
 
 class Model_decoder(nn.Module):
 
@@ -21,7 +23,7 @@ class Model_decoder(nn.Module):
         super(Model_decoder, self).__init__()
         self.hidden_size = hidden_size
         self.device = device
-    
+  
         self.loss_linear = nn.Linear(5, 1)
 
         self.bond_if_proj = nn.Sequential(

@@ -8,7 +8,7 @@ class BRCISDecomposition:
         """
         Create initial cliques for each bond in the molecule.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): The RDKit molecule object.
 
         Returns:
@@ -26,7 +26,7 @@ class BRCISDecomposition:
         """
         Apply BRICS breaks to the molecule and update cliques.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): The RDKit molecule object.
         cliques (List[List[int]]): The current list of cliques.
 
@@ -53,7 +53,7 @@ class BRCISDecomposition:
         """
         Break bonds between ring and non-ring atoms.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): The RDKit molecule object.
         cliques (List[List[int]]): The current list of cliques.
 

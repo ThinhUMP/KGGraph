@@ -11,7 +11,7 @@ class TreeDecomposition:
         """
         Create initial cliques for each non-ring bond in the molecule.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
 
         Returns:
@@ -30,7 +30,7 @@ class TreeDecomposition:
         """
         Add ring cliques to the existing cliques list.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
         cliques (List[List[int]]): Existing cliques list.
 
@@ -46,7 +46,7 @@ class TreeDecomposition:
         """
         Merge cliques with more than 2 atoms in common.
 
-        Parameters:
+        Args:
         cliques (List[List[int]]): List of cliques.
         nei_list (List[List[int]]): Neighbor list for each atom.
 
@@ -70,7 +70,7 @@ class TreeDecomposition:
         """
         Create a neighbor list for each atom based on cliques.
 
-        Parameters:
+        Args:
         n_atoms (int): Number of atoms in the molecule.
         cliques (List[List[int]]): List of cliques.
 
@@ -88,7 +88,7 @@ class TreeDecomposition:
         """
         Initialize edges between cliques.
 
-        Parameters:
+        Args:
         n_atoms (int): Number of atoms in the molecule.
         cliques (List[List[int]]): List of cliques.
         nei_list (List[List[int]]): Neighbor list for each atom.
@@ -135,7 +135,7 @@ class TreeDecomposition:
         """
         Compute the maximum spanning tree of the clique graph.
 
-        Parameters:
+        Args:
         cliques (List[List[int]]): List of cliques.
         edges (Dict[Tuple[int, int], int]): Dictionary of edges.
 
@@ -159,7 +159,7 @@ class TreeDecomposition:
         """
         Perform tree decomposition on a molecule.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
 
         Returns:

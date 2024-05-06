@@ -21,7 +21,6 @@ from KGGraph.KGGChem.hybridization import HybridizationFeaturize
 from KGGraph.KGGChem.atom_features import (
     get_degree, get_hybridization, get_symbol, get_atomic_number,
 )
-from KGGraph.KGGChem.atom_utils import atomic_num_features
 
 # allowable node and edge features
 allowable_features = {
@@ -43,7 +42,7 @@ class AtomFeature:
         
         for atom in mol.GetAtoms():
             total_sigma_bonds, num_lone_pairs, hybri_feat = HybridizationFeaturize.feature(atom)
-            if hybri_feat == [0,0,0,0,0]:
+            if hybri_feat == [0,0,0,0,0] and get_hybridization(atom) != 'UNSPECIFIED':
                 print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(mol)}')
             
             atom_feature = [allowable_features['possible_atomic_num_list'].index(
@@ -77,7 +76,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
     """
     Compute motif and supernode features for a given molecule.
     
-    Parameters:
+    Args:
         mol: The input molecule.
         number_atom_node_attr: number of atom features in the molecule.
         atom_feature_dic: The dictionary of atom features in the molecule.
@@ -118,31 +117,29 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node, fix_ratio):
     """
     Compute the feature vector for a given molecule.
     
-    Parameters:
+    Args:
         mol: The input molecule.
         atom_types: The list of atom types.
         
     Returns:
         A tensor representing the feature vector.
     """
-    x_node = AtomFeature.feature(mol=mol)
-    x_motif, x_supernode = motif_supernode_feature(mol, number_atom_node_attr=x_node.size(1), decompose_type = decompose_type)
+    x_node = AtomFeature.feature(mol)
+    x_motif, x_supernode = motif_supernode_feature(mol, x_node.size(1), decompose_type)
 
     if not mask_node:
         # Concatenate features
         x = torch.cat((x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0).to(torch.long)
     else:
-        x_node_masked = AtomFeature.masked_atom_feature(mol=mol, x_node=x_node, fix_ratio=fix_ratio)
-        x = torch.cat((x_node_masked, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0).to(torch.long)
-    
+        x_node_masked = AtomFeature.masked_atom_feature(mol, x_node, fix_ratio)
+        x = torch.cat((x_node_masked, x_motif.to(x_node_masked.device), x_supernode.to(x_node_masked.device)), dim=0).to(torch.long)
+
     num_part = (x_node.size(0), x_motif.size(0), x_supernode.size(0))
     
     return x_node, x, num_part
 
 def main():
-    from joblib import Parallel, delayed
     import time
-    from tqdm import tqdm
     from pathlib import Path
     import sys
     # Get the root directory
@@ -150,17 +147,14 @@ def main():
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
     from KGGraph.KGGProcessor.loader import load_bace_dataset
-    _, mols,folds, _ = load_bace_dataset('Data/classification/bace/raw/bace.csv')
+    _, mols, folds, _ = load_bace_dataset('Data/classification/bace/raw/bace.csv')
     t1 = time.time()
-    # results = Parallel(n_jobs=-1)(delayed(x_feature)(mol, decompose_type='motif') for mol in tqdm(mols))
     for mol in mols:
-        x_node, x, num_part = x_feature(mol, decompose_type='motif', mask_node=True, fix_ratio=True)
+        x_node, x, num_part = x_feature(mol, decompose_type='motif', mask_node=False, fix_ratio=False)
         print(x)
+        break
     t2 = time.time()
     print(t2-t1)
-    # print(results[0][0])
-    # print(results[0][1])
-    # print(results[0][2])
 
 if __name__=='__main__':
     main()

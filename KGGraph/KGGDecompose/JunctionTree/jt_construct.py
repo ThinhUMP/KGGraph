@@ -19,7 +19,7 @@ class JTConstruct:
         """
         Initialize JTConstruct with a molecule.
 
-        :param mol: RDKit Molecule object.
+        Args mol: RDKit Molecule object.
         """
         self.mol = mol
         self.fragment_type = fragment_type
@@ -35,8 +35,8 @@ class JTConstruct:
         """
         Constructs a molecular graph from the RDKit Molecule object.
 
-        :param mol: RDKit Molecule object.
-        :return: NetworkX Directed Graph representing the molecule.
+        Args mol: RDKit Molecule object.
+        Return: NetworkX Directed Graph representing the molecule.
         """
         graph = nx.DiGraph(Chem.rdmolops.GetAdjacencyMatrix(mol))
         for atom in mol.GetAtoms():
@@ -57,8 +57,8 @@ class JTConstruct:
         """
         Identifies clusters in the molecule.
 
-        :param mol: RDKit Molecule object.
-        :return: A tuple containing a list of clusters and edges.
+        Args mol: RDKit Molecule object.
+        Return: A tuple containing a list of clusters and edges.
         """
         if fragment_type == 'smotif':
             cliques, edges = SMotifDecomposition().defragment(mol)
@@ -80,8 +80,8 @@ class JTConstruct:
         """
         Performs tree decomposition on the molecule.
 
-        :param mol: RDKit Molecule object.
-        :return: NetworkX Graph representing the tree decomposition.
+        Args mol: RDKit Molecule object.
+        Return: NetworkX Graph representing the tree decomposition.
         """
         clusters, edges = JTConstruct.find_clusters(mol,  fragment_type)
         tree_graph = nx.empty_graph(len(clusters))
@@ -98,12 +98,13 @@ class JTConstruct:
         """
         Depth-first search for labeling tree nodes.
 
-        :param order: Order of traversal.
-        :param pa: Parent nodes.
-        :param prev_sib: Previous siblings.
-        :param x: Current node.
-        :param fa: Parent of current node.
-        :param mol_tree: NetworkX DiGraph of the molecule tree.
+        Args:
+        - order: Order of traversal.
+        - pa: Parent nodes.
+        - prev_sib: Previous siblings.
+        - x: Current node.
+        - fa: Parent of current node.
+        - mol_tree: NetworkX DiGraph of the molecule tree.
         """
         pa[x] = fa 
         sorted_child = sorted([ y for y in mol_tree[x] if y != fa ]) #better performance with fixed order

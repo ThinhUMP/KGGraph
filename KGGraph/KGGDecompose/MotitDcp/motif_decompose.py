@@ -23,7 +23,7 @@ class MotifDecomposition:
         """
         Apply BRICS rules to break bonds and update cliques.
 
-        Parameters:
+        Args:
         cliques (list): The current list of cliques.
 
         Returns:
@@ -46,7 +46,7 @@ class MotifDecomposition:
         """
         Merge overlapping cliques.
 
-        Parameters:
+        Args:
         cliques (list): The current list of cliques.
 
         Returns:
@@ -71,7 +71,7 @@ class MotifDecomposition:
         """
         Refine cliques to consider symmetrically equivalent substructures.
 
-        Parameters:
+        Args:
         cliques (list): The current list of cliques.
 
         Returns:
@@ -99,7 +99,7 @@ class MotifDecomposition:
         """
         Find edges based on the breaks.
 
-        Parameters:
+        Args:
         cliques (List[List[int]]): The list of cliques.
         res_list (List[Tuple]): BRICS breaks result.
 

@@ -126,7 +126,7 @@ def main():
     parser.add_argument('--gnn_type', type=str, default="gin")
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--output_model_file', type=str, default='./saved_model_kggmulti/pretrain.pth',
+    parser.add_argument('--output_model_file', type=str, default='./saved_model/pretrain.pth',
                         help='filename to output the pre-trained model')
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers for dataset loading')
     parser.add_argument("--hidden_size", type=int, default=512, help='hidden size')
@@ -149,9 +149,9 @@ def main():
 
     model = GNN(args.num_layer, args.emb_dim, JK=args.JK, drop_ratio=args.dropout_ratio, gnn_type=args.gnn_type).to(device)
     
-    if not os.path.isdir('./saved_model_kggmulti'):
-        os.mkdir('./saved_model_kggmulti')
-    if 'pretrain.pth' in os.listdir('saved_model_kggmulti'):
+    if not os.path.isdir('./saved_model'):
+        os.mkdir('./saved_model')
+    if 'pretrain.pth' in os.listdir('saved_model'):
         print('Continue pretraining')
         model.load_state_dict(torch.load(args.output_model_file))
     

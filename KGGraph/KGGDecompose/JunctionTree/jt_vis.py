@@ -23,7 +23,7 @@ def tree_vis(G: nx.DiGraph,
     """
     Visualize a directed graph with specific features, reorienting edges based on edge labels.
 
-    Parameters:
+    Args:
     - G (nx.DiGraph): A NetworkX directed graph.
     - node_label_attr (str): The node attribute key for labels.
     - edge_label_attr (str): The edge attribute key for labels.
@@ -84,7 +84,7 @@ def vis_compare(smiles: str,
     """
     Create a 1x2 subplot with a molecule structure from a SMILES string and a tree nodes figure.
 
-    Parameters:
+    Args:
     - smiles (str): A SMILES string representing a molecule.
     - tree_nodes_fig (plt.Figure): A matplotlib figure representing tree nodes.
     - show_atom_map (bool): If True, shows atom map numbers on the molecule.

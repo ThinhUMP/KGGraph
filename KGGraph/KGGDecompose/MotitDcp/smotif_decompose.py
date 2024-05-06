@@ -8,7 +8,7 @@ class SMotifDecomposition:
         """
         Generate marks for atoms that are part of identified functional groups in a molecule.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object to analyze.
 
         Returns:
@@ -47,7 +47,7 @@ class SMotifDecomposition:
         """
         Merges rings in a molecule that share more than one atom, identifying fused ring systems.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object to analyze.
 
         Returns:
@@ -72,7 +72,7 @@ class SMotifDecomposition:
         """
         Identify carbonyl groups in the molecule and merge adjacent or overlapping CO groups.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
 
         Returns:
@@ -106,7 +106,7 @@ class SMotifDecomposition:
         """
         Merge carbonyl groups and cluster atoms based on their connectivity.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
         CO (List[List[int]]): List of merged CO groups.
         COO (List[Tuple[int]]): List of merged COO groups.
@@ -176,7 +176,7 @@ class SMotifDecomposition:
         """
         Cluster atoms and identify functional groups.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
         marks (Set[int]): Set of marks indicating atoms that have not been clustered yet.
         cluster (List[Set[int]]): List of clusters of atoms.
@@ -230,7 +230,7 @@ class SMotifDecomposition:
         """
         Finalize the identified functional groups and convert them to SMILES representations.
 
-        Parameters:
+        Args:
         fgs (List[Set[int]]): List of identified functional groups.
         cluster (List[Set[int]]): List of atom clusters.
         mol (Chem.Mol): RDKit molecule object.
@@ -275,7 +275,7 @@ class SMotifDecomposition:
         """
         Perform defragmentation of a molecule into functional groups.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
 
         Returns:

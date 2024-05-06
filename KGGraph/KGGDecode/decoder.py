@@ -7,6 +7,7 @@ from sklearn.metrics import roc_auc_score,average_precision_score
 # MAX_BOND_TYPE = 5
 MAX_ATOM_TYPE = 119
 
+
 def create_var(tensor, device, requires_grad=None):
     if requires_grad is None:
         return Variable(tensor).to(device)
@@ -66,11 +67,11 @@ class Model_decoder(nn.Module):
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, 1))
-        self.atom_hybri_s_d = nn.Sequential(
+        self.atom_hybri_s_p = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, 4))
-        self.atom_hybri_s_p = nn.Sequential(
+        self.atom_hybri_s_d = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, 3))

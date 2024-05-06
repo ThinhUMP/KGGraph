@@ -36,7 +36,7 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 512)')
-    parser.add_argument('--dropout_ratio', type=float, default=0.7,
+    parser.add_argument('--dropout_ratio', type=float, default=0.5,
                         help='dropout ratio (default: 0.5)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')
@@ -46,15 +46,15 @@ def main():
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
     parser.add_argument('--dataset', type=str, default='bace',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
-    parser.add_argument('--input_model_file', type=str, default = '', help='filename to read the model (if there is any)')
+    parser.add_argument('--input_model_file', type=str, default = 'saved_model_kggmulti/pretrain.pth', help='filename to read the model (if there is any)')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")
     parser.add_argument('--runseed', type=int, default=42, help = "Seed for minibatch selection, random initialization.")
     parser.add_argument('--split', type = str, default="scaffold", help = "random or scaffold or random_scaffold")
     parser.add_argument('--num_workers', type=int, default = 8, help='number of workers for dataset loading')
     parser.add_argument('--save_path', type=str, default = 'Data/', help='path for saving training images, test_metrics csv, model')
     parser.add_argument('--GNN_different_lr', type=bool, default = True, help='if the learning rate of GNN backbone is different from the learning rate of prediction layers')
-    parser.add_argument('--mask_node', type=bool, default = True, help='Mask node for pretrain and finetune')
-    parser.add_argument('--mask_edge', type=bool, default = True, help='Mask edge for pretrain and finetune')
+    parser.add_argument('--mask_node', type=bool, default = False, help='Mask node for pretrain and finetune')
+    parser.add_argument('--mask_edge', type=bool, default = False, help='Mask edge for pretrain and finetune')
     parser.add_argument('--fix_ratio', type=bool, default = True, help='Fixing ratio of removal nodes and edges or not')
     args = parser.parse_args()
     

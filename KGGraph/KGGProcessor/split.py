@@ -10,7 +10,7 @@ def generate_scaffold(smiles, include_chirality=False):
     Generates a Bemis-Murcko scaffold representation from a SMILES string. The Bemis-Murcko
     scaffold is a way to represent the core structure of a molecule, excluding side chains.
 
-    Parameters:
+    Args:
     smiles (str): A SMILES string representing the molecule.
     include_chirality (bool): If True, the chiral information will be included in the scaffold.
                               Defaults to False.
@@ -40,7 +40,7 @@ def scaffold_split(
     grouped together. Optionally, the function can filter out examples that contain a null
     value for a specified task before performing the split.
 
-    Parameters:
+    Args:
     dataset (PyG Dataset): A PyTorch Geometric dataset object to be split.
     smiles_list (list of str): A list of SMILES strings corresponding to each entry in the dataset.
     task_idx (int, optional): The index of the task in the data.y tensor. If provided, the function
@@ -135,7 +135,7 @@ def random_split(dataset, task_idx=None, null_value=0,
     If a list of SMILES strings is provided, it returns the corresponding SMILES for each
     subset along with the dataset objects.
 
-    Parameters:
+    Args:
     dataset (PyG Dataset): The dataset to be split.
     task_idx (int, optional): Index of the task in the data.y tensor. If provided, examples with a null
                               value in this task column are filtered out before splitting. Defaults to None.
@@ -206,7 +206,7 @@ def random_scaffold_split(dataset, smiles_list, task_idx=None, null_value=0,
     evaluation of model generalization. This function also supports filtering out data points based
     on a specified task index and null value.
 
-    Parameters:
+    Args:
     dataset (PyG Dataset): The PyTorch Geometric dataset object to be split.
     smiles_list (list of str): A list of SMILES strings corresponding to the entries in the dataset.
     task_idx (int, optional): Index of the task in the data.y tensor. If provided, examples with a null

@@ -17,7 +17,7 @@ def train(model, device, loader, optimizer, criterion):
     """
     Trains the model for one epoch over the provided data loader.
 
-    Parameters:
+    Args:
     model (torch.nn.Module): The model to be trained.
     device (torch.device): The device to run the model on ('cuda' or 'cpu').
     loader (DataLoader): The data loader that provides batches of data.
@@ -97,7 +97,7 @@ def evaluate(args, model, device, loader, task_type, criterion):
     """
     Evaluates the performance of a model on a given dataset.
 
-    Parameters:
+    Args:
     - args: The command-line arguments passed to the program.
     - model: The model to be evaluated.
     - device: The device on which the model is running.

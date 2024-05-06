@@ -2,7 +2,7 @@ def get_task_type(args):
     """
     Determines the type of task (classification or regression) based on the dataset.
 
-    Parameters:
+    Args:
     args: An argument parser object or a similar structure where args.dataset is the name of the dataset.
 
     Returns:
@@ -20,7 +20,7 @@ def get_num_task(args):
     """
     Retrieves the number of tasks associated with a specific dataset.
 
-    Parameters:
+    Args:
     args: An argument parser object or a similar structure where args.dataset is the name of the dataset.
 
     Returns:

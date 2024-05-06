@@ -6,7 +6,7 @@ def plot_metrics(args, df, task_type):
     """
     Plot the training, validation, and test loss, AUC, F1, and AP for each epoch.
 
-    Parameters:
+    Args:
     args: Argument parser or a similar object with attributes like save_path and dataset.
     df (dict): Dataframe containing lists of training, validation, and test metrics.
     task_type (str): The type of task (e.g., 'classification', 'regression').

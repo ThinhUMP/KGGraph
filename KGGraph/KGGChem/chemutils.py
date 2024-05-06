@@ -1,17 +1,9 @@
 from rdkit import Chem
 from typing import Optional, List, Set, Tuple
-from .atom_utils import copy_atom, idxfunc, set_atommap, sanitize
+from .atom_utils import copy_atom, idxfunc, set_atommap, sanitize, get_smiles
 
 def get_leaves(mol: Chem.Mol) -> List[int]:
-    """
-    Identify the leaf atoms (degree 1) and rings in a molecule.
-
-    Parameters:
-    - mol (Chem.Mol): The RDKit molecule object.
-
-    Returns:
-    - List[int]: A list of indices of leaf atoms and rings.
-    """
+    """Identify the leaf atoms (degree 1) and rings in a molecule."""
     leaf_atoms = [atom.GetIdx() for atom in mol.GetAtoms() if atom.GetDegree() == 1]
 
     clusters = []
@@ -36,16 +28,7 @@ def get_leaves(mol: Chem.Mol) -> List[int]:
 
 #mol must be RWMol object
 def get_sub_mol(mol: Chem.Mol, sub_atoms: List[int]) -> Chem.Mol:
-    """
-    Extract a sub-molecule from the given molecule.
-
-    Parameters:
-    - mol (Chem.Mol): The original molecule.
-    - sub_atoms (List[int]): A list of atom indices to include in the sub-molecule.
-
-    Returns:
-    - Chem.Mol: The sub-molecule.
-    """
+    """Extract a sub-molecule from the given molecule.    """
     new_mol = Chem.RWMol()
     atom_map = {}
     for idx in sub_atoms:
@@ -65,15 +48,7 @@ def get_sub_mol(mol: Chem.Mol, sub_atoms: List[int]) -> Chem.Mol:
     return new_mol.GetMol()
 
 def copy_edit_mol(mol: Chem.Mol) -> Chem.Mol:
-    """
-    Create a deep copy of the given molecule.
-
-    Parameters:
-    - mol (Chem.Mol): The molecule to copy.
-
-    Returns:
-    - Chem.Mol: A copy of the molecule.
-    """
+    """Create a deep copy of the given molecule."""
     new_mol = Chem.RWMol(Chem.MolFromSmiles(''))
     for atom in mol.GetAtoms():
         new_atom = copy_atom(atom)
@@ -89,16 +64,7 @@ def copy_edit_mol(mol: Chem.Mol) -> Chem.Mol:
     return new_mol
 
 def get_clique_mol(mol: Chem.Mol, atoms: List[int]) -> Chem.Mol:
-    """
-    Generate a molecule fragment based on a list of atom indices.
-
-    Parameters:
-    - mol (Chem.Mol): The original molecule.
-    - atoms (List[int]): A list of atom indices to form the fragment.
-
-    Returns:
-    - Chem.Mol: The molecule fragment.
-    """
+    """Generate a molecule fragment based on a list of atom indices."""
     smiles = Chem.MolFragmentToSmiles(mol, atoms, kekuleSmiles=True)
     # smiles = Chem.MolFragmentToSmiles(mol, atoms, kekuleSmiles=False)
     # Chem.Kekulize(smiles, clearAromaticFlags=True)
@@ -109,22 +75,7 @@ def get_clique_mol(mol: Chem.Mol, atoms: List[int]) -> Chem.Mol:
     return new_mol
 
 def get_assm_cands(mol: Chem.Mol, atoms: List[int], inter_label: List[Tuple[int, str]], cluster: List[int], inter_size: int) -> List:
-    """
-    Get assembly candidates for a molecule.
-
-    Parameters:
-    - mol (Chem.Mol): The original molecule.
-    - atoms (List[int]): List of atom indices.
-    - inter_label (List[Tuple[int, str]]): Labels of connected atoms and their SMILES.
-    - cluster (List[int]): Atom indices in the parent cluster.
-    - inter_size (int): Length of the inter_label.
-
-    Returns:
-    - List: A list of assembly candidates.
-    ==Explain==
-    idxfunc(): reduce 1 in the index to get the right atom index
-    ranking point for atom in cluster
-    """
+    """Get assembly candidates for a molecule."""
     
     atoms = list(set(atoms))
     mol = get_clique_mol(mol, atoms)
@@ -149,17 +100,7 @@ def get_assm_cands(mol: Chem.Mol, atoms: List[int], inter_label: List[Tuple[int,
     return cands
 
 def get_inter_label(mol: Chem.Mol, atoms: List[int], inter_atoms: Set[int]) -> Tuple[Chem.Mol, List[Tuple[int, str]]]:
-    """
-    Get intersection labels for a molecule.
-
-    Parameters:
-    - mol (Chem.Mol): The original molecule.
-    - atoms (List[int]): The clique of cluster.
-    - inter_atoms (Set[int]): Intersecting atoms with the parent node.
-
-    Returns:
-    - Tuple[Chem.Mol, List[Tuple[int, str]]]: A tuple containing the new molecule and intersection labels.
-    """
+    """Get intersection labels for a molecule."""
     new_mol = get_clique_mol(mol, atoms)
     if new_mol.GetNumBonds() == 0: 
         inter_atom = list(inter_atoms)[0]
@@ -178,33 +119,14 @@ def get_inter_label(mol: Chem.Mol, atoms: List[int], inter_atoms: Set[int]) -> T
     return new_mol, inter_label
 
 def is_anchor(atom: Chem.Atom, inter_atoms: Set[int]) -> bool:
-    """
-    Check if an atom is an anchor based on its neighbors.
-
-    Parameters:
-    - atom (Chem.Atom): The atom to check.
-    - inter_atoms (Set[int]): Set of intersecting atom indices.
-
-    Returns:
-    - bool: True if the atom is an anchor, False otherwise.
-    """
+    """Check if an atom is an anchor based on its neighbors."""
     for a in atom.GetNeighbors():
         if idxfunc(a) not in inter_atoms:
             return True
     return False
             
 def get_anchor_smiles(mol: Chem.Mol, anchor: int, idxfunc: callable = idxfunc) -> str:
-    """
-    Get the SMILES representation of a molecule with a specified anchor atom.
-
-    Parameters:
-    - mol (Chem.Mol): The molecule.
-    - anchor (int): The index of the anchor atom.
-    - idxfunc (callable): Function to adjust atom indices.
-
-    Returns:
-    - str: The SMILES representation of the molecule with the anchor atom.
-    """
+    """Get the SMILES representation of a molecule with a specified anchor atom."""
     copy_mol = Chem.Mol(mol)
     for a in copy_mol.GetAtoms():
         idx = idxfunc(a)
@@ -214,15 +136,7 @@ def get_anchor_smiles(mol: Chem.Mol, anchor: int, idxfunc: callable = idxfunc) -
     return get_smiles(copy_mol)
 
 def is_aromatic_ring(mol: Chem.Mol) -> bool:
-    """
-    Check if a molecule forms an aromatic ring.
-
-    Parameters:
-    - mol (Chem.Mol): The RDKit molecule object.
-
-    Returns:
-    - bool: True if the molecule forms an aromatic ring, False otherwise.
-    """
+    """Check if a molecule forms an aromatic ring."""
     if mol.GetNumAtoms() == mol.GetNumBonds(): 
         aroma_bonds = [b for b in mol.GetBonds() if b.GetBondType() == Chem.rdchem.BondType.AROMATIC]
         return len(aroma_bonds) == mol.GetNumBonds()

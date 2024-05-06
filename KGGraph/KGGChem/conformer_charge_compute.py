@@ -36,6 +36,7 @@ class ConformerChargeGeneration:
             os.mkdir(self.output_dir)
         if not os.path.isdir(self.charge_dir):
             os.mkdir(charge_dir)
+    
     @staticmethod
     def smiles2file_df(
         data: DataFrame, 
@@ -47,7 +48,7 @@ class ConformerChargeGeneration:
         """
         Converts SMILES strings from a DataFrame to 3D structure files in PDB or SDF format.
 
-        Parameters:
+        Args:
             data (pandas.DataFrame): DataFrame containing SMILES strings and IDs.
             smiles_col (str): Name of the column containing the SMILES strings.
             ID_col (str): Name of the column containing the molecule IDs.
@@ -140,7 +141,7 @@ class ConformerChargeGeneration:
         """
         Optimizes the geometry of a molecule using xtb.
 
-        Parameters:
+        Args:
             input_file (str): Path to the input file containing the molecule to be optimized.
             file_name (str): Name of the output file for the optimized molecule.
             level (str): Optimization level to be used with xtb.
@@ -192,7 +193,7 @@ class ConformerChargeGeneration:
         This method first converts SMILES strings from a DataFrame to 3D structure files and
         then optimizes the geometry of each structure using xtb.
 
-        Parameters:
+        Args:
             data (pandas.DataFrame): DataFrame containing SMILES strings and IDs.
             smiles_col (str): Name of the column containing the SMILES strings.
             ID_col (str): Name of the column containing the molecule IDs.

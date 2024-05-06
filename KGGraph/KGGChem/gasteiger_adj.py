@@ -8,7 +8,7 @@ class GasteigerADJ:
         """
         Add atom mapping numbers to each atom in the molecule based on their index.
 
-        Parameters:
+        Args:
         molecule (Chem.Mol): The molecule to which atom mapping numbers will be added.
 
         Returns:
@@ -24,7 +24,7 @@ class GasteigerADJ:
         Renumber atoms based on their atom map numbers and optionally calculate Gasteiger partial charges.
         Returns a molecule with atom mapping and a dictionary mapping atom indices to their charges.
 
-        Parameters:
+        Args:
         smiles (str): The SMILES string of the molecule.
         calculate_charges (bool, optional): Flag indicating whether to calculate Gasteiger partial charges. Defaults to True.
 
@@ -46,7 +46,7 @@ class GasteigerADJ:
         """
         Calculate a directed adjacency matrix for a molecule based on atomic charges.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): The molecule for which the adjacency matrix is to be calculated.
         charges (dict): A dictionary mapping atom indices to their Gasteiger partial charges.
 
@@ -72,7 +72,7 @@ def add_atom_mapping(molecule):
     """
     Add atom mapping numbers to each atom in the molecule based on their index.
 
-    Parameters:
+    Args:
     molecule (rdkit.Chem.Mol): The molecule to add atom mapping to.
 
     Returns:
@@ -87,7 +87,7 @@ def renumber_and_calculate_charges(smiles, calculate_charges=True):
     Renumber atoms based on their atom map numbers and optionally calculate Gasteiger partial charges.
     Return a molecule with atom mapping and a dictionary mapping atom indices to their charges.
 
-    Parameters:
+    Args:
     smiles (str): The SMILES string of the molecule.
     calculate_charges (bool): Whether to calculate Gasteiger partial charges.
 
@@ -108,7 +108,7 @@ def calculate_directed_adjacency_matrix(mol, charges):
     """
     Calculate a directed adjacency matrix for a molecule based on atomic charges.
 
-    Parameters:
+    Args:
     mol (rdkit.Chem.Mol): The molecule.
     charges (dict): A dictionary of atomic charges.
 

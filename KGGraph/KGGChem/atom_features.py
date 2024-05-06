@@ -7,7 +7,7 @@ import pathlib
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from .atom_utils import get_smiles
-from mendeleev import element
+# from mendeleev import element
 
 with open(root_dir+'/Data/feature/group_block_onehot.json', 'r') as f:
     group_block_onehot = json.load(f)
@@ -26,91 +26,117 @@ ELECTRONEGATIVITY = {
     'Ra': 0.9, 'Ac': 1.1, 'Rf': 0.0, 'Db': 0.0, 'Sg': 0.0, 'Bh': 0.0, 'Hs': 0.0, 'Mt': 0.0,
     'Ds': 0.0, 'Rg': 0.0, 'Cn': 0.0, 'Nh': 0.0, 'Fl': 0.0, 'Mc': 0.0, 'Lv': 0.0, 'Ts': 0.0, 'Og': 0.0,
 } #TODO: add this dictionary to periodic_table.json
-#TODO: install mendeleev (pip install mendeleev) to use function get_period
 
 ### Atom type
 def get_symbol(atom: Chem.Atom) -> str:
     """Get the symbol of the atom."""
     try:
+        # Get the symbol of the atom
         symbol = atom.GetSymbol()
     except:
+        # If the atom is not in the periodic table, None is returned
         symbol = None
+        # Print a message indicating that the atom is not in the periodic table
         print(f"{get_smiles(atom.GetOwningMol())} contains atom which is not in the periodic table.")
     return symbol
     
 def get_atomic_number(atom: Chem.Atom) -> int:
     """Get the atomic number of the atom."""
     try:
+        # Get the atomic number of the atom
         atomic_number = atom.GetAtomicNum()
+        
+        # If the atomic number is None, assign it a default value of 0
         if atomic_number is None:
             atomic_number = 0
     except:
+        # If an error occurs, assign the atomic number a default value of 0
         atomic_number = 0
+        
+        # Print a message indicating that the atom cannot be assigned an atomic number
         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get atomic number.")
+    
+    # Return the atomic number of the atom
     return atomic_number
     
-def get_period(atom: Chem.Atom) -> int:
-    """Get the period of the atom."""
-    try:
-        atom_mendeleev = element(get_symbol(atom))
-        period = atom_mendeleev.period
-        if period is None:
-            period = 0
-    except:
-        period = 0
-        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get period.")
-    return period
+# def get_period(atom: Chem.Atom) -> int:
+#     """Get the period of the atom."""
+#     try:
+#         atom_mendeleev = element(get_symbol(atom))
+#         period = atom_mendeleev.period
+#         if period is None:
+#             period = 0
+#     except:
+#         period = 0
+#         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get period.")
+#     return period
     
-def get_group(atom: Chem.Atom) -> int:
-    """Get the group of the atom."""
-    try:
-        atom_mendeleev = element(atom.GetSymbol())
-        groupid = atom_mendeleev.group_id
-        if groupid is None:
-            groupid = 0
-    except:
-        groupid = 0
-        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get group.")
-    return groupid
+# def get_group(atom: Chem.Atom) -> int:
+#     """Get the group of the atom."""
+#     try:
+#         atom_mendeleev = element(atom.GetSymbol())
+#         groupid = atom_mendeleev.group_id
+#         if groupid is None:
+#             groupid = 0
+#     except:
+#         groupid = 0
+#         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get group.")
+#     return groupid
 
-def get_atomicweight(atom: Chem.Atom) -> float:
-    """Get the atomic weight of the atom."""
-    try:
-        atom_mendeleev = element(atom.GetSymbol())
-        mass = atom_mendeleev.mass
-        if mass is None:
-            mass = 0.0
-    except:
-        mass = 0.0
-        print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get atomic weight.")
-    return mass
+# def get_atomicweight(atom: Chem.Atom) -> float:
+#     """Get the atomic weight of the atom."""
+#     try:
+#         atom_mendeleev = element(atom.GetSymbol())
+#         mass = atom_mendeleev.mass
+#         if mass is None:
+#             mass = 0.0
+#     except:
+#         mass = 0.0
+#         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get atomic weight.")
+#     return mass
 
 def get_num_valence_e(atom: Chem.Atom) -> int:
     """Get the number of valence electrons of the atom."""
     try:
-        pt = Chem.GetPeriodicTable()
-        NumValE = pt.GetNOuterElecs(get_symbol(atom))
+        # Get the number of valence electrons of the atom
+        pt = Chem.GetPeriodicTable()  # Get the periodic table
+        NumValE = pt.GetNOuterElecs(get_symbol(atom))  # Get the number of valence electrons
+
+        # If the number of valence electrons is None, set it to 0
         if NumValE is None:
             NumValE = 0
     except:
+        # If an exception occurred, set the number of valence electrons to 0 and print a warning
         NumValE = 0
         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get number of valence electrons.")
+
     return NumValE
 
-def get_chemical_group_block(atom: Chem.Atom) -> List:
+def get_chemical_group_block(atom: Chem.Atom) -> List[float]:
     """Retrieve the chemical group block of the atom, excluding the first value."""
     try:
+        # Get the atomic number of the atom and subtract 1 to get the index
         atomic_index = get_atomic_number(atom) - 1
+
+        # Get the chemical group block values using the atomic index
         group_block_values = list(group_block_onehot[atomic_index].values())[1:]
+
+        # If the group block values is None, set it to a default list
         if group_block_values is None:
-            group_block_values = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+            group_block_values = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     except:
-        group_block_values = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+        # If an exception occurred, set the group block values to a default list and print a warning
+        group_block_values = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         print(f"{get_smiles(atom.GetOwningMol())} contains {get_symbol(atom)} which can not get chemical group block.")
+
+    # Return the group block values
     return group_block_values
 
 def get_hybridization(atom: Chem.Atom) -> str:
-    """Get the hybridization type of the atom."""
+    """Get the hybridization type of the atom. """
+    # Get the hybridization type of the atom
+    # By using the `name` attribute of the hybridization enum,
+    # we return a string representing the hybridization type.
     return atom.GetHybridization().name
 
 def get_cip_code(atom: Chem.Atom) -> Union[None, str]:

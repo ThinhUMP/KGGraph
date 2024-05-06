@@ -32,7 +32,7 @@ allowable_features = {
 }
 
 class EdgeFeature:
-    def __init__(self, mol: Chem.Mol, decompose_type, mask_node_edge, fix_ratio):
+    def __init__(self, mol: Chem.Mol, decompose_type, mask_edge, fix_ratio):
         """
         Initializes the class with the given molecule.
         
@@ -212,10 +212,10 @@ class EdgeFeature:
         return edge_attr_masked, edge_index_masked
 
 
-def edge_feature(mol, decompose_type, mask_node_edge, fix_ratio):
-    obj = EdgeFeature(mol, decompose_type=decompose_type, mask_node_edge=mask_node_edge, fix_ratio=fix_ratio)
+def edge_feature(mol, decompose_type, mask_edge, fix_ratio):
+    obj = EdgeFeature(mol, decompose_type=decompose_type, mask_edge=mask_edge, fix_ratio=fix_ratio)
     edge_attr_node, edge_index_node = obj.get_edge_node_feature(mol)
-    if not mask_node_edge:
+    if not mask_edge:
         _, edge_index = obj.get_edge_index(edge_index_node)
         edge_attr = obj.get_edge_attr(edge_attr_node, edge_index_node)
     else:
@@ -242,7 +242,7 @@ def main():
     # mols_list = [Chem.MolFromSmiles(smile) for smile in smiles]
     for mol in mols_list:
         # try:
-        edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif', mask_node_edge=True, fix_ratio=False)
+        edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif', mask_edge=True, fix_ratio=False)
         print(edge_attr.size())
         print(edge_index.size())
     t2 = time.time()

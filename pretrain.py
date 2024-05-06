@@ -60,7 +60,7 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
 
     model.train()
     model_decoder.train()
-    if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0
+    # if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0
     
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch_size = len(batch)
@@ -71,7 +71,7 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
         num_part = graph_batch.num_part
         node_rep, super_node_rep = group_node_rep(node_rep, batch_size, num_part)
 
-        loss, bond_if_auc, bond_if_ap, atom_type_acc, atom_num_rmse, bond_num_rmse = model_decoder(batch, node_rep, super_node_rep)
+        loss = model_decoder(batch, node_rep, super_node_rep)
 
         optimizer_list.zero_grad()
 
@@ -79,19 +79,19 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
 
         optimizer_list.step()
 
-        if_auc += bond_if_auc
-        if_ap += bond_if_ap
-        a_type_acc += atom_type_acc
-        a_num_rmse += atom_num_rmse
-        b_num_rmse += bond_num_rmse
+        # if_auc += bond_if_auc
+        # if_ap += bond_if_ap
+        # a_type_acc += atom_type_acc
+        # a_num_rmse += atom_num_rmse
+        # b_num_rmse += bond_num_rmse
 
         if (step+1) % 20 == 0:
-            if_auc = if_auc / 20 
-            if_ap = if_ap / 20 
-            type_acc = type_acc / 20 
-            a_type_acc = a_type_acc / 20
-            a_num_rmse = a_num_rmse / 20
-            b_num_rmse = b_num_rmse / 20
+            # if_auc = if_auc / 20 
+            # if_ap = if_ap / 20 
+            # type_acc = type_acc / 20 
+            # a_type_acc = a_type_acc / 20
+            # a_num_rmse = a_num_rmse / 20
+            # b_num_rmse = b_num_rmse / 20
 
             print('Batch:',step,'loss:',loss.item())
             if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0

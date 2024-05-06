@@ -1,11 +1,6 @@
-{"SINGLE": [1,0,0,0,0], 
-"DOUBLE": [1,1,0,0,0], 
-"TRIPLE": [1,2,0,0,0], 
-"AROMATIC": [1,0.5,1,1,0],
-"OTHER": [0,0,0,0,1],
-"SELF-LOOP": [0,0,0,0,2],
-"NODEMOTIF": [0,0,0,0,3],
-"MOTIFMOTIF": [0,0,0,0,4],
-"MOTIFSUPER": [0,0,0,0,5],
-"_comment": "[sigma, pi, conjugate, aromatic, other]"
+{"SINGLE": [1,0,0,0], 
+"DOUBLE": [1,1,0,0], 
+"TRIPLE": [1,2,0,0], 
+"AROMATIC": [1,0.5,1,1],
+"_comment": "[sigma, pi, conjugate, aromatic]"
 }

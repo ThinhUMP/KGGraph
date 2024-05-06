@@ -21,6 +21,13 @@ from KGGraph.KGGChem.bond_type import bond_type_feature
 
 # allowable edge features
 allowable_features = {
+    'possible_bonds' : [
+        Chem.rdchem.BondType.SINGLE,
+        Chem.rdchem.BondType.DOUBLE,
+        Chem.rdchem.BondType.TRIPLE,
+        Chem.rdchem.BondType.AROMATIC,
+        Chem.rdchem.BondType.DATIVE,
+    ],
     'possible_bond_inring': [None, False, True]
 }
 
@@ -66,9 +73,15 @@ class EdgeFeature:
             
             # Iterate over all bonds in the molecule
             for bond in mol.GetBonds():                             
+                
                 # Combine all features into a single list
-                combined_features = [allowable_features['possible_bond_inring'].index(
-                bond.IsInRing())] + bond_type_feature(bond)
+                bond_type = bond.GetBondType()
+                if bond_type in allowable_features['possible_bonds']:
+                    bond_type_int = [allowable_features['possible_bonds'].index(bond.GetBondType())]
+                else:
+                    bond_type_int = [4] # 4 is the index for OTHER bond type
+                    
+                combined_features = bond_type_int + [allowable_features['possible_bond_inring'].index(bond.IsInRing())] + bond_type_feature(bond)
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
@@ -147,19 +160,19 @@ class EdgeFeature:
             
             # Initialize motif edge attributes
             motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(self.clique_edges)*2, self.num_bond_features))
-            motif_node_edge_attr[:, -1] = 3  # Set bond type for the edge between atoms and motif, 
+            motif_node_edge_attr[:, 0] = 7 # Set bond type for the edge between atoms and motif, 
             # we can access this feature via bond_dict json with key value 'NODEMOTIF'
             
             # Initialize motif-motif edge attributes
             motif_motif_edge_attr = torch.zeros((len(self.clique_edges)*2, self.num_bond_features))
-            motif_motif_edge_attr[:, -1] = 4  # Set bond type for the edge between motif and motif
+            motif_motif_edge_attr[:, 0] = 6 # Set bond type for the edge between motif and motif
             
             # Motif edge attributes
             motif_edge_attr = torch.cat((motif_node_edge_attr, motif_motif_edge_attr), dim=0)
 
             # Initialize super edge attributes
             super_edge_attr = torch.zeros((self.num_motif, self.num_bond_features))
-            super_edge_attr[:, -1] = 5
+            super_edge_attr[:, 0] = 5
             motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             # Concatenate edge attributes for the entire graph
@@ -169,7 +182,7 @@ class EdgeFeature:
             motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((self.num_atoms, self.num_bond_features))
-            super_edge_attr[:, -1] = 5  # Set bond type for the edge between nodes and supernode, 
+            super_edge_attr[:, 0] = 5  # Set bond type for the edge between nodes and supernode, 
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
             # Concatenate edge attributes for the entire graph

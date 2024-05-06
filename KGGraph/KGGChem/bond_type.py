@@ -28,12 +28,12 @@ def bond_type_feature(bond):
     
     # Check for conjugated bond type
     if is_conjugated(bond):
-        bond_type_feature = bond_dict.get(bond_type, [0,0,0,0,1])
+        bond_type_feature = bond_dict.get(bond_type, [0,0,0,0])
         bond_type_feature[2] = 1
         return bond_type_feature
     
     # Return the bond type feature or a default 'other' type feature vector
-    return bond_dict.get(bond_type, [0,0,0,0,1])
+    return bond_dict.get(bond_type, [0,0,0,0])
 
 # Auxiliary functions and dictionary must be defined:
 # get_bond_type(bond): Should return a string representation of the bond type.

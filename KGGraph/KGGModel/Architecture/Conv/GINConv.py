@@ -5,7 +5,7 @@ from torch_geometric.utils import add_self_loops, degree
 from torch_scatter import scatter_add
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 
-# num_bond_type = 8
+num_bond_type = 9
 num_bond_in_ring = 3
 bond_type_1 = 2
 bond_type_2 = 3
@@ -45,21 +45,20 @@ class GINConv(MessagePassing):
             torch.nn.ReLU(),
             torch.nn.Linear(2*emb_dim, emb_dim),
             )
-
+        
+        self.edge_embedding0 = torch.nn.Embedding(num_bond_type, emb_dim)
         self.edge_embedding1 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
         self.edge_embedding2 = torch.nn.Embedding(bond_type_1, emb_dim)
         self.edge_embedding3 = torch.nn.Embedding(bond_type_2, emb_dim)
         self.edge_embedding4 = torch.nn.Embedding(bond_type_3, emb_dim)
         self.edge_embedding5 = torch.nn.Embedding(bond_type_4, emb_dim)
-        self.edge_embedding6 = torch.nn.Embedding(bond_type_5, emb_dim)
 
+        torch.nn.init.xavier_uniform_(self.edge_embedding0.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding1.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding5.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding6.weight.data)
-
         self.aggr = aggr
 
     def forward(self, x, edge_index, edge_attr):
@@ -79,11 +78,11 @@ class GINConv(MessagePassing):
 
         #add features corresponding to self-loop edges.
         self_loop_attr = torch.zeros(x.size(0), edge_attr.size(1))
-        self_loop_attr[:,-1] = 2 #bond type for self-loop edge
+        self_loop_attr[:,0] = 8 #bond type for self-loop edge
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
 
-        edge_embeddings = self.edge_embedding1(edge_attr[:,0]) + self.edge_embedding2(edge_attr[:,1]) + self.edge_embedding3(edge_attr[:,2]) + self.edge_embedding4(edge_attr[:,3]) + self.edge_embedding5(edge_attr[:,4]) + self.edge_embedding6(edge_attr[:,5])
+        edge_embeddings = self.edge_embedding0(edge_attr[:,0]) + self.edge_embedding1(edge_attr[:,1]) + self.edge_embedding2(edge_attr[:,2]) + self.edge_embedding3(edge_attr[:,3]) + self.edge_embedding4(edge_attr[:,4]) + self.edge_embedding5(edge_attr[:,5])
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 

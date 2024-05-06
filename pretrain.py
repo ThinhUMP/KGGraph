@@ -111,7 +111,7 @@ def main():
                         help='number of epochs to train (default: 100)')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--decay', type=float, default=5e-5,
+    parser.add_argument('--decay', type=float, default=0,
                         help='weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=5,
                         help='number of GNN message passing layers (default: 5)')
@@ -126,7 +126,7 @@ def main():
     parser.add_argument('--gnn_type', type=str, default="gin")
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--output_model_file', type=str, default='./saved_model_kgg/pretrain.pth',
+    parser.add_argument('--output_model_file', type=str, default='./saved_model_kgg_nodecay/pretrain.pth',
                         help='filename to output the pre-trained model')
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers for dataset loading')
     parser.add_argument("--hidden_size", type=int, default=512, help='hidden size')
@@ -148,9 +148,9 @@ def main():
 
     model = GNN(args.num_layer, args.emb_dim, JK=args.JK, drop_ratio=args.dropout_ratio, gnn_type=args.gnn_type).to(device)
     
-    if not os.path.isdir('./saved_model_kgg'):
-        os.mkdir('./saved_model_kgg')
-    if 'pretrain.pth' in os.listdir('saved_model_kgg'):
+    if not os.path.isdir('./saved_model_kgg_nodecay'):
+        os.mkdir('./saved_model_kgg_nodecay')
+    if 'pretrain.pth' in os.listdir('saved_model_kgg_nodecay'):
         print('Continue pretraining')
         model.load_state_dict(torch.load(args.output_model_file))
     

@@ -8,8 +8,8 @@ from tqdm import tqdm
 import numpy as np
 from KGGraph.KGGModel.Architecture.GNN import GNN
 from KGGraph.KGGDecode.decoder import Model_decoder
-from KGGraph.KGGDecode.data_utils import MoleculeDataset, molgraph_to_graph_data
-from KGGraph.KGGModel.Train.visualize import plot_pretrain_loss
+from KGGraph.KGGProcessor.pretrain_dataset import MoleculeDataset, molgraph_to_graph_data
+from KGGraph.KGGModel.TrainUtils.visualize import plot_pretrain_loss
 import os
 import pandas as pd
 

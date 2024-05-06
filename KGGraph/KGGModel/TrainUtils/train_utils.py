@@ -11,7 +11,7 @@ import sys
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.KGGModel.Train.crawl_metrics import create_test_round_df, create_train_round_df
+from KGGraph.KGGModel.TrainUtils.crawl_metrics import create_test_round_df, create_train_round_df
 
 def train(model, device, loader, optimizer, criterion):
     """

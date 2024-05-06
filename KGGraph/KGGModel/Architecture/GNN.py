@@ -4,8 +4,7 @@ from torch_geometric.nn import global_add_pool
 import torch
 import torch.nn.functional as F
 from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
-from .Conv.GINConv import GINConv
-from .Conv.GCNConv import GCNConv
+from .GINConv import GINConv
 
 num_atom_type = 122 #including the extra motif tokens and graph token and masked atom
 num_chirality_tag = 11  #degree

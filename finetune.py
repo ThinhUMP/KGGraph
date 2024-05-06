@@ -1,12 +1,12 @@
-from KGGraph.KGGProcessor.molecule_dataset import MoleculeDataset
+from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
 from KGGraph.KGGModel.Architecture.GIN_train import GINTrain
-from KGGraph.KGGModel.Train.train_utils import train_epoch_cls, train_epoch_reg
-from KGGraph.KGGModel.Train.visualize import plot_metrics
-from KGGraph.KGGModel.Train.get_task_type_num_tasks import get_num_task, get_task_type
-from KGGraph.KGGModel.Train.crawl_metrics import average_test_metrics, average_train_metrics
+from KGGraph.KGGModel.TrainUtils.train_utils import train_epoch_cls, train_epoch_reg
+from KGGraph.KGGModel.TrainUtils.visualize import plot_metrics
+from KGGraph.KGGModel.TrainUtils.get_task_type_num_tasks import get_num_task, get_task_type
+from KGGraph.KGGModel.TrainUtils.crawl_metrics import average_test_metrics, average_train_metrics
 import torch
 import torch.nn as nn
 import argparse
@@ -44,7 +44,7 @@ def main():
                         help='gnn_type (gin, gcn)')
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default='toxcast',
+    parser.add_argument('--dataset', type=str, default='bace',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--input_model_file', type=str, default = '', help='filename to read the model (if there is any)')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")

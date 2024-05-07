@@ -23,7 +23,7 @@ class Model_decoder(nn.Module):
         super(Model_decoder, self).__init__()
         self.hidden_size = hidden_size
         self.device = device
-  
+
         self.loss_linear = nn.Linear(5, 1)
 
         self.bond_if_proj = nn.Sequential(

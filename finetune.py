@@ -3,7 +3,7 @@ import pandas as pd
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
 from KGGraph.KGGModel.Architecture.GIN_train import GINTrain
-from KGGraph.KGGModel.TrainUtils.train_utils import train_epoch_cls, train_epoch_reg
+from KGGraph.KGGModel.TrainUtils.finetune_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.KGGModel.TrainUtils.visualize import plot_metrics
 from KGGraph.KGGModel.TrainUtils.get_task_type_num_tasks import get_num_task, get_task_type
 from KGGraph.KGGModel.TrainUtils.crawl_metrics import average_test_metrics, average_train_metrics

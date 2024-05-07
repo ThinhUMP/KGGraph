@@ -22,7 +22,7 @@ class TestHybridizationFeaturize(unittest.TestCase):
 
     def test_total_sigma_bond(self):
         self.assertEqual(HybridizationFeaturize.total_sigma_bond(self.atom_ethane), 4)  # 3 single bonds in ethane
-        self.assertEqual(HybridizationFeaturize.total_sigma_bond(self.atom_ethene), 2)  # 2 single bonds in ethene
+        self.assertEqual(HybridizationFeaturize.total_sigma_bond(self.atom_ethene), 3)  # 2 single bonds in ethene
         self.assertEqual(HybridizationFeaturize.total_sigma_bond(self.atom_ethyne), 2)  # 1 single bond in ethyne
 
     def test_num_bond_hybridization(self):

@@ -50,3 +50,4 @@ saved_model_randweights/
 unittest/
 .coverage
 htmlcov/
+flake8_report/

@@ -53,22 +53,7 @@ def get_atom_types(smiles: List[str]) -> List[int]:
     atom_types.sort()
     return atom_types
 
-def atomic_num_features_feature(mol, atom_types) -> List[int]:
-    """Transform a molecule into a feature vector representing the
-    atomic number of each atom in the molecule."""
-    # Create a feature vector with shape (num_atoms, num_atom_types)
-    atomic_features = np.zeros((mol.GetNumAtoms(), len(atom_types)))
-
-    # Populate the feature vector with the atomic number of each atom
-    for idx, atom in enumerate(mol.GetAtoms()):
-        atomic_features[idx] = get_atomic_number(atom)
-
-    # Convert the feature vector to binary (1 if atom has the corresponding type, 0 otherwise)
-    atomic_features = np.where(atomic_features == np.tile(atom_types, (mol.GetNumAtoms(), 1)), 1, 0)
-
-    return atomic_features
-
-def atomic_num_features(mol, atom_types=list(range(1, 118))) -> List[int]:
+def atomic_num_features(mol, atom_types) -> List[int]:
     """Transform a molecule into a feature vector representing the
     atomic number of each atom in the molecule."""
     # Create a feature vector with shape (num_atoms, num_atom_types)

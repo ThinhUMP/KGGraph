@@ -48,3 +48,5 @@ Data/*.csv
 Data/*.png
 saved_model_randweights/
 unittest/
+.coverage
+htmlcov/

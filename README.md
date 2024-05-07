@@ -50,4 +50,4 @@ Contributions to MotifGraph are welcome! Please refer to the contribution guidel
 MotifGraph is released under the MIT License.
 
 ## Contact
-For questions or support, contact us at tvthinh.d19@ump.edu.vn.
+For questions or support, contact us at tvemp_1.d19@ump.edu.vn.

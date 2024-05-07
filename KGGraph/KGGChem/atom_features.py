@@ -230,7 +230,7 @@ def is_hetero(atom: Chem.Atom) -> bool:
     return is_hetero
 
 def is_hydrogen_donor(atom: Chem.Atom) -> bool:
-    """Check if the atom is a hydrogen bond donor."""
+    """Check if the atom is a hydrogen atom donor."""
     try:
         mol = atom.GetOwningMol()
         return atom.GetIdx() in [i[0] for i in Lipinski._HDonors(mol)]
@@ -239,7 +239,7 @@ def is_hydrogen_donor(atom: Chem.Atom) -> bool:
         return False
 
 def is_hydrogen_acceptor(atom: Chem.Atom) -> bool:
-    """Check if the atom is a hydrogen bond acceptor."""
+    """Check if the atom is a hydrogen atom acceptor."""
     try:
         mol = atom.GetOwningMol()
         return atom.GetIdx() in [i[0] for i in Lipinski._HAcceptors(mol)]

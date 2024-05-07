@@ -40,21 +40,52 @@ class MolGraph(object):
     def __init__(self, smiles, decompose_type, mask_node, mask_edge, fix_ratio):
         self.smiles = smiles
         self.mol = get_mol(smiles)
-        self.x_nosuper, self.x, self.num_part = x_feature(self.mol, decompose_type, mask_node, fix_ratio)
-        self.edge_attr_nosuper, self.edge_index_nosuper, self.edge_index, self.edge_attr = edge_feature(self.mol, decompose_type, mask_edge, fix_ratio)
+        self._x_nosuper, self._x, self._num_part = x_feature(self.mol, decompose_type, mask_node, fix_ratio)
+        self._edge_attr_nosuper, self._edge_index_nosuper, self._edge_index, self._edge_attr = edge_feature(self.mol, decompose_type, mask_edge, fix_ratio)
 
-
+    @property
+    def x(self):
+        return self._x
+    
+    @property
+    def x_nosuper(self):
+        return self._x_nosuper
+    
+    @property
+    def num_part(self):
+        return self._num_part
+    
+    @property
+    def edge_index(self):
+        return self._edge_index
+    
+    @property
+    def edge_attr(self):
+        return self._edge_attr
+    
+    @property
+    def edge_index_nosuper(self):
+        return self._edge_index_nosuper
+    
+    @property
+    def edge_attr_nosuper(self):
+        return self._edge_attr_nosuper
+    
+    @property
     def size_node(self):
-        return self.x.size()[0]
+        return self._x.size()[0]
 
+    @property
     def size_edge(self):
-        return self.edge_attr.size()[0]
+        return self._edge_attr.size()[0]
 
+    @property
     def size_atom(self):
-        return self.x_nosuper.size()[0]
+        return self._x_nosuper.size()[0]
 
+    @property
     def size_bond(self):
-        return self.edge_attr_nosuper.size()[0]
+        return self._edge_attr_nosuper.size()[0]
 
 def molgraph_to_graph_data(batch):
     graph_data_batch = []

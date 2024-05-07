@@ -123,9 +123,9 @@ class Model_decoder(nn.Module):
         
         atom_num_target, bond_num_target = [], []
         for mol in mol_batch:     
-            num_atoms = mol.size_atom() 
+            num_atoms = mol.size_atom
             atom_num_target.append(num_atoms) 
-            num_bonds = mol.size_bond() 
+            num_bonds = mol.size_bond
             bond_num_target.append(num_bonds)
 
         ###predict atom number, bond number
@@ -144,8 +144,8 @@ class Model_decoder(nn.Module):
         ###predict atom type, bond type
         mol_num = len(mol_batch)
         for mol_index, mol in enumerate(mol_batch):     
-            num_atoms = mol.size_atom()
-            num_bonds = mol.size_bond()
+            num_atoms = mol.size_atom
+            num_bonds = mol.size_bond
             if num_bonds<1:
                 mol_num -= 1
             else:   

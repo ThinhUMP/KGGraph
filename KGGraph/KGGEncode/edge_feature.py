@@ -30,35 +30,63 @@ allowable_features = {
 }
 
 class EdgeFeature:
-    def __init__(self, mol: Chem.Mol, decompose_type, mask_edge, fix_ratio):
+    def __init__(self, mol: Chem.Mol, decompose_type: str):
         """
-        Initializes the class with the given molecule.
-        
+        Initializes the class with the given molecule and sets up the decompose type for further processing.
+
         Args:
-            mol: The input molecule for the class.
+            mol (Chem.Mol): The input molecule for the class.
+            decompose_type (str): The type of decomposition to use, e.g., 'motif', 'brics', 'jin', 'smotif'.
         """
         self.mol = mol
-        self.num_bond_features = 2
+        self.decompose_type = decompose_type
+        self._cliques, self._clique_edges = None, None
+        self._num_edge_features = 6
         
-        if decompose_type == 'motif':
-            self.cliques, self.clique_edges = MotifDecomposition.defragment(mol)
-        elif decompose_type == 'brics':
-            self.cliques, self.clique_edges = BRCISDecomposition.defragment(mol)
-        elif decompose_type == 'jin':
-            self.cliques, self.clique_edges = TreeDecomposition.defragment(mol)
-        elif decompose_type == 'smotif':
-            self.cliques, self.clique_edges = SMotifDecomposition.defragment(mol)
+    def decompose(self) -> Tuple[List[List[int]], List[Tuple[int, int]]]:       
+        if self.decompose_type == 'motif':
+            return MotifDecomposition.defragment(self.mol)
+        elif self.decompose_type == 'brics':
+            return BRCISDecomposition.defragment(self.mol)
+        elif self.decompose_type == 'jin':
+            return TreeDecomposition.defragment(self.mol)
+        elif self.decompose_type == 'smotif':
+            return SMotifDecomposition.defragment(self.mol)
         else:
-            raise ValueError(f"Unknown decomposition type: {decompose_type}. It should be motif, brics, jin or smotif.")
-
-        self.num_motif = len(self.cliques)
-        self.num_atoms = mol.GetNumAtoms()
-        self.num_bonds = mol.GetNumBonds()
+            raise ValueError(f"Unknown decomposition type: {self.decompose_type}. It should be motif, brics, jin or smotif.")
+    
+    @property
+    def cliques(self) -> List[List[int]]:
+        if self._cliques is None:
+            self._cliques, self._clique_edges = self.decompose()
+        return self._cliques
+    
+    @property
+    def clique_edges(self) -> List[Tuple[int, int]]:
+        if self._clique_edges is None:
+            self._cliques, self._clique_edges = self.decompose()
+        return self._clique_edges
+    
+    @property
+    def num_edge_features(self) -> int:
+        return self._num_edge_features
+    
+    @property
+    def num_motif(self) -> int:
+        return len(self.cliques)
+    
+    @property
+    def num_atoms(self) -> int:
+        return self.mol.GetNumAtoms()
+    
+    @property
+    def num_bonds(self) -> int:
+        return self.mol.GetNumBonds()
         
     @staticmethod
     def get_edge_node_feature(
         mol: Chem.Mol, 
-        num_bond_features: int
+        num_edge_features: int
         ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Compute the edge features for the molecule.
@@ -82,8 +110,7 @@ class EdgeFeature:
                 else:
                     bond_type_int = [4] # 4 is the index for OTHER bond type
                     
-                combined_features = bond_type_int + [allowable_features['possible_bond_inring'].index(bond.IsInRing())] 
-                # + bond_type_feature(bond)
+                combined_features = bond_type_int + [allowable_features['possible_bond_inring'].index(bond.IsInRing())] + bond_type_feature(bond)
                 
                 # Get the indices of the atoms involved in the bond
                 i, j = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
@@ -96,7 +123,7 @@ class EdgeFeature:
             edges_index_node = torch.tensor(np.array(edges_index_list).T, dtype=torch.long)
         else:  
             edges_index_node = torch.empty((2, 0), dtype=torch.long)
-            edge_attr_node = torch.empty((0, num_bond_features), dtype=torch.long)
+            edge_attr_node = torch.empty((0, num_edge_features), dtype=torch.long)
         return edge_attr_node, edges_index_node
 
     @staticmethod
@@ -152,7 +179,7 @@ class EdgeFeature:
         motif_edge_index: torch.Tensor, 
         num_motif: int,
         clique_edges: List[Tuple[int, int]],
-        num_bond_features: int,
+        num_edge_features: int,
         num_atoms: int,
         ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -168,19 +195,19 @@ class EdgeFeature:
         """
         if num_motif > 0:
             # Initialize motif edge attributes
-            motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(clique_edges)*2, num_bond_features))
+            motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(clique_edges)*2, num_edge_features))
             motif_node_edge_attr[:, 0] = 7 # Set bond type for the edge between atoms and motif, 
             # we can access this feature via bond_dict json with key value 'NODEMOTIF'
             
             # Initialize motif-motif edge attributes
-            motif_motif_edge_attr = torch.zeros((len(clique_edges)*2, num_bond_features))
+            motif_motif_edge_attr = torch.zeros((len(clique_edges)*2, num_edge_features))
             motif_motif_edge_attr[:, 0] = 6 # Set bond type for the edge between motif and motif
             
             # Motif edge attributes
             motif_edge_attr = torch.cat((motif_node_edge_attr, motif_motif_edge_attr), dim=0)
 
             # Initialize super edge attributes
-            super_edge_attr = torch.zeros((num_motif, num_bond_features))
+            super_edge_attr = torch.zeros((num_motif, num_edge_features))
             super_edge_attr[:, 0] = 5
             motif_edge_attr = motif_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
@@ -190,7 +217,7 @@ class EdgeFeature:
         else:
             motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
-            super_edge_attr = torch.zeros((num_atoms, num_bond_features))
+            super_edge_attr = torch.zeros((num_atoms, num_edge_features))
             super_edge_attr[:, 0] = 5  # Set bond type for the edge between nodes and supernode, 
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(edge_attr_node.device)
 
@@ -204,6 +231,7 @@ class EdgeFeature:
         edge_index_node: torch.Tensor, 
         edge_attr_node: torch.Tensor, 
         num_bonds: int,
+        num_edge_features: int,
         fix_ratio) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Mask a portion of the edges in the graph by setting their attributes to zero.
@@ -229,7 +257,7 @@ class EdgeFeature:
         
         # Initialize the masked edge index and attribute tensors
         edge_index_masked = torch.zeros((2, 2*(num_bonds-num_masked_edges)), dtype=torch.long)
-        edge_attr_masked = torch.zeros((2*(num_bonds-num_masked_edges), 6), dtype=torch.long)
+        edge_attr_masked = torch.zeros((2*(num_bonds-num_masked_edges), num_edge_features), dtype=torch.long)
         count = 0
 
         # Iterate over all edges and copy those not to be masked to the masked tensors
@@ -259,10 +287,10 @@ def edge_feature(mol, decompose_type, mask_edge, fix_ratio):
             the edge attribute tensor for the graph.
     """
     # Create an instance of the EdgeFeature class
-    obj = EdgeFeature(mol, decompose_type=decompose_type, mask_edge=mask_edge, fix_ratio=fix_ratio)
+    obj = EdgeFeature(mol, decompose_type=decompose_type)
     
     # Get the edge attribute tensor and edge index tensor for the node graph
-    edge_attr_node, edge_index_node = obj.get_edge_node_feature(mol, obj.num_bond_features)
+    edge_attr_node, edge_index_node = obj.get_edge_node_feature(mol, obj.num_edge_features)
     
     # If masking is not enabled
     if not mask_edge:
@@ -273,13 +301,13 @@ def edge_feature(mol, decompose_type, mask_edge, fix_ratio):
         )
         edge_attr = obj.get_edge_attr(
             edge_attr_node,  motif_edge_index, obj. num_motif, 
-            obj.clique_edges, obj.num_bond_features, obj.num_atoms
+            obj.clique_edges, obj.num_edge_features, obj.num_atoms
         )
     # If masking is enabled
     else:
         # Get the masked edge attribute tensor and masked edge index tensor
         edge_attr_masked, edge_index_masked = obj.masked_edge_feature(
-            edge_index_node, edge_attr_node, obj.num_bonds, fix_ratio=fix_ratio
+            edge_index_node, edge_attr_node, obj.num_bonds, obj.num_edge_features, fix_ratio=fix_ratio
         )
         # Get the edge index tensor for the graph and the edge attribute tensor for the graph
         motif_edge_index, edge_index = obj.get_edge_index(
@@ -289,7 +317,7 @@ def edge_feature(mol, decompose_type, mask_edge, fix_ratio):
         # Get the edge attribute tensor for the graph
         edge_attr = obj.get_edge_attr(
             edge_attr_masked, motif_edge_index, obj.num_motif, 
-            obj.clique_edges, obj.num_bond_features, obj.num_atoms
+            obj.clique_edges, obj.num_edge_features, obj.num_atoms
         )
     
     return edge_attr_node, edge_index_node, edge_index, edge_attr
@@ -306,7 +334,7 @@ def main():
     smiles_list, mols_list, folds, abels = load_bace_dataset('./Data/classification/bace/raw/bace.csv')
     t1 = time.time()
     for mol in mols_list:
-        edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif', mask_edge=True, fix_ratio=True)
+        edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(mol, decompose_type='motif', mask_edge=False, fix_ratio=False)
         print(edge_attr.size())
         print(edge_index.size())
         break

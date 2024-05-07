@@ -46,8 +46,7 @@ class AtomFeature:
                 print(f'Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(mol)}')
             
             atom_feature = [allowable_features['possible_atomic_num_list'].index(
-                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))]
-            # + hybri_feat
+                get_atomic_number(atom))] + [allowable_features['possible_degree_list'].index(get_degree(atom))] + hybri_feat
             
             x_node_list.append(atom_feature)
         
@@ -69,8 +68,7 @@ class AtomFeature:
 
         x_node_masked = deepcopy(x_node)
         for atom_idx in masked_node:
-            x_node_masked[atom_idx, :] = torch.tensor([121,0,])
-                                                    #    0,0,0,0,0]) #121 implies masked atom
+            x_node_masked[atom_idx, :] = torch.tensor([121,0,0,0,0,0,0]) #121 implies masked atom
 
         return x_node_masked
 

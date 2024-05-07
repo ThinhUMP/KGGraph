@@ -34,9 +34,10 @@ class TestHybridizationFeaturize(unittest.TestCase):
     def test_feature(self):
         # Example test for the 'feature' method
         ethane_features = HybridizationFeaturize.feature(self.atom_ethane)
+
         self.assertEqual(ethane_features[0], 4)  # Total single bonds
         self.assertEqual(ethane_features[1], 0)  # Number of lone pairs, assuming 0 for simplicity
-        self.assertIn(ethane_features[2][0], [0, 1])  # Check if the first element of the hybridization feature vector is 0 or 1
+        self.assertEqual(ethane_features[2], [1, 3, 0, 4, 0])  # Feature vector for ethane
 
         # Add more tests for different atoms to thoroughly test the 'feature' method
 

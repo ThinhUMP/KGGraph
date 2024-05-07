@@ -9,10 +9,7 @@ idxfunc = lambda a: a.GetAtomMapNum() - 1
 
 def get_mol(smiles: str) -> Optional[Chem.Mol]:
     """Generate a molecule object from a SMILES string."""
-    try:
-        mol = Chem.MolFromSmiles(smiles)
-    except:
-        mol = None
+    mol = Chem.MolFromSmiles(smiles)
     # if mol is not None: 
     #     Chem.Kekulize(mol, clearAromaticFlags=False)
     return mol
@@ -32,14 +29,7 @@ def sanitize(mol: Chem.Mol, kekulize: bool = False) -> Optional[Chem.Mol]:
 
 def get_atomic_number(atom: Chem.Atom) -> int:
     """Get the atomic number of the atom."""
-    try:
-        atomic_number = atom.GetAtomicNum()
-        if atomic_number is None:
-            atomic_number = 0
-    except:
-        atomic_number = 0
-        print(f"{get_smiles(atom.GetOwningMol())} contains atom which can not get atomic number.")
-    return atomic_number
+    return atom.GetAtomicNum()
 
 def get_atom_types(smiles: List[str]) -> List[int]:
     """Returns a list of unique atomic numbers present in 

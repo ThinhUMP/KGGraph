@@ -14,18 +14,20 @@ from KGGraph.KGGChem.atom_features import (
 )
 class TestChemicalProperties(unittest.TestCase):
     def setUp(self):
-        self.mol = Chem.MolFromSmiles('c1ccccc1O')
+        self.mol = Chem.MolFromSmiles('CC(CC)OC1=CC=CC=C1')
         self.atoms = self.mol.GetAtoms()
-        self.carbon = self.atoms[0]
-        self.oxygen = self.atoms[6]
+        self.carbon = self.atoms[5]
+        self.oxygen = self.atoms[4]
 
     def test_get_symbol(self):
         self.assertEqual(get_symbol(self.carbon), 'C')
         self.assertEqual(get_symbol(self.oxygen), 'O')
 
     def test_get_atomic_number(self):
+        mol = Chem.MolFromSmiles('*CC')
+        
         self.assertEqual(get_atomic_number(self.carbon), 6)
-        self.assertEqual(get_atomic_number(self.oxygen), 8)
+        self.assertEqual(get_atomic_number(mol.GetAtomWithIdx(0)), 0)
 
     def test_get_num_valence_e(self):
         self.assertEqual(get_num_valence_e(self.carbon), 4)
@@ -40,17 +42,21 @@ class TestChemicalProperties(unittest.TestCase):
 
     def test_get_cip_code(self):
         self.assertIsNone(get_cip_code(self.carbon))
+        
+        self.carbon.SetProp("_CIPCode", "Carbon")
+        self.assertEqual(get_cip_code(self.carbon), "Carbon")
 
     def test_is_chiral_center(self):
         self.assertFalse(is_chiral_center(self.carbon))
-        self.assertFalse(is_chiral_center(self.oxygen))
+        self.assertTrue(is_chiral_center(self.atoms[1]))
 
     def test_get_formal_charge(self):
         self.assertEqual(get_formal_charge(self.carbon), 0)
         self.assertEqual(get_formal_charge(self.oxygen), 0)
 
     def test_get_total_num_hs(self):
-        self.assertEqual(get_total_num_hs(self.oxygen), 1)
+        self.assertEqual(get_total_num_hs(self.oxygen), 0)
+        self.assertEqual(get_total_num_hs(self.atoms[7]), 1) # Carbon with 1 H
 
     def test_get_total_valence(self):
         self.assertEqual(get_total_valence(self.carbon), 4)
@@ -61,8 +67,8 @@ class TestChemicalProperties(unittest.TestCase):
         self.assertEqual(get_num_radical_electrons(self.oxygen), 0)
 
     def test_get_degree(self):
-        self.assertEqual(get_degree(self.carbon), 2)
-        self.assertEqual(get_degree(self.oxygen), 1)
+        self.assertEqual(get_degree(self.carbon), 3)
+        self.assertEqual(get_degree(self.oxygen), 2)
 
     def test_is_aromatic(self):
         self.assertTrue(is_aromatic(self.carbon))
@@ -74,7 +80,7 @@ class TestChemicalProperties(unittest.TestCase):
 
     def test_is_hydrogen_donor(self):
         self.assertFalse(is_hydrogen_donor(self.carbon))
-        self.assertTrue(is_hydrogen_donor(self.oxygen))
+        self.assertFalse(is_hydrogen_donor(self.oxygen))
 
     def test_is_hydrogen_acceptor(self):
         self.assertFalse(is_hydrogen_acceptor(self.carbon))

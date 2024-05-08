@@ -51,3 +51,4 @@ unittest/
 .coverage
 htmlcov/
 flake8_report/
+.pytest_cache/

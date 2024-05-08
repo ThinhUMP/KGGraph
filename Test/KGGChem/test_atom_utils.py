@@ -3,7 +3,9 @@ from rdkit import Chem
 import numpy as np
 import sys
 import pathlib
+from unittest.mock import MagicMock
 from KGGraph.KGGChem.atom_utils import (
+    idxfunc,
     get_mol,
     get_smiles,
     sanitize,
@@ -27,6 +29,19 @@ class TestChemUtils(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def test_idxfunc_returns_correct_value(self):
+        # Create a mock object with a .GetAtomMapNum() method
+        mock_object = MagicMock()
+        mock_object.GetAtomMapNum.return_value = 10
+
+        # Call idxfunc with the mock object
+        result = idxfunc(mock_object)
+
+        # Check if the result is as expected
+        self.assertEqual(
+            result, 9, "The function should return 9 when the atom map number is 10"
+        )
 
     def test_get_mol(self):
         """Test molecule generation from SMILES."""

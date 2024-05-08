@@ -26,8 +26,12 @@ def get_smiles(mol: Chem.Mol) -> str:
 
 def sanitize(mol: Chem.Mol, kekulize: bool = False) -> Optional[Chem.Mol]:
     """Sanitize the given molecule and optionally kekulize it."""
-    smiles = get_smiles(mol) if kekulize else Chem.MolToSmiles(mol)
-    mol = get_mol(smiles) if kekulize else Chem.MolFromSmiles(smiles)
+    try:
+        smiles = get_smiles(mol) if kekulize else Chem.MolToSmiles(mol)
+        mol = get_mol(smiles) if kekulize else Chem.MolFromSmiles(smiles)
+    except Exception:
+        if mol is None:
+            mol = None
     return mol
 
 

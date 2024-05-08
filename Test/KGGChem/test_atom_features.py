@@ -1,12 +1,7 @@
 import unittest
-
 from rdkit import Chem
-
 import sys
 import pathlib
-
-root_dir = str(pathlib.Path(__file__).resolve().parents[2])
-sys.path.append(root_dir)
 from KGGraph.KGGChem.atom_features import (
     get_symbol,
     get_atomic_number,
@@ -30,6 +25,9 @@ from KGGraph.KGGChem.atom_features import (
     is_in_aromatic_ring,
     get_electronegativity,
 )
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[2])
+sys.path.append(root_dir)
 
 
 class TestChemicalProperties(unittest.TestCase):

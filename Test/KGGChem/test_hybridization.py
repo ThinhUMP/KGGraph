@@ -1,12 +1,11 @@
 import unittest
 from rdkit import Chem
-
 import sys
 import pathlib
+from KGGraph.KGGChem.hybridization import HybridizationFeaturize
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGChem.hybridization import HybridizationFeaturize
 
 
 class TestHybridizationFeaturize(unittest.TestCase):

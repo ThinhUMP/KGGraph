@@ -2,10 +2,10 @@ import unittest
 from rdkit import Chem
 import sys
 import pathlib
+from KGGraph.KGGChem.bond_utils import bond_match
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGChem.bond_utils import bond_match
 
 
 class TestBondMatch(unittest.TestCase):

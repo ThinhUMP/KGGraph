@@ -2,18 +2,13 @@ import unittest
 from rdkit import Chem
 import sys
 import pathlib
+from KGGraph.KGGChem.chemutils import (
+    copy_edit_mol,
+    get_clique_mol,
+)
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGChem.chemutils import (
-    get_leaves,
-    get_sub_mol,
-    copy_edit_mol,
-    get_clique_mol,
-    get_assm_cands,
-    get_inter_label,
-    is_aromatic_ring,
-)
 
 
 class TestMolecularFunctions(unittest.TestCase):

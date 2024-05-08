@@ -1,12 +1,8 @@
 import unittest
 from rdkit import Chem
 import numpy as np
-
 import sys
 import pathlib
-
-root_dir = str(pathlib.Path(__file__).resolve().parents[2])
-sys.path.append(root_dir)
 from KGGraph.KGGChem.atom_utils import (
     get_mol,
     get_smiles,
@@ -18,6 +14,9 @@ from KGGraph.KGGChem.atom_utils import (
     copy_atom,
     get_atom_types,
 )
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[2])
+sys.path.append(root_dir)
 
 
 class TestChemUtils(unittest.TestCase):

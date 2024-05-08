@@ -1,11 +1,7 @@
 import unittest
 from rdkit import Chem
-
 import sys
 import pathlib
-
-root_dir = str(pathlib.Path(__file__).resolve().parents[2])
-sys.path.append(root_dir)
 from KGGraph.KGGChem.bond_features import (
     get_bond_type,
     is_conjugated,
@@ -15,6 +11,9 @@ from KGGraph.KGGChem.bond_features import (
     is_bond_in_ring,
     bond_type_feature,
 )
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[2])
+sys.path.append(root_dir)
 
 
 class TestBondProperties(unittest.TestCase):

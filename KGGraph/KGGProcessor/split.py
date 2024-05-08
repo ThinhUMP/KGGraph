@@ -191,10 +191,10 @@ def random_split(
 
     train_idx = all_idx[: int(frac_train * num_mols)]
     valid_idx = all_idx[
-        int(frac_train * num_mols): int(frac_valid * num_mols)
+        int(frac_train * num_mols) : int(frac_valid * num_mols)
         + int(frac_train * num_mols)
     ]
-    test_idx = all_idx[int(frac_valid * num_mols) + int(frac_train * num_mols):]
+    test_idx = all_idx[int(frac_valid * num_mols) + int(frac_train * num_mols) :]
 
     print("train set", len(train_idx))
     print("valid set", len(valid_idx))

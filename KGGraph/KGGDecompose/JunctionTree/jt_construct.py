@@ -1,9 +1,3 @@
-import sys
-from pathlib import Path
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
 from KGGraph.KGGChem.atom_utils import (
     get_inter_label,
     set_atommap,
@@ -14,12 +8,18 @@ from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
 from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
+import sys
+from pathlib import Path
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
+
 
 import networkx as nx
 from rdkit import Chem
 from typing import Tuple, List, Dict, Set
-
-
 
 
 class JTConstruct:

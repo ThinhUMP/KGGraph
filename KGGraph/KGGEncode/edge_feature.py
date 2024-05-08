@@ -1,16 +1,18 @@
-import sys
-from pathlib import Path
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
-
 # Import necessary modules and functions
 from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
 from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGChem.bond_features import bond_type_feature
+
+import sys
+from pathlib import Path
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
+
 
 import torch
 import math

@@ -1,5 +1,4 @@
 import torch
-import torch
 import torch.nn.functional as F
 from .GINConv import GINConv
 
@@ -52,7 +51,7 @@ class GNN(torch.nn.Module):
         torch.nn.init.xavier_uniform_(self.x_embedding6.weight.data)
         torch.nn.init.xavier_uniform_(self.x_embedding7.weight.data)
 
-        #List of MLPs
+        # List of MLPs
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):
             if gnn_type == "gin":
@@ -64,7 +63,7 @@ class GNN(torch.nn.Module):
             elif gnn_type == "graphsage":
                 pass
 
-        #List of batchnorms
+        # List of batchnorms
         self.batch_norms = torch.nn.ModuleList()
         for layer in range(num_layer):
             self.batch_norms.append(torch.nn.BatchNorm1d(emb_dim))
@@ -103,7 +102,7 @@ class GNN(torch.nn.Module):
 
             h_list.append(h)
 
-        ### Different implementations of Jk-concat
+        # Different implementations of Jk-concat
         if self.JK == "concat":
             node_representation = torch.cat(h_list, dim=1)
         elif self.JK == "last":

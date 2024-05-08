@@ -1,11 +1,13 @@
+from KGGraph.KGGProcessor.pretrain_dataset import molgraph_to_graph_data
 import sys
 import pathlib
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[3])
 sys.path.append(root_dir)
 
-from KGGraph.KGGProcessor.pretrain_dataset import molgraph_to_graph_data
+
 from tqdm import tqdm
+
 
 def group_node_rep(node_rep, batch_size, num_part):
     """
@@ -37,7 +39,7 @@ def group_node_rep(node_rep, batch_size, num_part):
         num_atom = num_part[i][0]
         num_motif = num_part[i][1]
         num_all = num_atom + num_motif + 1
-        group.append(node_rep[count: count + num_atom])
+        group.append(node_rep[count : count + num_atom])
         super_group.append(node_rep[count + num_all - 1])
         count += num_all
     return group, super_group

@@ -6,6 +6,7 @@ import numpy as np
 lg = rdkit.RDLogger.logger()
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
+
 def idxfunc(a):
     return a.GetAtomMapNum() - 1
 
@@ -25,11 +26,8 @@ def get_smiles(mol: Chem.Mol) -> str:
 
 def sanitize(mol: Chem.Mol, kekulize: bool = False) -> Optional[Chem.Mol]:
     """Sanitize the given molecule and optionally kekulize it."""
-    try:
-        smiles = get_smiles(mol) if kekulize else Chem.MolToSmiles(mol)
-        mol = get_mol(smiles) if kekulize else Chem.MolFromSmiles(smiles)
-    except Exception as e:
-        mol = None
+    smiles = get_smiles(mol) if kekulize else Chem.MolToSmiles(mol)
+    mol = get_mol(smiles) if kekulize else Chem.MolFromSmiles(smiles)
     return mol
 
 

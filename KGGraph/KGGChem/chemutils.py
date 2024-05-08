@@ -102,7 +102,7 @@ def get_assm_cands(
         cands = [pos[0]] + [x for x in cluster if rank[x] != rank[pos[0]]]
 
     elif icls[0] == icls[1]:  # symmetric case
-        shift = cluster[inter_size - 1:] + cluster[: inter_size - 1]
+        shift = cluster[inter_size - 1 :] + cluster[: inter_size - 1]
         cands = zip(cluster, shift)
         cands = [pos] + [
             (x, y)
@@ -110,7 +110,7 @@ def get_assm_cands(
             if (rank[min(x, y)], rank[max(x, y)]) != (rank[min(pos)], rank[max(pos)])
         ]
     else:
-        shift = cluster[inter_size - 1:] + cluster[: inter_size - 1]
+        shift = cluster[inter_size - 1 :] + cluster[: inter_size - 1]
         cands = zip(cluster + shift, shift + cluster)
         cands = [pos] + [
             (x, y)

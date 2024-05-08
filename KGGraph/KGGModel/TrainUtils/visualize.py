@@ -2,7 +2,6 @@ import os
 import matplotlib.pyplot as plt
 
 
-
 def plot_metrics(args, df, task_type):
     """
     Plot the training, validation, and test loss, AUC, F1, and AP for each epoch.

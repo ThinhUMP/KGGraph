@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.autograd import Variable
+
 # from sklearn.metrics import roc_auc_score, average_precision_score
 
 # MAX_BOND_TYPE = 5
@@ -139,7 +140,7 @@ class Model_decoder(nn.Module):
             num_bonds = mol.size_bond
             bond_num_target.append(num_bonds)
 
-        #predict atom number, bond number
+        # predict atom number, bond number
         super_rep = torch.stack(super_node_rep, dim=0).to(self.device)
         atom_num_pred = self.atom_num_s(super_rep).squeeze(-1)
         atom_num_target = (
@@ -164,7 +165,7 @@ class Model_decoder(nn.Module):
         )
         # bond_num_rmse = torch.sqrt(torch.sum((bond_num_pred - bond_num_target) ** 2)).item() / len(mol_batch)
 
-        #predict atom type, bond type
+        # predict atom type, bond type
         mol_num = len(mol_batch)
         for mol_index, mol in enumerate(mol_batch):
             num_atoms = mol.size_atom

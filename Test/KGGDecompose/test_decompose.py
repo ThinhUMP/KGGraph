@@ -1,5 +1,6 @@
 import unittest
 
+
 class TestDecompose(unittest.TestCase):
 
     def setUp(self):
@@ -8,5 +9,6 @@ class TestDecompose(unittest.TestCase):
     def test_forward_pass(self):
         pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

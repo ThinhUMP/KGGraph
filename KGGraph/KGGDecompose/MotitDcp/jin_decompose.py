@@ -4,6 +4,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import minimum_spanning_tree
 from typing import List, Tuple, Dict
 
+
 class TreeDecomposition:
 
     @staticmethod
@@ -42,7 +43,9 @@ class TreeDecomposition:
         return cliques
 
     @staticmethod
-    def merge_cliques(cliques: List[List[int]], nei_list: List[List[int]]) -> List[List[int]]:
+    def merge_cliques(
+        cliques: List[List[int]], nei_list: List[List[int]]
+    ) -> List[List[int]]:
         """
         Merge cliques with more than 2 atoms in common.
 
@@ -54,10 +57,12 @@ class TreeDecomposition:
         List[List[int]]: Merged list of cliques.
         """
         for i in range(len(cliques)):
-            if len(cliques[i]) <= 2: continue
+            if len(cliques[i]) <= 2:
+                continue
             for atom in cliques[i]:
                 for j in nei_list[atom]:
-                    if i >= j or len(cliques[j]) <= 2: continue
+                    if i >= j or len(cliques[j]) <= 2:
+                        continue
                     inter = set(cliques[i]) & set(cliques[j])
                     if len(inter) > 2:
                         cliques[i].extend(cliques[j])
@@ -84,7 +89,9 @@ class TreeDecomposition:
         return nei_list
 
     @staticmethod
-    def initialize_edges(n_atoms: int, cliques: List[List[int]], nei_list: List[List[int]]) -> Tuple[Dict[Tuple[int, int], int], List[List[int]]]:
+    def initialize_edges(
+        n_atoms: int, cliques: List[List[int]], nei_list: List[List[int]]
+    ) -> Tuple[Dict[Tuple[int, int], int], List[List[int]]]:
         """
         Initialize edges between cliques.
 
@@ -131,7 +138,9 @@ class TreeDecomposition:
         return edges, cliques
 
     @staticmethod
-    def compute_mst(cliques: List[List[int]], edges: Dict[Tuple[int, int], int]) -> List[Tuple[int, int]]:
+    def compute_mst(
+        cliques: List[List[int]], edges: Dict[Tuple[int, int], int]
+    ) -> List[Tuple[int, int]]:
         """
         Compute the maximum spanning tree of the clique graph.
 
@@ -153,9 +162,12 @@ class TreeDecomposition:
         junc_tree = minimum_spanning_tree(clique_graph)
         row, col = junc_tree.nonzero()
         return [(row[i], col[i]) for i in range(len(row))]
-    
+
     @staticmethod
-    def defragment(mol: Chem.Mol, merge_rings: bool = True,) -> Tuple[List[List[int]], List[Tuple[int, int]]]:
+    def defragment(
+        mol: Chem.Mol,
+        merge_rings: bool = True,
+    ) -> Tuple[List[List[int]], List[Tuple[int, int]]]:
         """
         Perform tree decomposition on a molecule.
 

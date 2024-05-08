@@ -2,6 +2,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 import numpy as np
 
+
 class GasteigerADJ:
     @staticmethod
     def add_atom_mapping(molecule: Chem.Mol) -> Chem.Mol:
@@ -19,7 +20,9 @@ class GasteigerADJ:
         return molecule
 
     @staticmethod
-    def renumber_and_calculate_charges(smiles: str, calculate_charges: bool = True) -> tuple[Chem.Mol, dict]:
+    def renumber_and_calculate_charges(
+        smiles: str, calculate_charges: bool = True
+    ) -> tuple[Chem.Mol, dict]:
         """
         Renumber atoms based on their atom map numbers and optionally calculate Gasteiger partial charges.
         Returns a molecule with atom mapping and a dictionary mapping atom indices to their charges.
@@ -37,7 +40,10 @@ class GasteigerADJ:
         charges = {}
         if calculate_charges:
             AllChem.ComputeGasteigerCharges(mol)
-            charges = {atom.GetIdx(): float(atom.GetProp('_GasteigerCharge')) for atom in mol.GetAtoms()}
+            charges = {
+                atom.GetIdx(): float(atom.GetProp("_GasteigerCharge"))
+                for atom in mol.GetAtoms()
+            }
 
         return mol, charges
 
@@ -68,6 +74,7 @@ class GasteigerADJ:
 
         return adjacency_matrix
 
+
 def add_atom_mapping(molecule):
     """
     Add atom mapping numbers to each atom in the molecule based on their index.
@@ -81,6 +88,7 @@ def add_atom_mapping(molecule):
     for idx, atom in enumerate(molecule.GetAtoms()):
         atom.SetAtomMapNum(idx + 1)  # Atom map numbers are 1-indexed in SMILES
     return molecule
+
 
 def renumber_and_calculate_charges(smiles, calculate_charges=True):
     """
@@ -100,9 +108,13 @@ def renumber_and_calculate_charges(smiles, calculate_charges=True):
     charges = {}
     if calculate_charges:
         AllChem.ComputeGasteigerCharges(mol)
-        charges = {atom.GetIdx(): float(atom.GetProp('_GasteigerCharge')) for atom in mol.GetAtoms()}
+        charges = {
+            atom.GetIdx(): float(atom.GetProp("_GasteigerCharge"))
+            for atom in mol.GetAtoms()
+        }
 
     return mol, charges
+
 
 def calculate_directed_adjacency_matrix(mol, charges):
     """
@@ -131,10 +143,9 @@ def calculate_directed_adjacency_matrix(mol, charges):
     return adjacency_matrix
 
 
-
-if __name__ == '__main__':
-# 1-methoxybuta-1,3-diene example (with arbitrary atom mapping)
-    #smiles = "[CH2:1]=[CH:2][CH:3]=[CH:4][O:5][CH3:6]"
+if __name__ == "__main__":
+    # 1-methoxybuta-1,3-diene example (with arbitrary atom mapping)
+    # smiles = "[CH2:1]=[CH:2][CH:3]=[CH:4][O:5][CH3:6]"
     smiles = "[CH2:1]=[CH:2][CH:3]=[O:4]"
     mol, charges = renumber_and_calculate_charges(smiles)
     print("Partial charges:", charges)

@@ -1,13 +1,14 @@
 import unittest
 from rdkit import Chem
-from KGGraph.KGGChem.gasteiger_adj import GasteigerADJ  
+from KGGraph.KGGChem.gasteiger_adj import GasteigerADJ
 import numpy as np
+
 
 class TestGasteigerADJ(unittest.TestCase):
 
     def setUp(self):
         # Create a simple molecule for testing
-        self.smiles = 'CCO'  # Ethanol
+        self.smiles = "CCO"  # Ethanol
         self.mol = Chem.MolFromSmiles(self.smiles)
 
     def test_add_atom_mapping(self):
@@ -24,12 +25,19 @@ class TestGasteigerADJ(unittest.TestCase):
         self.assertTrue(len(charges) > 0)
 
     def test_calculate_directed_adjacency_matrix(self):
-        _, charges = GasteigerADJ.renumber_and_calculate_charges(self.smiles, calculate_charges=True)
+        _, charges = GasteigerADJ.renumber_and_calculate_charges(
+            self.smiles, calculate_charges=True
+        )
         mapped_mol = GasteigerADJ.add_atom_mapping(self.mol)
-        adj_matrix = GasteigerADJ.calculate_directed_adjacency_matrix(mapped_mol, charges)
+        adj_matrix = GasteigerADJ.calculate_directed_adjacency_matrix(
+            mapped_mol, charges
+        )
         # Basic validation of the adjacency matrix
         self.assertIsInstance(adj_matrix, np.ndarray)
-        self.assertEqual(adj_matrix.shape, (mapped_mol.GetNumAtoms(), mapped_mol.GetNumAtoms()))
-        
-if __name__ == '__main__':
+        self.assertEqual(
+            adj_matrix.shape, (mapped_mol.GetNumAtoms(), mapped_mol.GetNumAtoms())
+        )
+
+
+if __name__ == "__main__":
     unittest.main()

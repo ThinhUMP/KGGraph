@@ -29,7 +29,8 @@ class GINConv(MessagePassing):
         Xu, K., Hu, W., Leskovec, J., & Jegelka, S. (2018). How powerful are graph neural networks?
         https://arxiv.org/abs/1810.00826
     """
-    def __init__(self, emb_dim, aggr = "add"):
+
+    def __init__(self, emb_dim, aggr="add"):
         """
         Initializes the GINConv layer with the specified parameters.
 
@@ -39,13 +40,13 @@ class GINConv(MessagePassing):
             aggr (str): The aggregation method to use ('add', 'mean', 'max').
         """
         super(GINConv, self).__init__()
-        #multi-layer perceptron
+        # multi-layer perceptron
         self.mlp = torch.nn.Sequential(
-            torch.nn.Linear(emb_dim, 2*emb_dim),
+            torch.nn.Linear(emb_dim, 2 * emb_dim),
             torch.nn.ReLU(),
-            torch.nn.Linear(2*emb_dim, emb_dim),
-            )
-        
+            torch.nn.Linear(2 * emb_dim, emb_dim),
+        )
+
         self.edge_embedding0 = torch.nn.Embedding(num_bond_type, emb_dim)
         self.edge_embedding1 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
         self.edge_embedding2 = torch.nn.Embedding(bond_type_1, emb_dim)
@@ -73,16 +74,23 @@ class GINConv(MessagePassing):
         Returns:
             Tensor: The updated node representations.
         """
-        #add self loops in the edge space
-        edge_index, _ = add_self_loops(edge_index, num_nodes = x.size(0))
+        # add self loops in the edge space
+        edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
 
-        #add features corresponding to self-loop edges.
+        # add features corresponding to self-loop edges.
         self_loop_attr = torch.zeros(x.size(0), edge_attr.size(1))
-        self_loop_attr[:,0] = 8 #bond type for self-loop edge
+        self_loop_attr[:, 0] = 8  # bond type for self-loop edge
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
-        edge_attr = torch.cat((edge_attr, self_loop_attr), dim = 0)
+        edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
 
-        edge_embeddings = self.edge_embedding0(edge_attr[:,0]) + self.edge_embedding1(edge_attr[:,1]) + self.edge_embedding2(edge_attr[:,2]) + self.edge_embedding3(edge_attr[:,3]) + self.edge_embedding4(edge_attr[:,4]) + self.edge_embedding5(edge_attr[:,5])
+        edge_embeddings = (
+            self.edge_embedding0(edge_attr[:, 0])
+            + self.edge_embedding1(edge_attr[:, 1])
+            + self.edge_embedding2(edge_attr[:, 2])
+            + self.edge_embedding3(edge_attr[:, 3])
+            + self.edge_embedding4(edge_attr[:, 4])
+            + self.edge_embedding5(edge_attr[:, 5])
+        )
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 

@@ -1,8 +1,10 @@
 import rdkit.Chem as Chem
 from rdkit.Chem import BRICS
 from typing import List
+
+
 class BRCISDecomposition:
-    
+
     @staticmethod
     def create_initial_cliques(mol: Chem.Mol) -> List[List[int]]:
         """
@@ -38,7 +40,7 @@ class BRCISDecomposition:
             return [list(range(mol.GetNumAtoms()))], []
 
         res_list = [[bond[0][0], bond[0][1]] for bond in res]
-        
+
         for bond in res:
             if [bond[0][0], bond[0][1]] in cliques:
                 cliques.remove([bond[0][0], bond[0][1]])
@@ -61,13 +63,21 @@ class BRCISDecomposition:
         Tuple[List[List[int]], List[List[int]]]: Updated list of cliques and list of broken bonds.
         """
         break_ring_bonds = []
-        for c in cliques.copy():  # Use a copy to avoid modifying the list during iteration
+        for (
+            c
+        ) in cliques.copy():  # Use a copy to avoid modifying the list during iteration
             if len(c) > 1:
-                if mol.GetAtomWithIdx(c[0]).IsInRing() and not mol.GetAtomWithIdx(c[1]).IsInRing():
+                if (
+                    mol.GetAtomWithIdx(c[0]).IsInRing()
+                    and not mol.GetAtomWithIdx(c[1]).IsInRing()
+                ):
                     cliques.remove(c)
                     cliques.append([c[1]])
                     break_ring_bonds.append(c)
-                elif mol.GetAtomWithIdx(c[1]).IsInRing() and not mol.GetAtomWithIdx(c[0]).IsInRing():
+                elif (
+                    mol.GetAtomWithIdx(c[1]).IsInRing()
+                    and not mol.GetAtomWithIdx(c[0]).IsInRing()
+                ):
                     cliques.remove(c)
                     cliques.append([c[0]])
                     break_ring_bonds.append(c)
@@ -157,11 +167,15 @@ class BRCISDecomposition:
         n_atoms = mol.GetNumAtoms()
         if n_atoms == 1:
             return [[0]], []
-        
+
         cliques = BRCISDecomposition.create_initial_cliques(mol)
         cliques, res_list = BRCISDecomposition.apply_brics_breaks(mol, cliques)
         cliques, break_ring_bonds = BRCISDecomposition.break_ring_bonds(mol, cliques)
-        cliques, break_intersections = BRCISDecomposition.select_intersection_atoms(mol, cliques)
+        cliques, break_intersections = BRCISDecomposition.select_intersection_atoms(
+            mol, cliques
+        )
         cliques = BRCISDecomposition.merge_cliques(cliques)
-        edges = BRCISDecomposition.find_edges(cliques, res_list, break_ring_bonds, break_intersections)
+        edges = BRCISDecomposition.find_edges(
+            cliques, res_list, break_ring_bonds, break_intersections
+        )
         return cliques, edges

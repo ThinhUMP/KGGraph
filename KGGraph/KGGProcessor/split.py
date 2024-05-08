@@ -5,6 +5,7 @@ from itertools import compress
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from collections import defaultdict
 
+
 def generate_scaffold(smiles, include_chirality=False):
     """
     Generates a Bemis-Murcko scaffold representation from a SMILES string. The Bemis-Murcko
@@ -19,19 +20,22 @@ def generate_scaffold(smiles, include_chirality=False):
     str: A SMILES string representing the Bemis-Murcko scaffold of the input molecule.
     """
     # Generate the Bemis-Murcko scaffold from the provided SMILES string, considering chirality if specified
-    scaffold = MurckoScaffold.MurckoScaffoldSmiles(smiles=smiles, includeChirality=include_chirality)
-    
+    scaffold = MurckoScaffold.MurckoScaffoldSmiles(
+        smiles=smiles, includeChirality=include_chirality
+    )
+
     return scaffold
 
+
 def scaffold_split(
-    dataset, 
-    smiles_list, 
-    task_idx=None, 
+    dataset,
+    smiles_list,
+    task_idx=None,
     null_value=0,
-    frac_train=0.8, 
-    frac_valid=0.1, 
+    frac_train=0.8,
+    frac_valid=0.1,
     frac_test=0.1,
-    return_smiles=True
+    return_smiles=True,
 ):
     """
     Adapted from  https://github.com/deepchem/deepchem/blob/master/deepchem/splits/splitters.py
@@ -87,8 +91,10 @@ def scaffold_split(
     # sort from largest to smallest sets
     all_scaffolds = {key: sorted(value) for key, value in all_scaffolds.items()}
     all_scaffold_sets = [
-        scaffold_set for (scaffold, scaffold_set) in sorted(
-            all_scaffolds.items(), key=lambda x: (len(x[1]), x[1][0]), reverse=True)
+        scaffold_set
+        for (scaffold, scaffold_set) in sorted(
+            all_scaffolds.items(), key=lambda x: (len(x[1]), x[1][0]), reverse=True
+        )
     ]
 
     # get train, valid test indices
@@ -107,14 +113,13 @@ def scaffold_split(
     assert len(set(train_idx).intersection(set(valid_idx))) == 0
     assert len(set(test_idx).intersection(set(valid_idx))) == 0
 
-    print('train set', len(train_idx))
-    print('valid set', len(valid_idx))
-    print('test set', len(test_idx))
+    print("train set", len(train_idx))
+    print("valid set", len(valid_idx))
+    print("test set", len(test_idx))
 
     train_dataset = dataset[torch.tensor(train_idx)]
     valid_dataset = dataset[torch.tensor(valid_idx)]
     test_dataset = dataset[torch.tensor(test_idx)]
-
 
     if not return_smiles:
         return train_dataset, valid_dataset, test_dataset
@@ -122,13 +127,24 @@ def scaffold_split(
         train_smiles = [smiles_list[i][1] for i in train_idx]
         valid_smiles = [smiles_list[i][1] for i in valid_idx]
         test_smiles = [smiles_list[i][1] for i in test_idx]
-        return train_dataset, valid_dataset, test_dataset, (train_smiles,
-                                                            valid_smiles,
-                                                            test_smiles)
-        
-def random_split(dataset, task_idx=None, null_value=0,
-                   frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=42,
-                 smiles_list=None):
+        return (
+            train_dataset,
+            valid_dataset,
+            test_dataset,
+            (train_smiles, valid_smiles, test_smiles),
+        )
+
+
+def random_split(
+    dataset,
+    task_idx=None,
+    null_value=0,
+    frac_train=0.8,
+    frac_valid=0.1,
+    frac_test=0.1,
+    seed=42,
+    smiles_list=None,
+):
     """
     Randomly splits a dataset into training, validation, and test sets. The function
     allows for optional filtering of examples based on a specified task index and null value.
@@ -159,7 +175,9 @@ def random_split(dataset, task_idx=None, null_value=0,
         # filter based on null values in task_idx
         # get task array
         y_task = np.array([data.y[task_idx].item() for data in dataset])
-        non_null = y_task != null_value  # boolean array that correspond to non null values
+        non_null = (
+            y_task != null_value
+        )  # boolean array that correspond to non null values
         idx_array = np.where(non_null)[0]
         dataset = dataset[torch.tensor(idx_array)]  # examples containing non
         # null labels in the specified task_idx
@@ -171,14 +189,16 @@ def random_split(dataset, task_idx=None, null_value=0,
     all_idx = list(range(num_mols))
     random.shuffle(all_idx)
 
-    train_idx = all_idx[:int(frac_train * num_mols)]
-    valid_idx = all_idx[int(frac_train * num_mols):int(frac_valid * num_mols)
-                                                   + int(frac_train * num_mols)]
-    test_idx = all_idx[int(frac_valid * num_mols) + int(frac_train * num_mols):]
-        
-    print('train set', len(train_idx))
-    print('valid set', len(valid_idx))
-    print('test set', len(test_idx))
+    train_idx = all_idx[: int(frac_train * num_mols)]
+    valid_idx = all_idx[
+        int(frac_train * num_mols) : int(frac_valid * num_mols)
+        + int(frac_train * num_mols)
+    ]
+    test_idx = all_idx[int(frac_valid * num_mols) + int(frac_train * num_mols) :]
+
+    print("train set", len(train_idx))
+    print("valid set", len(valid_idx))
+    print("test set", len(test_idx))
 
     assert len(set(train_idx).intersection(set(valid_idx))) == 0
     assert len(set(valid_idx).intersection(set(test_idx))) == 0
@@ -194,11 +214,24 @@ def random_split(dataset, task_idx=None, null_value=0,
         train_smiles = [smiles_list[i] for i in train_idx]
         valid_smiles = [smiles_list[i] for i in valid_idx]
         test_smiles = [smiles_list[i] for i in test_idx]
-        return train_dataset, valid_dataset, test_dataset, (train_smiles,
-                                                            valid_smiles,
-                                                            test_smiles)
-def random_scaffold_split(dataset, smiles_list, task_idx=None, null_value=0,
-                   frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=0):
+        return (
+            train_dataset,
+            valid_dataset,
+            test_dataset,
+            (train_smiles, valid_smiles, test_smiles),
+        )
+
+
+def random_scaffold_split(
+    dataset,
+    smiles_list,
+    task_idx=None,
+    null_value=0,
+    frac_train=0.8,
+    frac_valid=0.1,
+    frac_test=0.1,
+    seed=0,
+):
     """
     Adapted from https://github.com/pfnet-research/chainer-chemistry/blob/master/chainer_chemistry/dataset/splitters/scaffold_splitter.py
     Splits a dataset into training, validation, and test sets based on randomized Bemis-Murcko scaffolds.

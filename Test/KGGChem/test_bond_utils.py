@@ -2,9 +2,11 @@ import unittest
 from rdkit import Chem
 import sys
 import pathlib
+
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGChem.bond_utils import bond_match
+
 
 class TestBondMatch(unittest.TestCase):
     def setUp(self):
@@ -23,5 +25,6 @@ class TestBondMatch(unittest.TestCase):
         # Test non-matching bond due to completely different molecules
         self.assertFalse(bond_match(self.mol1, 1, 2, self.mol3, 1, 2))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

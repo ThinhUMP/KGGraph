@@ -1,12 +1,19 @@
 import torch
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree, softmax, remove_self_loops
-from torch_geometric.nn import global_add_pool, global_mean_pool, global_max_pool, GlobalAttention, Set2Set
+from torch_geometric.nn import (
+    global_add_pool,
+    global_mean_pool,
+    global_max_pool,
+    GlobalAttention,
+    Set2Set,
+)
 import torch.nn.functional as F
 from torch_scatter import scatter_add
 from torch_geometric.nn.inits import glorot, zeros
 import numpy as np
 from .GNN import GNN
+
 
 class GINTrain(torch.nn.Module):
     """
@@ -24,7 +31,10 @@ class GINTrain(torch.nn.Module):
         drop_ratio (float): The dropout rate applied after GNN layers.
         gnn_type (str): The type of GNN layer to use. Options include 'gin', 'gcn', 'graphsage', and 'gat'.
     """
-    def __init__(self, num_layer, emb_dim, num_tasks, JK = "last", drop_ratio = 0, gnn_type = "gin"):
+
+    def __init__(
+        self, num_layer, emb_dim, num_tasks, JK="last", drop_ratio=0, gnn_type="gin"
+    ):
         """
         Initializes the GINTrain model with the specified architecture and parameters.
 
@@ -46,17 +56,19 @@ class GINTrain(torch.nn.Module):
         if self.num_layer < 2:
             raise ValueError("Number of GNN layers must be greater than 1.")
 
-        self.gnn = GNN(num_layer, emb_dim, JK, drop_ratio, gnn_type = gnn_type)
-        
+        self.gnn = GNN(num_layer, emb_dim, JK, drop_ratio, gnn_type=gnn_type)
 
         if self.JK == "concat":
-            self.graph_pred_linear = torch.nn.Linear((self.num_layer + 1) * self.emb_dim, self.num_tasks)
+            self.graph_pred_linear = torch.nn.Linear(
+                (self.num_layer + 1) * self.emb_dim, self.num_tasks
+            )
         else:
             self.graph_pred_linear = torch.nn.Sequential(
-            torch.nn.Linear(self.emb_dim, (self.emb_dim)//2),
-            torch.nn.ELU(),
-            torch.nn.Linear((self.emb_dim)//2, self.num_tasks))
-    
+                torch.nn.Linear(self.emb_dim, (self.emb_dim) // 2),
+                torch.nn.ELU(),
+                torch.nn.Linear((self.emb_dim) // 2, self.num_tasks),
+            )
+
     def from_pretrained(self, model_file):
         print("Loading pre-trained model from %s" % model_file)
         self.gnn.load_state_dict(torch.load(model_file))
@@ -77,10 +89,10 @@ class GINTrain(torch.nn.Module):
         """
         super_group = []
         for i in range(len(batch)):
-            if i != (len(batch)-1) and batch[i] != batch[i+1]:
-                super_group.append(node_rep[i,:])
-            elif i == (len(batch) -1):
-                super_group.append(node_rep[i,:])
+            if i != (len(batch) - 1) and batch[i] != batch[i + 1]:
+                super_group.append(node_rep[i, :])
+            elif i == (len(batch) - 1):
+                super_group.append(node_rep[i, :])
         super_rep = torch.stack(super_group, dim=0)
         return super_rep
 
@@ -103,11 +115,16 @@ class GINTrain(torch.nn.Module):
             x, edge_index, edge_attr, batch = argv[0], argv[1], argv[2], argv[3]
         elif len(argv) == 1:
             data = argv[0]
-            x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
+            x, edge_index, edge_attr, batch = (
+                data.x,
+                data.edge_index,
+                data.edge_attr,
+                data.batch,
+            )
         else:
             raise ValueError("unmatched number of arguments.")
         node_representation = self.gnn(x, edge_index, edge_attr)
 
         super_rep = self.super_node_rep(node_representation, batch)
-        
+
         return self.graph_pred_linear(super_rep)

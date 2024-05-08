@@ -9,12 +9,13 @@ def get_task_type(args):
     str: The type of task associated with the dataset ('classification' or 'regression').
     """
     # List of datasets associated with classification tasks
-    classification_datasets = ['tox21', 'bace', 'bbbp', 'toxcast', 'sider', 'clintox']
-    
+    classification_datasets = ["tox21", "bace", "bbbp", "toxcast", "sider", "clintox"]
+
     if args.dataset in classification_datasets:
-        return 'classification'
+        return "classification"
     else:
-        return 'regression'
+        return "regression"
+
 
 def get_num_task(args):
     """
@@ -39,7 +40,7 @@ def get_num_task(args):
         "lipophilicity": 1,
         "qm7": 1,
         "qm8": 12,
-        "qm9": 12
+        "qm9": 12,
     }
 
     # Get the number of tasks based on the dataset

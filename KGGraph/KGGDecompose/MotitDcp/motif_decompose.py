@@ -3,8 +3,11 @@ from rdkit import Chem
 from KGGraph.KGGChem.chemutils import get_clique_mol
 import pathlib
 import sys
+
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
+
+
 class MotifDecomposition:
 
     @staticmethod
@@ -15,9 +18,12 @@ class MotifDecomposition:
         Returns:
         list: A list of initial cliques.
         """
-        cliques = [[bond.GetBeginAtom().GetIdx(), bond.GetEndAtom().GetIdx()] for bond in mol.GetBonds()]
+        cliques = [
+            [bond.GetBeginAtom().GetIdx(), bond.GetEndAtom().GetIdx()]
+            for bond in mol.GetBonds()
+        ]
         return cliques
-    
+
     @staticmethod
     def _apply_brics_breaks(cliques, mol):
         """
@@ -31,16 +37,18 @@ class MotifDecomposition:
         """
         res = list(BRICS.FindBRICSBonds(mol))
         res_list = [[bond[0][0], bond[0][1]] for bond in res]
-        
+
         for bond in res:
             bond_indices = [bond[0][0], bond[0][1]]
             if bond_indices in cliques:
                 cliques.remove(bond_indices)
             else:
-                cliques.remove(bond_indices[::-1])  # Reverse indices if not found in order
+                cliques.remove(
+                    bond_indices[::-1]
+                )  # Reverse indices if not found in order
             cliques.extend([[bond[0][0]], [bond[0][1]]])
         return cliques, res_list
-    
+
     @staticmethod
     def _merge_cliques(cliques, mol):
         """
@@ -63,9 +71,9 @@ class MotifDecomposition:
                     cliques[i] = list(set(cliques[i]) | set(cliques[j]))  # Union
                     cliques[j] = []
             cliques = [c for c in cliques if c]
-        cliques = [c for c in cliques if n_atoms> len(c) > 0]
+        cliques = [c for c in cliques if n_atoms > len(c) > 0]
         return cliques
-    
+
     @staticmethod
     def _refine_cliques(cliques, mol):
         """
@@ -85,15 +93,15 @@ class MotifDecomposition:
             c = cliques[i]
             cmol = get_clique_mol(mol, c)
             ssr = Chem.GetSymmSSSR(cmol)
-            if len(ssr)>1: 
+            if len(ssr) > 1:
                 for ring in ssr_mol:
                     if set(list(ring)) <= set(c):
                         cliques.append(list(ring))
-                cliques[i]=[]
-    
-        cliques = [c for c in cliques if n_atoms> len(c) > 0]
+                cliques[i] = []
+
+        cliques = [c for c in cliques if n_atoms > len(c) > 0]
         return cliques
-    
+
     @staticmethod
     def find_edges(cliques, res_list):
         """
@@ -117,12 +125,12 @@ class MotifDecomposition:
             if c1 is not None and c2 is not None:
                 edges.append((c1, c2))
         for c in range(len(cliques)):
-            for i in range(c+1, len(cliques)):
+            for i in range(c + 1, len(cliques)):
                 if set(cliques[c]) & set(cliques[i]):
                     c1, c2 = c, i
                     edges.append((c1, c2))
         return edges
-    
+
     @staticmethod
     def defragment(mol):
         """

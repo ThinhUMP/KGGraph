@@ -1,13 +1,13 @@
-from typing import Union, List
-from rdkit import Chem
-from rdkit.Chem import Lipinski
 import json
 import sys
 import pathlib
+from typing import Union, List
+from rdkit import Chem
+from rdkit.Chem import Lipinski
+
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from .atom_utils import get_smiles
 
 # from mendeleev import element
 
@@ -108,7 +108,7 @@ ELECTRONEGATIVITY = {
 }  # TODO: add this dictionary to periodic_table.json
 
 
-### Atom type
+# Atom type
 def get_symbol(atom: Chem.Atom) -> str:
     """Get the symbol of the atom."""
     return atom.GetSymbol()

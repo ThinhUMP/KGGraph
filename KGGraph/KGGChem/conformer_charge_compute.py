@@ -94,7 +94,7 @@ class ConformerChargeGeneration:
         if output_format not in ["pdb", "sdf"]:
             raise ValueError("output_format must be 'pdb' or 'sdf'")
 
-        if type(smiles) == str:
+        if isinstance(smiles, str):
             smiles = [smiles]
 
         if ID is None:
@@ -280,7 +280,6 @@ class ConformerChargeGeneration:
 
 if __name__ == "__main__":
     import time
-    from conformer_charge_compute import ConformerChargeGeneration
 
     test_data = {
         "Sorafenib": "CNC(=O)c1cc(Oc2ccc(NC(=O)Nc3ccc(Cl)c(C(F)(F)F)c3)cc2)ccn1",

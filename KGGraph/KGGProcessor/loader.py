@@ -1,7 +1,6 @@
 import pandas as pd
 from pathlib import Path
 import sys
-import pandas as pd
 
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]

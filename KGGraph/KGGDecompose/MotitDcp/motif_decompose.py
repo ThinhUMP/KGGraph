@@ -85,7 +85,6 @@ class MotifDecomposition:
         Returns:
         list: Refined list of cliques.
         """
-        break_ring_bonds = []
         n_atoms = mol.GetNumAtoms()
         num_cli = len(cliques)
         ssr_mol = Chem.GetSymmSSSR(mol)

@@ -1,13 +1,5 @@
-import torch
-import math
-import random
-from copy import deepcopy
-import numpy as np
-from rdkit import Chem
-from pathlib import Path
 import sys
-from typing import List
-
+from pathlib import Path
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
@@ -25,6 +17,17 @@ from KGGraph.KGGChem.atom_features import (
     get_symbol,
     get_atomic_number,
 )
+
+import torch
+import math
+import random
+from copy import deepcopy
+import numpy as np
+from rdkit import Chem
+
+
+
+
 
 # allowable node and edge features
 allowable_features = {

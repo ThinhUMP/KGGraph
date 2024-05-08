@@ -1,20 +1,11 @@
-import os
-import torch
-import pandas as pd
-from torch_geometric.data import Data
-from torch_geometric.data import InMemoryDataset
-from itertools import repeat
-from pathlib import Path
 import sys
-import pandas as pd
-
+from pathlib import Path
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
 from KGGraph.KGGEncode.x_feature import x_feature
 from KGGraph.KGGEncode.edge_feature import edge_feature
-from KGGraph.KGGChem.atom_utils import get_atom_types
 from KGGraph.KGGProcessor.loader import (
     load_tox21_dataset,
     load_bace_dataset,
@@ -23,6 +14,16 @@ from KGGraph.KGGProcessor.loader import (
     load_sider_dataset,
     load_toxcast_dataset,
 )
+
+import os
+import torch
+import pandas as pd
+from torch_geometric.data import Data
+from torch_geometric.data import InMemoryDataset
+from itertools import repeat
+import pandas as pd
+
+
 from joblib import Parallel, delayed
 from tqdm import tqdm
 

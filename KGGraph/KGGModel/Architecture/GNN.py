@@ -1,9 +1,6 @@
 import torch
-from torch_geometric.nn import ResGatedGraphConv
-from torch_geometric.nn import global_add_pool
 import torch
 import torch.nn.functional as F
-from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
 from .GINConv import GINConv
 
 num_atom_type = 122  # including the extra motif tokens and graph token and masked atom
@@ -55,7 +52,7 @@ class GNN(torch.nn.Module):
         torch.nn.init.xavier_uniform_(self.x_embedding6.weight.data)
         torch.nn.init.xavier_uniform_(self.x_embedding7.weight.data)
 
-        ###List of MLPs
+        #List of MLPs
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):
             if gnn_type == "gin":
@@ -67,7 +64,7 @@ class GNN(torch.nn.Module):
             elif gnn_type == "graphsage":
                 pass
 
-        ###List of batchnorms
+        #List of batchnorms
         self.batch_norms = torch.nn.ModuleList()
         for layer in range(num_layer):
             self.batch_norms.append(torch.nn.BatchNorm1d(emb_dim))

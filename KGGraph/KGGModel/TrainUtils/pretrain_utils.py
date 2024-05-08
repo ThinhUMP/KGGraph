@@ -1,4 +1,3 @@
-from tqdm import tqdm
 import sys
 import pathlib
 
@@ -6,7 +5,7 @@ root_dir = str(pathlib.Path(__file__).resolve().parents[3])
 sys.path.append(root_dir)
 
 from KGGraph.KGGProcessor.pretrain_dataset import molgraph_to_graph_data
-
+from tqdm import tqdm
 
 def group_node_rep(node_rep, batch_size, num_part):
     """
@@ -38,7 +37,7 @@ def group_node_rep(node_rep, batch_size, num_part):
         num_atom = num_part[i][0]
         num_motif = num_part[i][1]
         num_all = num_atom + num_motif + 1
-        group.append(node_rep[count : count + num_atom])
+        group.append(node_rep[count: count + num_atom])
         super_group.append(node_rep[count + num_all - 1])
         count += num_all
     return group, super_group
@@ -83,14 +82,14 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
             # b_num_rmse = b_num_rmse / 20
 
             print("Batch:", step, "loss:", loss.item())
-            if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = (
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-            )
+            # if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = (
+            #     0,
+            #     0,
+            #     0,
+            #     0,
+            #     0,
+            #     0,
+            # )
         pretrain_loss["loss"][epoch - 1] = loss.item()
     pretrain_loss.to_csv("Data/pretrain_loss.csv")
     return pretrain_loss

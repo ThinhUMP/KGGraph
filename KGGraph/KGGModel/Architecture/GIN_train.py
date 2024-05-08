@@ -1,17 +1,4 @@
 import torch
-from torch_geometric.nn import MessagePassing
-from torch_geometric.utils import add_self_loops, degree, softmax, remove_self_loops
-from torch_geometric.nn import (
-    global_add_pool,
-    global_mean_pool,
-    global_max_pool,
-    GlobalAttention,
-    Set2Set,
-)
-import torch.nn.functional as F
-from torch_scatter import scatter_add
-from torch_geometric.nn.inits import glorot, zeros
-import numpy as np
 from .GNN import GNN
 
 

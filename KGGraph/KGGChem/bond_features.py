@@ -1,4 +1,3 @@
-from .atom_utils import get_smiles
 from rdkit import Chem
 from rdkit.Chem import Lipinski
 from .atom_features import ELECTRONEGATIVITY
@@ -13,7 +12,7 @@ with open(root_dir + "/Data/feature/bond_dict.json", "r") as f:
     bond_dict = json.load(f)
 
 
-#### Bond type
+# Bond type
 def get_bond_type(bond: Chem.Bond) -> str:
     """Get the type of the bond."""
     return bond.GetBondType().name

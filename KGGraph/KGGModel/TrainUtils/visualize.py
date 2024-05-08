@@ -1,7 +1,6 @@
-from matplotlib import pyplot as plt
-from matplotlib.ticker import MaxNLocator
-import matplotlib.pyplot as plt
 import os
+import matplotlib.pyplot as plt
+
 
 
 def plot_metrics(args, df, task_type):

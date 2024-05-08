@@ -89,7 +89,7 @@ class SMotifDecomposition:
         COO = []
 
         for idx, sub1 in enumerate(CO):
-            for sub2 in CO[idx + 1 :]:
+            for sub2 in CO[idx + 1:]:
                 if sub1[0] == sub2[0]:
                     merge = sub1 + tuple(set(sub2).difference(set(sub1)))
                     CO.insert(idx, merge)
@@ -97,7 +97,7 @@ class SMotifDecomposition:
                     CO.remove(sub2)
 
         for idx, sub1 in enumerate(CO):
-            for sub2 in CO[idx + 1 :]:
+            for sub2 in CO[idx + 1:]:
                 (a1, a2) = (sub1[0], sub2[0])
                 bond = mol.GetBondBetweenAtoms(a1, a2)
                 if bond is not None:
@@ -265,7 +265,7 @@ class SMotifDecomposition:
         fgs.extend(cluster)
 
         for i, fg in enumerate(fgs):
-            for fg2 in fgs[i + 1 :]:
+            for fg2 in fgs[i + 1:]:
                 inter = set(fg) & set(fg2)
                 if len(inter) > 1:
                     fgs[i].extend(list(set(fg2).difference(set(fg))))
@@ -274,7 +274,7 @@ class SMotifDecomposition:
         if 0 not in fgs[0]:
             for i, cls in enumerate(fgs):
                 if 0 in cls:
-                    fgs = [fgs[i]] + fgs[:i] + fgs[i + 1 :]
+                    fgs = [fgs[i]] + fgs[:i] + fgs[i + 1:]
                     break
 
         atom_cls = [[] for _ in range(mol.GetNumAtoms())]
@@ -285,7 +285,7 @@ class SMotifDecomposition:
         edges = defaultdict(int)
         for atom, nei_cls in enumerate(atom_cls):
             for i, c1 in enumerate(nei_cls):
-                for c2 in nei_cls[i + 1 :]:
+                for c2 in nei_cls[i + 1:]:
                     inter = set(fgs[c1]) & set(fgs[c2])
                     edges[(c1, c2)] = len(inter)
         edges_list = [k for k, v in edges.items()]

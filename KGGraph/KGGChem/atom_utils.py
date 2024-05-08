@@ -1,12 +1,13 @@
 import rdkit
 import rdkit.Chem as Chem
-from typing import List, Tuple, Set, Optional
+from typing import List, Optional
 import numpy as np
 
 lg = rdkit.RDLogger.logger()
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
-idxfunc = lambda a: a.GetAtomMapNum() - 1
+def idxfunc(a):
+    return a.GetAtomMapNum() - 1
 
 
 def get_mol(smiles: str) -> Optional[Chem.Mol]:
@@ -27,7 +28,7 @@ def sanitize(mol: Chem.Mol, kekulize: bool = False) -> Optional[Chem.Mol]:
     try:
         smiles = get_smiles(mol) if kekulize else Chem.MolToSmiles(mol)
         mol = get_mol(smiles) if kekulize else Chem.MolFromSmiles(smiles)
-    except:
+    except Exception as e:
         mol = None
     return mol
 

@@ -1,9 +1,6 @@
 import torch
-from torch.nn import Linear, Parameter, BatchNorm1d
 from torch_geometric.nn import MessagePassing
-from torch_geometric.utils import add_self_loops, degree
-from torch_scatter import scatter_add
-from torch.nn import Linear, Sequential, BatchNorm1d, ReLU
+from torch_geometric.utils import add_self_loops
 
 num_bond_type = 9
 num_bond_in_ring = 3

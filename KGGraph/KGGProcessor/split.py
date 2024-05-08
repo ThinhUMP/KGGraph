@@ -67,7 +67,7 @@ def scaffold_split(
     """
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
 
-    if task_idx != None:
+    if task_idx is not None:
         # filter based on null values in task_idx
         # get task array
         y_task = np.array([data.y[task_idx].item() for data in dataset])
@@ -171,7 +171,7 @@ def random_split(
     """
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
 
-    if task_idx != None:
+    if task_idx is not None:
         # filter based on null values in task_idx
         # get task array
         y_task = np.array([data.y[task_idx].item() for data in dataset])
@@ -191,10 +191,10 @@ def random_split(
 
     train_idx = all_idx[: int(frac_train * num_mols)]
     valid_idx = all_idx[
-        int(frac_train * num_mols) : int(frac_valid * num_mols)
+        int(frac_train * num_mols): int(frac_valid * num_mols)
         + int(frac_train * num_mols)
     ]
-    test_idx = all_idx[int(frac_valid * num_mols) + int(frac_train * num_mols) :]
+    test_idx = all_idx[int(frac_valid * num_mols) + int(frac_train * num_mols):]
 
     print("train set", len(train_idx))
     print("valid set", len(valid_idx))
@@ -258,7 +258,7 @@ def random_scaffold_split(
 
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
 
-    if task_idx != None:
+    if task_idx is not None:
         # filter based on null values in task_idx
         # get task array
         y_task = np.array([data.y[task_idx].item() for data in dataset])

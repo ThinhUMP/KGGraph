@@ -2,7 +2,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 import random
-import seaborn
 from typing import Tuple, Optional
 from rdkit import Chem
 from rdkit.Chem import Draw

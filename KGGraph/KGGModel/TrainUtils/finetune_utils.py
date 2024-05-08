@@ -1,16 +1,9 @@
+import sys
+from pathlib import Path
 from KGGraph.KGGModel.TrainUtils.crawl_metrics import (
     create_test_round_df,
     create_train_round_df,
 )
-import sys
-from pathlib import Path
-
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
-
-
 import torch
 from tqdm import tqdm
 import numpy as np
@@ -22,6 +15,14 @@ from sklearn.metrics import (
     average_precision_score,
 )
 import pandas as pd
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
+
+
+
 
 
 def train(model, device, loader, optimizer, criterion):

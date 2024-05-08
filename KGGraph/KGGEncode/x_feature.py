@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+import torch
+import math
+import random
+from copy import deepcopy
+import numpy as np
+from rdkit import Chem
 from KGGraph.KGGChem.atom_utils import get_smiles
 from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
@@ -11,8 +19,6 @@ from KGGraph.KGGChem.atom_features import (
     get_atomic_number,
 )
 
-import sys
-from pathlib import Path
 
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
@@ -20,12 +26,7 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 
-import torch
-import math
-import random
-from copy import deepcopy
-import numpy as np
-from rdkit import Chem
+
 
 
 # allowable node and edge features

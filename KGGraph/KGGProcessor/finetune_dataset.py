@@ -1,5 +1,15 @@
+import sys
+from pathlib import Path
 from KGGraph.KGGEncode.x_feature import x_feature
 from KGGraph.KGGEncode.edge_feature import edge_feature
+import os
+import torch
+import pandas as pd
+from torch_geometric.data import Data
+from torch_geometric.data import InMemoryDataset
+from itertools import repeat
+from joblib import Parallel, delayed
+from tqdm import tqdm
 from KGGraph.KGGProcessor.loader import (
     load_tox21_dataset,
     load_bace_dataset,
@@ -8,24 +18,15 @@ from KGGraph.KGGProcessor.loader import (
     load_sider_dataset,
     load_toxcast_dataset,
 )
-import sys
-from pathlib import Path
+
+
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
 
 
-import os
-import torch
-import pandas as pd
-from torch_geometric.data import Data
-from torch_geometric.data import InMemoryDataset
-from itertools import repeat
 
-
-from joblib import Parallel, delayed
-from tqdm import tqdm
 
 
 def feature(mol, decompose_type, mask_node=False, mask_edge=False, fix_ratio=False):

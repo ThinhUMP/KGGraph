@@ -20,8 +20,6 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 
-
-
 # allowable edge features
 allowable_features = {
     "possible_bonds": [

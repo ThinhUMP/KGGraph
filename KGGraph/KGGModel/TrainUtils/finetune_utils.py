@@ -22,9 +22,6 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 
-
-
-
 def train(model, device, loader, optimizer, criterion):
     """
     Trains the model for one epoch over the provided data loader.

@@ -20,9 +20,6 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 
-
-
-
 class JTConstruct:
     def __init__(self, mol: Chem.Mol, fragment_type: str = "smotif"):
         """

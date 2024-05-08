@@ -26,9 +26,6 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 
-
-
-
 # allowable node and edge features
 allowable_features = {
     "possible_atomic_num_list": list(range(0, 119)),

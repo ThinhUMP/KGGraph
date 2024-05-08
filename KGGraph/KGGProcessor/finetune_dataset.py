@@ -26,9 +26,6 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 
 
-
-
-
 def feature(mol, decompose_type, mask_node=False, mask_edge=False, fix_ratio=False):
     x_node, x, num_part = x_feature(
         mol, decompose_type=decompose_type, mask_node=mask_node, fix_ratio=fix_ratio

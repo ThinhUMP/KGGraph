@@ -227,9 +227,9 @@ class EdgeFeature:
         if num_motif > 0:
             # Initialize motif edge attributes
             motif_edge_attr = torch.zeros((motif_edge_index.size(1), num_edge_features))
-            motif_edge_attr[
-                :, 0
-            ] = 6  # Set bond type for the edge between atoms and motif,
+            motif_edge_attr[:, 0] = (
+                6  # Set bond type for the edge between atoms and motif,
+            )
             # we can access this feature via bond_dict json with key value 'NODEMOTIF'
 
             # Initialize motif-motif edge attributes
@@ -263,9 +263,9 @@ class EdgeFeature:
             motif_edge_attr = torch.empty((0, 0))
             # Initialize super edge attributes when there are no motifs
             super_edge_attr = torch.zeros((num_atoms, num_edge_features))
-            super_edge_attr[
-                :, 0
-            ] = 5  # Set bond type for the edge between nodes and supernode,
+            super_edge_attr[:, 0] = (
+                5  # Set bond type for the edge between nodes and supernode,
+            )
             super_edge_attr = super_edge_attr.to(edge_attr_node.dtype).to(
                 edge_attr_node.device
             )

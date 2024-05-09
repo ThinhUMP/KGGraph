@@ -43,7 +43,7 @@ class EdgeFeature:
         self.mol = mol
         self.decompose_type = decompose_type
         self._cliques, self._clique_edges = None, None
-        self._num_edge_features = 4
+        self._num_edge_features = 5
 
     def decompose(self) -> Tuple[List[List[int]], List[Tuple[int, int]]]:
         if self.decompose_type == "motif":

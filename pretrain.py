@@ -50,7 +50,7 @@ def main():
     parser.add_argument("--hidden_size", type=int, default=512, help='hidden size')
     parser.add_argument('--mask_node', type=bool, default = True, help='Mask node for pretrain and finetune')
     parser.add_argument('--mask_edge', type=bool, default = True, help='Mask edge for pretrain and finetune')
-    parser.add_argument('--fix_ratio', type=bool, default = True, help='Fixing ratio of removal nodes and edges or not')
+    parser.add_argument('--fix_ratio', type=bool, default = True, help='Fixing ratio of removal nodes and edges at 0.25 or not')
     args = parser.parse_args()
 
 

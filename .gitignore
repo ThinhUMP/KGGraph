@@ -52,3 +52,4 @@ unittest/
 htmlcov/
 flake8_report/
 .pytest_cache/
+pretrain_model/

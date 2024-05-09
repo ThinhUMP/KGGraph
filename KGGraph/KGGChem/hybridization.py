@@ -183,7 +183,7 @@ class HybridizationFeaturize:
         total_sigma_bonds = HybridizationFeaturize.total_sigma_bond(atom)
         num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)
         hybri_feat = HYBRIDIZATION.get(
-            (total_sigma_bonds, num_lone_pairs), [0, 0, 0, 0, 0]
+            (total_sigma_bonds, num_lone_pairs), [0, 0, 0]
         )  # features for UNSPECIFIED hybridization is [0,0,0,0,0]
 
         return total_sigma_bonds, num_lone_pairs, hybri_feat

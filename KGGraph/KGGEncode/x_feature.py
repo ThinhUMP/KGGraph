@@ -190,7 +190,6 @@ def main():
             mol, decompose_type="motif", mask_node=False, fix_ratio=False
         )
         print(x)
-        break
     t2 = time.time()
     print(t2 - t1)
 

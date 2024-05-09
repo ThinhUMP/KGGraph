@@ -1,7 +1,5 @@
 import sys
 from pathlib import Path
-from KGGraph.KGGEncode.x_feature import x_feature
-from KGGraph.KGGEncode.edge_feature import edge_feature
 import os
 import torch
 import pandas as pd
@@ -23,6 +21,8 @@ from KGGraph.KGGProcessor.loader import (
     load_sider_dataset,
     load_toxcast_dataset,
 )
+from KGGraph.KGGEncode.x_feature import x_feature
+from KGGraph.KGGEncode.edge_feature import edge_feature
 
 
 def feature(mol, decompose_type, mask_node=False, mask_edge=False, fix_ratio=False):
@@ -250,10 +250,11 @@ class MoleculeDataset(InMemoryDataset):
 
 if __name__ == "__main__":
     dataset = MoleculeDataset(
-        "./Data/classification/bace/",
-        dataset="bace",
-        decompose_type="jin",
-        mask_node_edge=False,
+        "./Data/classification/tox21/",
+        dataset="tox21",
+        decompose_type="motif",
+        mask_node=False,
+        mask_edge=False,
         fix_ratio=False,
     )
     print(dataset)

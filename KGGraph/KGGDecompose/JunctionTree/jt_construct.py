@@ -9,15 +9,15 @@ from KGGraph.KGGChem.atom_utils import (
     get_smiles,
     get_assm_cands,
 )
-from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
-from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
-from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
-from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
 
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
+from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
+from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
+from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
+from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
 
 
 class JTConstruct:

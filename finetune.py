@@ -26,7 +26,7 @@ def main():
                         help='number of rounds to train to get the average test auc (default: 3)')
     parser.add_argument('--epochs', type=int, default=100,
                         help='number of epochs to train (default: 100)')
-    parser.add_argument('--lr_feat', type=float, default=0.001,
+    parser.add_argument('--lr_feat', type=float, default=0.0005,
                         help='learning rate (default: 0.0005)')
     parser.add_argument('--lr_pred', type=float, default=0.001,
                         help='learning rate for the prediction layer (default: 0.001)')
@@ -36,7 +36,7 @@ def main():
                         help='number of GNN message passing layers (default: 5).')
     parser.add_argument('--emb_dim', type=int, default=512,
                         help='embedding dimensions (default: 512)')
-    parser.add_argument('--dropout_ratio', type=float, default=0.5,
+    parser.add_argument('--dropout_ratio', type=float, default=0.7,
                         help='dropout ratio (default: 0.5)')
     parser.add_argument('--JK', type=str, default="last",
                         help='how the node features across layers are combined. last, sum, max or concat')
@@ -44,7 +44,7 @@ def main():
                         help='gnn_type (gin, gcn)')
     parser.add_argument('--decompose_type', type=str, default="motif",
                         help='decompose_type (brics, jin, motif, smotif) (default: motif).')
-    parser.add_argument('--dataset', type=str, default='bbbp',
+    parser.add_argument('--dataset', type=str, default='tox21',
                         help='[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]')
     parser.add_argument('--input_model_file', type=str, default = '', help='filename to read the model (if there is any)')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting the dataset.")

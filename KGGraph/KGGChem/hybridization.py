@@ -7,53 +7,95 @@ from .atom_features import (
 
 # five features are in the order of (numbers of orbital s, numbers of orbital p,
 # number of orbital d, total neighbors including hydrogens, number of lone pairs)
+# HYBRIDIZATION = {
+#     (1, 0): [1, 0, 0, 1, 0],  # AX1E0 => s => Ex: Na in NaI
+#     (0, 0): [1, 0, 0, 0, 0],  # AX0E0 => s => Ex: Zn2+
+#     (0, 1): [1, 0, 0, 1, 0],  # AX0E1 => s => Ex: H+
+#     (1, 1): [1, 1, 0, 1, 1],  # AX1E1 => sp => Ex: N of HCN
+#     (2, 0): [1, 1, 0, 2, 0],  # AX2E0 => sp => Ex: C#C
+#     (0, 2): [1, 1, 0, 0, 2],  # AX0E2 => sp => Ex: Cr smiles: [Cr+3]
+#     (2, 1): [1, 2, 0, 2, 1],  # AX2E1 => sp2 => Ex: N of Pyrimidine
+#     (1, 2): [1, 2, 0, 1, 2],  # AX1E2 => sp2 => Ex: O of C=O
+#     (3, 0): [1, 2, 0, 3, 0],  # AX3E0 => sp2 => Ex: N of pyrrole
+#     (0, 3): [1, 2, 0, 0, 3],  # AX0E3 => sp2 => Ex: Fe2+
+#     (1, 3): [1, 3, 0, 1, 3],  # AX1E3 => sp3 => Ex: R-X (X is halogen)
+#     (2, 2): [1, 3, 0, 2, 2],  # AX2E2 => sp3 => Ex: O of R-O-R'
+#     (3, 1): [1, 3, 0, 3, 1],  # AX3E1 => sp3 => Ex: N of NR3
+#     (4, 0): [1, 3, 0, 4, 0],  # AX4E0 => sp3 => Ex: C of CR4
+#     (0, 4): [1, 3, 0, 0, 4],  # AX0E4 => sp3 => Ex: X- (X is halogen) (KI)
+#     (6, -2): [
+#         1,
+#         3,
+#         0,
+#         6,
+#         0,
+#     ],  # AX6E0 => sp3 => Ex: Sb and hybridization: SP3 smiles: [SbH6+3]
+#     (2, 3): [1, 3, 1, 2, 3],  # AX2E3 => sp3d => Ex:Co
+#     (3, 2): [1, 3, 1, 3, 2],  # AX3E2 => sp3d
+#     (4, 1): [1, 3, 1, 4, 1],  # AX4E1 => sp3d
+#     (5, 0): [1, 3, 1, 5, 0],  # AX5E0 => sp3d => Ex: P of PCl5
+#     (0, 5): [
+#         1,
+#         3,
+#         1,
+#         0,
+#         5,
+#     ],  # AX0E5 => sp3d => Ex: Ag smiles: NC1=CC=C(S(=O)(=O)[N-]C2=NC=CC=N2)C=C1.[Ag+]
+#     (6, -1): [
+#         1,
+#         3,
+#         1,
+#         6,
+#         0,
+#     ],  # AX6E0 => sp3d => Ex: Al smiles: NC(=O)NC1N=C(O[AlH3](O)O)NC1=O
+#     (4, 2): [1, 3, 2, 4, 2],  # AX4E2 => sp3d2
+#     (2, 4): [1, 3, 2, 2, 4],  # AX2E4 => sp3d2 => Ex: Pd in PdCl2
+#     (3, 3): [1, 3, 2, 3, 3],  # AX3E3 => sp3d2 => Ex: Dy smiles: Cl[Dy](Cl)Cl
+#     (5, 1): [1, 3, 2, 5, 1],  # AX5E1 => sp3d2
+#     (1, 5): [1, 3, 2, 1, 5],  # AX1E5 => sp3d2 => Ex:CuI
+#     (6, 0): [1, 3, 2, 6, 0],  # AX6E0 => sp3d2 => Ex: S of SF6
+# }
 HYBRIDIZATION = {
-    (1, 0): [1, 0, 0, 1, 0],  # AX1E0 => s => Ex: Na in NaI
-    (0, 0): [1, 0, 0, 0, 0],  # AX0E0 => s => Ex: Zn2+
-    (0, 1): [1, 0, 0, 1, 0],  # AX0E1 => s => Ex: H+
-    (1, 1): [1, 1, 0, 1, 1],  # AX1E1 => sp => Ex: N of HCN
-    (2, 0): [1, 1, 0, 2, 0],  # AX2E0 => sp => Ex: C#C
-    (0, 2): [1, 1, 0, 0, 2],  # AX0E2 => sp => Ex: Cr smiles: [Cr+3]
-    (2, 1): [1, 2, 0, 2, 1],  # AX2E1 => sp2 => Ex: N of Pyrimidine
-    (1, 2): [1, 2, 0, 1, 2],  # AX1E2 => sp2 => Ex: O of C=O
-    (3, 0): [1, 2, 0, 3, 0],  # AX3E0 => sp2 => Ex: N of pyrrole
-    (0, 3): [1, 2, 0, 0, 3],  # AX0E3 => sp2 => Ex: Fe2+
-    (1, 3): [1, 3, 0, 1, 3],  # AX1E3 => sp3 => Ex: R-X (X is halogen)
-    (2, 2): [1, 3, 0, 2, 2],  # AX2E2 => sp3 => Ex: O of R-O-R'
-    (3, 1): [1, 3, 0, 3, 1],  # AX3E1 => sp3 => Ex: N of NR3
-    (4, 0): [1, 3, 0, 4, 0],  # AX4E0 => sp3 => Ex: C of CR4
-    (0, 4): [1, 3, 0, 0, 4],  # AX0E4 => sp3 => Ex: X- (X is halogen) (KI)
+    (1, 0): [1, 0, 0],  # AX1E0 => s => Ex: Na in NaI
+    (0, 0): [1, 0, 0],  # AX0E0 => s => Ex: Zn2+
+    (0, 1): [1, 0, 0],  # AX0E1 => s => Ex: H+
+    (1, 1): [1, 1, 0],  # AX1E1 => sp => Ex: N of HCN
+    (2, 0): [1, 1, 0],  # AX2E0 => sp => Ex: C#C
+    (0, 2): [1, 1, 0],  # AX0E2 => sp => Ex: Cr smiles: [Cr+3]
+    (2, 1): [1, 2, 0],  # AX2E1 => sp2 => Ex: N of Pyrimidine
+    (1, 2): [1, 2, 0],  # AX1E2 => sp2 => Ex: O of C=O
+    (3, 0): [1, 2, 0],  # AX3E0 => sp2 => Ex: N of pyrrole
+    (0, 3): [1, 2, 0],  # AX0E3 => sp2 => Ex: Fe2+
+    (1, 3): [1, 3, 0],  # AX1E3 => sp3 => Ex: R-X (X is halogen)
+    (2, 2): [1, 3, 0],  # AX2E2 => sp3 => Ex: O of R-O-R'
+    (3, 1): [1, 3, 0],  # AX3E1 => sp3 => Ex: N of NR3
+    (4, 0): [1, 3, 0],  # AX4E0 => sp3 => Ex: C of CR4
+    (0, 4): [1, 3, 0],  # AX0E4 => sp3 => Ex: X- (X is halogen) (KI)
     (6, -2): [
         1,
         3,
         0,
-        6,
-        0,
     ],  # AX6E0 => sp3 => Ex: Sb and hybridization: SP3 smiles: [SbH6+3]
-    (2, 3): [1, 3, 1, 2, 3],  # AX2E3 => sp3d => Ex:Co
-    (3, 2): [1, 3, 1, 3, 2],  # AX3E2 => sp3d
-    (4, 1): [1, 3, 1, 4, 1],  # AX4E1 => sp3d
-    (5, 0): [1, 3, 1, 5, 0],  # AX5E0 => sp3d => Ex: P of PCl5
+    (2, 3): [1, 3, 1],  # AX2E3 => sp3d => Ex:Co
+    (3, 2): [1, 3, 1],  # AX3E2 => sp3d
+    (4, 1): [1, 3, 1],  # AX4E1 => sp3d
+    (5, 0): [1, 3, 1],  # AX5E0 => sp3d => Ex: P of PCl5
     (0, 5): [
         1,
         3,
         1,
-        0,
-        5,
     ],  # AX0E5 => sp3d => Ex: Ag smiles: NC1=CC=C(S(=O)(=O)[N-]C2=NC=CC=N2)C=C1.[Ag+]
     (6, -1): [
         1,
         3,
         1,
-        6,
-        0,
     ],  # AX6E0 => sp3d => Ex: Al smiles: NC(=O)NC1N=C(O[AlH3](O)O)NC1=O
-    (4, 2): [1, 3, 2, 4, 2],  # AX4E2 => sp3d2
-    (2, 4): [1, 3, 2, 2, 4],  # AX2E4 => sp3d2 => Ex: Pd in PdCl2
-    (3, 3): [1, 3, 2, 3, 3],  # AX3E3 => sp3d2 => Ex: Dy smiles: Cl[Dy](Cl)Cl
-    (5, 1): [1, 3, 2, 5, 1],  # AX5E1 => sp3d2
-    (1, 5): [1, 3, 2, 1, 5],  # AX1E5 => sp3d2 => Ex:CuI
-    (6, 0): [1, 3, 2, 6, 0],  # AX6E0 => sp3d2 => Ex: S of SF6
+    (4, 2): [1, 3, 2],  # AX4E2 => sp3d2
+    (2, 4): [1, 3, 2],  # AX2E4 => sp3d2 => Ex: Pd in PdCl2
+    (3, 3): [1, 3, 2],  # AX3E3 => sp3d2 => Ex: Dy smiles: Cl[Dy](Cl)Cl
+    (5, 1): [1, 3, 2],  # AX5E1 => sp3d2
+    (1, 5): [1, 3, 2],  # AX1E5 => sp3d2 => Ex:CuI
+    (6, 0): [1, 3, 2],  # AX6E0 => sp3d2 => Ex: S of SF6
 }
 
 max_bond_hybridization = {

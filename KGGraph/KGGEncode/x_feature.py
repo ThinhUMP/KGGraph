@@ -6,6 +6,11 @@ import random
 from copy import deepcopy
 import numpy as np
 from rdkit import Chem
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
 from KGGraph.KGGChem.atom_utils import get_smiles
 from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
@@ -18,12 +23,6 @@ from KGGraph.KGGChem.atom_features import (
     get_symbol,
     get_atomic_number,
 )
-
-
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
 
 
 # allowable node and edge features
@@ -182,9 +181,9 @@ def main():
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
-    from KGGraph.KGGProcessor.loader import load_bace_dataset
+    from KGGraph.KGGProcessor.loader import load_tox21_dataset
 
-    _, mols, folds, _ = load_bace_dataset("Data/classification/bace/raw/bace.csv")
+    _, mols, _ = load_tox21_dataset("Data/classification/tox21/raw/tox21.csv")
     t1 = time.time()
     for mol in mols:
         x_node, x, num_part = x_feature(

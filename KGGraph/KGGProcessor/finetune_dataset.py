@@ -10,6 +10,11 @@ from torch_geometric.data import InMemoryDataset
 from itertools import repeat
 from joblib import Parallel, delayed
 from tqdm import tqdm
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
 from KGGraph.KGGProcessor.loader import (
     load_tox21_dataset,
     load_bace_dataset,
@@ -18,12 +23,6 @@ from KGGraph.KGGProcessor.loader import (
     load_sider_dataset,
     load_toxcast_dataset,
 )
-
-
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
 
 
 def feature(mol, decompose_type, mask_node=False, mask_edge=False, fix_ratio=False):

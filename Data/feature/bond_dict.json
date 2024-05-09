@@ -1,6 +1,6 @@
-{"SINGLE": [1,0,0,0], 
-"DOUBLE": [1,1,0,0], 
-"TRIPLE": [1,2,0,0], 
-"AROMATIC": [1,0.5,1,1],
-"_comment": "[sigma, pi, conjugate, aromatic]"
+{"SINGLE": [1,0], 
+"DOUBLE": [1,1], 
+"TRIPLE": [1,2], 
+"AROMATIC": [1,0.5],
+"_comment": "[sigma, pi]"
 }

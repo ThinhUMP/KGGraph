@@ -7,17 +7,16 @@ import random
 from rdkit import Chem
 from typing import Tuple, List
 import numpy as np
-from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
-from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
-from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
-from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
-from KGGraph.KGGChem.bond_features import bond_type_feature
-
 
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
+from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
+from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
+from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
+from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
+from KGGraph.KGGChem.bond_features import bond_type_feature
 
 
 # allowable edge features
@@ -44,7 +43,7 @@ class EdgeFeature:
         self.mol = mol
         self.decompose_type = decompose_type
         self._cliques, self._clique_edges = None, None
-        self._num_edge_features = 6
+        self._num_edge_features = 4
 
     def decompose(self) -> Tuple[List[List[int]], List[Tuple[int, int]]]:
         if self.decompose_type == "motif":
@@ -166,18 +165,18 @@ class EdgeFeature:
             for k, motif_nodes in enumerate(cliques):
                 motif_edge_index.extend([[i, num_atoms + k] for i in motif_nodes])
 
-            for k in range(len(cliques)):
-                for h in range(k + 1, len(cliques)):
-                    for bond in clique_edges:
-                        if (bond[0] == k and bond[1] == h) or (
-                            bond[0] == h and bond[1] == k
-                        ):
-                            motif_edge_index.extend(
-                                [
-                                    [num_atoms + k, num_atoms + h],
-                                    [num_atoms + h, num_atoms + k],
-                                ]
-                            )
+            # for k in range(len(cliques)):
+            #     for h in range(k + 1, len(cliques)):
+            #         for bond in clique_edges:
+            #             if (bond[0] == k and bond[1] == h) or (
+            #                 bond[0] == h and bond[1] == k
+            #             ):
+            #                 motif_edge_index.extend(
+            #                     [
+            #                         [num_atoms + k, num_atoms + h],
+            #                         [num_atoms + h, num_atoms + k],
+            #                     ]
+            #                 )
 
             motif_edge_index = torch.tensor(
                 np.array(motif_edge_index).T, dtype=torch.long
@@ -228,26 +227,24 @@ class EdgeFeature:
         """
         if num_motif > 0:
             # Initialize motif edge attributes
-            motif_node_edge_attr = torch.zeros(
-                (motif_edge_index.size(1) - len(clique_edges) * 2, num_edge_features)
-            )
-            motif_node_edge_attr[:, 0] = (
-                7  # Set bond type for the edge between atoms and motif,
+            motif_edge_attr = torch.zeros((motif_edge_index.size(1), num_edge_features))
+            motif_edge_attr[:, 0] = (
+                6  # Set bond type for the edge between atoms and motif,
             )
             # we can access this feature via bond_dict json with key value 'NODEMOTIF'
 
             # Initialize motif-motif edge attributes
-            motif_motif_edge_attr = torch.zeros(
-                (len(clique_edges) * 2, num_edge_features)
-            )
-            motif_motif_edge_attr[:, 0] = (
-                6  # Set bond type for the edge between motif and motif
-            )
+            # motif_motif_edge_attr = torch.zeros(
+            #     (len(clique_edges) * 2, num_edge_features)
+            # )
+            # motif_motif_edge_attr[:, 0] = (
+            #     6  # Set bond type for the edge between motif and motif
+            # )
 
-            # Motif edge attributes
-            motif_edge_attr = torch.cat(
-                (motif_node_edge_attr, motif_motif_edge_attr), dim=0
-            )
+            # # Motif edge attributes
+            # motif_edge_attr = torch.cat(
+            #     (motif_node_edge_attr, motif_motif_edge_attr), dim=0
+            # )
 
             # Initialize super edge attributes
             super_edge_attr = torch.zeros((num_motif, num_edge_features))
@@ -402,7 +399,7 @@ def edge_feature(mol, decompose_type, mask_edge, fix_ratio):
 
 def main():
     import time
-    from KGGraph.KGGProcessor.loader import load_bace_dataset
+    from KGGraph.KGGProcessor.loader import load_tox21_dataset
     from pathlib import Path
     import sys
 
@@ -410,8 +407,8 @@ def main():
     root_dir = Path(__file__).resolve().parents[2]
     # Add the root directory to the system path
     sys.path.append(str(root_dir))
-    smiles_list, mols_list, folds, abels = load_bace_dataset(
-        "./Data/classification/bace/raw/bace.csv"
+    smiles_list, mols_list, labels = load_tox21_dataset(
+        "./Data/classification/tox21/raw/tox21.csv"
     )
     t1 = time.time()
     for mol in mols_list:

@@ -12,7 +12,6 @@ sys.path.append(root_dir)
 
 
 class TestMolecularFunctions(unittest.TestCase):
-
     def setUp(self):
         # Simple molecules for testing
         self.mol = Chem.MolFromSmiles("CC1=CC=CC=C1")  # Toluene

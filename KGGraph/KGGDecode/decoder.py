@@ -18,7 +18,6 @@ def create_var(tensor, device, requires_grad=None):
 
 
 class Model_decoder(nn.Module):
-
     def __init__(self, hidden_size, device, dropout=0.2):
         super(Model_decoder, self).__init__()
         self.hidden_size = hidden_size
@@ -45,8 +44,9 @@ class Model_decoder(nn.Module):
         self.bond_type_s = nn.Sequential(
             nn.Linear(2 * hidden_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, MAX_BOND_TYPE))
-        
+            nn.Linear(hidden_size, MAX_BOND_TYPE),
+        )
+
         # bond type features
         self.bond_type_s_sigma = nn.Sequential(
             nn.Linear(2 * hidden_size, hidden_size),
@@ -227,7 +227,7 @@ class Model_decoder(nn.Module):
                 #     bond_type_input
                 # ).squeeze(-1)
 
-                bond_type_target = mol.edge_attr_nosuper[:,0].to(self.device)
+                bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device)
                 bond_type_sigma_target = (
                     mol.edge_attr_nosuper[:, 2].to(self.device).float()
                 )
@@ -239,7 +239,9 @@ class Model_decoder(nn.Module):
                 #     mol.edge_attr_nosuper[:, 5].to(self.device).float()
                 # )
 
-                bond_type_loss += self.bond_type_pred_loss(bond_type_pred, bond_type_target)
+                bond_type_loss += self.bond_type_pred_loss(
+                    bond_type_pred, bond_type_target
+                )
                 bond_type_sigma_loss += self.bond_type_sigma_pred_loss(
                     bond_type_sigma_pred, bond_type_sigma_target
                 )

@@ -9,7 +9,6 @@ from KGGraph.KGGChem.chemutils import get_clique_mol
 
 
 class MotifDecomposition:
-
     @staticmethod
     def _initial_cliques(mol: Chem.Mol):
         """

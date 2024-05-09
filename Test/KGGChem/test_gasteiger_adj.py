@@ -5,7 +5,6 @@ import numpy as np
 
 
 class TestGasteigerADJ(unittest.TestCase):
-
     def setUp(self):
         # Create a simple molecule for testing
         self.smiles = "CCO"  # Ethanol

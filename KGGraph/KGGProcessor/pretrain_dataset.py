@@ -14,7 +14,6 @@ from KGGraph.KGGChem.atom_utils import get_mol
 
 
 class MoleculeDataset(Dataset):
-
     def __init__(self, data_file, decompose_type, mask_node, mask_edge, fix_ratio):
         self.decompose_type = decompose_type
         self.mask_node = mask_node
@@ -46,7 +45,6 @@ class MoleculeDataset(Dataset):
 
 
 class MolGraph(object):
-
     def __init__(self, smiles, decompose_type, mask_node, mask_edge, fix_ratio):
         self.smiles = smiles
         self.mol = get_mol(smiles)

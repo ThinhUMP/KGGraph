@@ -2,7 +2,6 @@ import unittest
 
 
 class TestModelDecoder(unittest.TestCase):
-
     def setUp(self):
         pass
 

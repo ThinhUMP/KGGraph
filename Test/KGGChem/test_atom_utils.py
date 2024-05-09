@@ -22,7 +22,6 @@ sys.path.append(root_dir)
 
 
 class TestChemUtils(unittest.TestCase):
-
     def setUp(self):
         self.smile = "CO"
         self.mol = Chem.MolFromSmiles(self.smile)

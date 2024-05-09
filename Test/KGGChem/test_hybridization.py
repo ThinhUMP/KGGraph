@@ -9,7 +9,6 @@ sys.path.append(root_dir)
 
 
 class TestHybridizationFeaturize(unittest.TestCase):
-
     def setUp(self):
         # Create some molecules to test with
         self.mol_ethane = Chem.MolFromSmiles("CC")

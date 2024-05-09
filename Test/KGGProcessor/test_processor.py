@@ -2,7 +2,6 @@ import unittest
 
 
 class TestProcessor(unittest.TestCase):
-
     def setUp(self):
         pass
 

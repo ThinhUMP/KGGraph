@@ -57,20 +57,20 @@ class TestBondProperties(unittest.TestCase):
     def test_bond_type_feature(self):
         bonds = Chem.MolFromSmiles("c1ccccc1").GetBonds()
         self.assertEqual(
-            bond_type_feature(bonds[0]), [1, 0.5, 1, 1]
+            bond_type_feature(bonds[0]), [1, 0.5, 1]
         )  # Example vector for 'AROMATIC'
         # Test if the function returns correct feature vector
         self.assertEqual(
-            bond_type_feature(self.double_bond), [1, 1, 1, 0]
+            bond_type_feature(self.double_bond), [1, 1, 1]
         )  # Example vector for 'DOUBLE' conjugated
         self.assertEqual(
-            bond_type_feature(self.single_bond), [1, 0, 0, 0]
+            bond_type_feature(self.single_bond), [1, 0, 0]
         )  # Example vector for 'SINGLE' NOT conjugated
         self.assertEqual(
-            bond_type_feature(self.bonds[2]), [1, 0, 1, 0]
+            bond_type_feature(self.bonds[2]), [1, 0, 1]
         )  # Example vector for 'SINGLE' conjugated
         self.assertEqual(
-            bond_type_feature(self.bonds[3]), [1, 1, 1, 0]
+            bond_type_feature(self.bonds[3]), [1, 1, 1]
         )  # Example vector for 'DOUBLE' conjugated
 
 

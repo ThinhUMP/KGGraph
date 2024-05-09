@@ -4,7 +4,6 @@ from typing import List
 
 
 class BRCISDecomposition:
-
     @staticmethod
     def create_initial_cliques(mol: Chem.Mol) -> List[List[int]]:
         """

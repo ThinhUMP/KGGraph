@@ -2,7 +2,6 @@ import unittest
 
 
 class TestDecompose(unittest.TestCase):
-
     def setUp(self):
         pass
 

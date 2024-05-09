@@ -45,9 +45,11 @@ class AtomFeature:
         x_node_list = []
 
         for atom in mol.GetAtoms():
-            total_sigma_bonds, num_lone_pairs, hybri_feat = (
-                HybridizationFeaturize.feature(atom)
-            )
+            (
+                total_sigma_bonds,
+                num_lone_pairs,
+                hybri_feat,
+            ) = HybridizationFeaturize.feature(atom)
             if (
                 hybri_feat == [0, 0, 0, 0, 0]
                 and get_hybridization(atom) != "UNSPECIFIED"
@@ -75,7 +77,6 @@ class AtomFeature:
 
     @staticmethod
     def masked_atom_feature(mol: Chem.Mol, x_node, fix_ratio):
-
         num_node = mol.GetNumAtoms()
         if fix_ratio:
             num_masked_node = max([1, math.floor(0.25 * num_node)])

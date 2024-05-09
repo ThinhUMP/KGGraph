@@ -2,7 +2,6 @@ import unittest
 
 
 class TestEncode(unittest.TestCase):
-
     def setUp(self):
         pass
 

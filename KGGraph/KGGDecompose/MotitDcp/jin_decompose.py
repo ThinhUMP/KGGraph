@@ -6,7 +6,6 @@ from typing import List, Tuple, Dict
 
 
 class TreeDecomposition:
-
     @staticmethod
     def create_initial_cliques(mol: Chem.Mol) -> List[List[int]]:
         """

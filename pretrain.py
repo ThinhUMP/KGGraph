@@ -80,7 +80,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model/pretrain.pth",
+        default="./saved_model_nomask/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -93,13 +93,13 @@ def main():
     parser.add_argument(
         "--mask_node",
         type=bool,
-        default=True,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=True,
+        default=False,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(
@@ -146,9 +146,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model"):
-        os.mkdir("./saved_model")
-    if "pretrain.pth" in os.listdir("saved_model"):
+    if not os.path.isdir("./saved_model_nomask"):
+        os.mkdir("./saved_model_nomask")
+    if "pretrain.pth" in os.listdir("saved_model_nomask"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

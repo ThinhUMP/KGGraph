@@ -139,12 +139,11 @@ class Model_decoder(nn.Module):
             bond_type_pi_loss,
             bond_type_conjugate_loss,
             # bond_type_loss,
-            bond_type_loss_feature,
-        ) = (0, 0, 0, 0)
+            # bond_type_loss_feature,
+        ) = (0, 0, 0)
         # atom_type_loss = 0
-        atom_hybri_s_loss, atom_hybri_p_loss, atom_hybri_d_loss, 
-        atom_hybri_a_loss, atom_hybri_lonepair_loss, atom_hybri_loss = (
-            0,
+        (atom_hybri_s_loss, atom_hybri_p_loss, atom_hybri_d_loss, 
+        atom_hybri_a_loss, atom_hybri_lonepair_loss) = (
             0,
             0,
             0,
@@ -317,10 +316,10 @@ class Model_decoder(nn.Module):
                     atom_hybri_lonepair_pred, atom_hybri_lonepair_target
                 )
 
-                atom_hybri_loss += (
-                    atom_hybri_s_loss + atom_hybri_p_loss + atom_hybri_d_loss
-                    + atom_hybri_a_loss + atom_hybri_lonepair_loss
-                ) / 5
+                # atom_hybri_loss += (
+                #     atom_hybri_s_loss + atom_hybri_p_loss + atom_hybri_d_loss
+                #     + atom_hybri_a_loss + atom_hybri_lonepair_loss
+                # ) / 5
 
         loss_tur = [
             bond_if_loss / mol_num,

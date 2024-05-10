@@ -44,19 +44,24 @@ class GINConv(MessagePassing):
             torch.nn.Linear(2 * emb_dim, emb_dim),
         )
 
-        self.edge_embedding0 = torch.nn.Embedding(num_bond_type, emb_dim)
-        self.edge_embedding1 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
-        self.edge_embedding2 = torch.nn.Embedding(bond_type_1, emb_dim)
-        self.edge_embedding3 = torch.nn.Embedding(bond_type_2, emb_dim)
-        self.edge_embedding4 = torch.nn.Embedding(bond_type_3, emb_dim)
+        # self.edge_embedding0 = torch.nn.Embedding(num_bond_type, emb_dim)
+        # self.edge_embedding1 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
+        # self.edge_embedding2 = torch.nn.Embedding(bond_type_1, emb_dim)
+        # self.edge_embedding3 = torch.nn.Embedding(bond_type_2, emb_dim)
+        # self.edge_embedding4 = torch.nn.Embedding(bond_type_3, emb_dim)
         # self.edge_embedding5 = torch.nn.Embedding(bond_type_4, emb_dim)
 
-        torch.nn.init.xavier_uniform_(self.edge_embedding0.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding1.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding0.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding1.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
         # torch.nn.init.xavier_uniform_(self.edge_embedding5.weight.data)
+        self.edge_mlp = torch.nn.Sequential(
+            torch.nn.Linear(5, 2*emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2*emb_dim, emb_dim)
+        )
         self.aggr = aggr
 
     def forward(self, x, edge_index, edge_attr):
@@ -78,16 +83,19 @@ class GINConv(MessagePassing):
         self_loop_attr = torch.zeros(x.size(0), edge_attr.size(1))
         self_loop_attr[:, 0] = 7  # bond type for self-loop edge
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
-        edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
+        edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0).float()
 
-        edge_embeddings = (
-            self.edge_embedding0(edge_attr[:, 0])
-            + self.edge_embedding1(edge_attr[:, 1])
-            + self.edge_embedding2(edge_attr[:, 2])
-            + self.edge_embedding3(edge_attr[:, 3])
-            + self.edge_embedding4(edge_attr[:, 4])
-            # + self.edge_embedding5(edge_attr[:, 5])
-        )
+        
+        # edge_embeddings = (
+        #     self.edge_embedding0(edge_attr[:, 0])
+        #     + self.edge_embedding1(edge_attr[:, 1])
+        #     + self.edge_embedding2(edge_attr[:, 2])
+        #     + self.edge_embedding3(edge_attr[:, 3])
+        #     + self.edge_embedding4(edge_attr[:, 4])
+        #     # + self.edge_embedding5(edge_attr[:, 5])
+        # )
+        # edge_attr.to(torch.float)
+        edge_embeddings = self.edge_mlp(edge_attr)
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 

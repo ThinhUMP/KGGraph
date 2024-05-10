@@ -41,11 +41,11 @@ class Model_decoder(nn.Module):
             self.feat_drop = lambda x: x
 
         # bond type
-        self.bond_type_s = nn.Sequential(
-            nn.Linear(2 * hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, MAX_BOND_TYPE),
-        )
+        # self.bond_type_s = nn.Sequential(
+        #     nn.Linear(2 * hidden_size, hidden_size),
+        #     nn.ReLU(),
+        #     nn.Linear(hidden_size, MAX_BOND_TYPE),
+        # )
 
         # bond type features
         self.bond_type_s_sigma = nn.Sequential(
@@ -63,17 +63,17 @@ class Model_decoder(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_size, 1),
         )
-        self.bond_type_s_aromatic = nn.Sequential(
-            nn.Linear(2 * hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, 1),
-        )
+        # self.bond_type_s_aromatic = nn.Sequential(
+        #     nn.Linear(2 * hidden_size, hidden_size),
+        #     nn.ReLU(),
+        #     nn.Linear(hidden_size, 1),
+        # )
 
-        self.atom_type_s = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, MAX_ATOM_TYPE),
-        )
+        # self.atom_type_s = nn.Sequential(
+        #     nn.Linear(hidden_size, hidden_size),
+        #     nn.ReLU(),
+        #     nn.Linear(hidden_size, MAX_ATOM_TYPE),
+        # )
 
         # hybridization features
         self.atom_hybri_s_s = nn.Sequential(
@@ -84,6 +84,14 @@ class Model_decoder(nn.Module):
         )
         self.atom_hybri_s_d = nn.Sequential(
             nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 3)
+        )
+        self.atom_hybri_s_a = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 7)
+        )
+        self.atom_hybri_s_lonepair = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, 7),
         )
 
         self.atom_num_s = nn.Sequential(
@@ -99,18 +107,20 @@ class Model_decoder(nn.Module):
         )
 
         self.bond_pred_loss = nn.BCEWithLogitsLoss()
-        self.bond_type_pred_loss = nn.CrossEntropyLoss()
+        # self.bond_type_pred_loss = nn.CrossEntropyLoss()
         # bond type features
         self.bond_type_sigma_pred_loss = nn.BCEWithLogitsLoss()
         self.bond_type_pi_pred_loss = nn.CrossEntropyLoss()
         self.bond_type_conjugate_pred_loss = nn.BCEWithLogitsLoss()
         # self.bond_type_aromatic_pred_loss = nn.BCEWithLogitsLoss()
 
-        self.atom_type_pred_loss = nn.CrossEntropyLoss()
+        # self.atom_type_pred_loss = nn.CrossEntropyLoss()
         # hybridization features
         self.atom_hybri_s_pred_loss = nn.BCEWithLogitsLoss()
         self.atom_hybri_p_pred_loss = nn.CrossEntropyLoss()
         self.atom_hybri_d_pred_loss = nn.CrossEntropyLoss()
+        self.atom_hybri_a_pred_loss = nn.CrossEntropyLoss()
+        self.atom_hybri_lonepair_pred_loss = nn.CrossEntropyLoss()
 
         self.atom_num_pred_loss = nn.SmoothL1Loss(reduction="mean")
         self.bond_num_pred_loss = nn.SmoothL1Loss(reduction="mean")
@@ -128,11 +138,14 @@ class Model_decoder(nn.Module):
             bond_type_sigma_loss,
             bond_type_pi_loss,
             bond_type_conjugate_loss,
-            bond_type_loss,
+            # bond_type_loss,
             bond_type_loss_feature,
-        ) = (0, 0, 0, 0, 0)
-        atom_type_loss = 0
-        atom_hybri_s_loss, atom_hybri_p_loss, atom_hybri_d_loss, atom_hybri_loss = (
+        ) = (0, 0, 0, 0)
+        # atom_type_loss = 0
+        atom_hybri_s_loss, atom_hybri_p_loss, atom_hybri_d_loss, 
+        atom_hybri_a_loss, atom_hybri_lonepair_loss, atom_hybri_loss = (
+            0,
+            0,
             0,
             0,
             0,
@@ -215,7 +228,7 @@ class Model_decoder(nn.Module):
                 )
 
                 bond_type_input = torch.cat([start_rep, end_rep], dim=1)
-                bond_type_pred = self.bond_type_s(bond_type_input)
+                # bond_type_pred = self.bond_type_s(bond_type_input)
                 bond_type_sigma_pred = self.bond_type_s_sigma(bond_type_input).squeeze(
                     -1
                 )
@@ -227,7 +240,7 @@ class Model_decoder(nn.Module):
                 #     bond_type_input
                 # ).squeeze(-1)
 
-                bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device)
+                # bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device)
                 bond_type_sigma_target = (
                     mol.edge_attr_nosuper[:, 2].to(self.device).float()
                 )
@@ -239,9 +252,9 @@ class Model_decoder(nn.Module):
                 #     mol.edge_attr_nosuper[:, 5].to(self.device).float()
                 # )
 
-                bond_type_loss += self.bond_type_pred_loss(
-                    bond_type_pred, bond_type_target
-                )
+                # bond_type_loss += self.bond_type_pred_loss(
+                #     bond_type_pred, bond_type_target
+                # )
                 bond_type_sigma_loss += self.bond_type_sigma_pred_loss(
                     bond_type_sigma_pred, bond_type_sigma_target
                 )
@@ -255,21 +268,21 @@ class Model_decoder(nn.Module):
                 #     bond_type_aromatic_pred, bond_type_aromatic_target
                 # )
 
-                bond_type_loss_feature += (
-                    bond_type_sigma_loss
-                    + bond_type_pi_loss
-                    + bond_type_conjugate_loss
-                    # + bond_type_aromatic_loss
-                ) / 3
+                # bond_type_loss_feature += (
+                #     bond_type_sigma_loss
+                #     + bond_type_pi_loss
+                #     + bond_type_conjugate_loss
+                #     # + bond_type_aromatic_loss
+                # ) / 3
 
                 # atom type
                 # mol_rep = node_rep[mol_index].to(self.device)
-                atom_type_pred = self.atom_type_s(mol_rep)
+                # atom_type_pred = self.atom_type_s(mol_rep)
 
-                atom_type_target = mol.x_nosuper[:, 0].to(self.device)
-                atom_type_loss += self.atom_type_pred_loss(
-                    atom_type_pred, atom_type_target
-                )
+                # atom_type_target = mol.x_nosuper[:, 0].to(self.device)
+                # atom_type_loss += self.atom_type_pred_loss(
+                #     atom_type_pred, atom_type_target
+                # )
 
                 # _, preds = torch.max(atom_type_pred, dim=1)
                 # pred_acc = torch.eq(preds, atom_type_target).float()
@@ -279,10 +292,14 @@ class Model_decoder(nn.Module):
                 atom_hybri_s_pred = self.atom_hybri_s_s(mol_rep).squeeze(-1)
                 atom_hybri_p_pred = self.atom_hybri_s_p(mol_rep)
                 atom_hybri_d_pred = self.atom_hybri_s_d(mol_rep)
+                atom_hybri_a_pred = self.atom_hybri_s_a(mol_rep)
+                atom_hybri_lonepair_pred = self.atom_hybri_s_lonepair(mol_rep)
 
                 atom_hybri_s_target = mol.x_nosuper[:, 2].to(self.device).float()
                 atom_hybri_p_target = mol.x_nosuper[:, 3].to(self.device)
                 atom_hybri_d_target = mol.x_nosuper[:, 4].to(self.device)
+                atom_hybri_a_target = mol.x_nosuper[:, 5].to(self.device)
+                atom_hybri_lonepair_target = mol.x_nosuper[:, 6].to(self.device)
 
                 atom_hybri_s_loss += self.atom_hybri_s_pred_loss(
                     atom_hybri_s_pred, atom_hybri_s_target
@@ -293,19 +310,34 @@ class Model_decoder(nn.Module):
                 atom_hybri_d_loss += self.atom_hybri_d_pred_loss(
                     atom_hybri_d_pred, atom_hybri_d_target
                 )
+                atom_hybri_a_loss += self.atom_hybri_a_pred_loss(
+                    atom_hybri_a_pred, atom_hybri_a_target
+                )
+                atom_hybri_lonepair_loss += self.atom_hybri_lonepair_pred_loss(
+                    atom_hybri_lonepair_pred, atom_hybri_lonepair_target
+                )
 
                 atom_hybri_loss += (
                     atom_hybri_s_loss + atom_hybri_p_loss + atom_hybri_d_loss
-                ) / 3
+                    + atom_hybri_a_loss + atom_hybri_lonepair_loss
+                ) / 5
 
         loss_tur = [
             bond_if_loss / mol_num,
-            bond_type_loss / mol_num,
-            bond_type_loss_feature / mol_num,
-            atom_type_loss / mol_num,
+            bond_type_sigma_loss / mol_num,
+            bond_type_pi_loss / mol_num,
+            bond_type_conjugate_loss / mol_num,
+            # bond_type_loss / mol_num,
+            # bond_type_loss_feature / mol_num,
+            # atom_type_loss / mol_num,
+            atom_hybri_s_loss / mol_num,
+            atom_hybri_p_loss / mol_num, 
+            atom_hybri_d_loss / mol_num,
+            atom_hybri_a_loss / mol_num,
+            atom_hybri_lonepair_loss / mol_num,
             atom_num_loss,
             bond_num_loss,
-            atom_hybri_loss / mol_num,
+            # atom_hybri_loss / mol_num,
         ]
         # results = [bond_if_auc/mol_num, bond_if_ap/mol_num, atom_type_acc/mol_num, atom_num_rmse, bond_num_rmse]
 
@@ -314,7 +346,7 @@ class Model_decoder(nn.Module):
     def forward(self, mol_batch, node_rep, super_node_rep):
         loss_tur = self.topo_pred(mol_batch, node_rep, super_node_rep)
         loss = 0
-        loss_weight = create_var(torch.rand(7), self.device, requires_grad=True)
+        loss_weight = create_var(torch.rand(11), self.device, requires_grad=True)
         loss_wei = torch.softmax(loss_weight, dim=-1)
         for index in range(len(loss_tur)):
             loss += loss_tur[index] * loss_wei[index]

@@ -55,7 +55,7 @@ class GINConv(MessagePassing):
         torch.nn.init.xavier_uniform_(self.edge_embedding1.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
-        # torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
+        torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
         
         # self.edge_mlp = torch.nn.Sequential(
         #     torch.nn.Linear(5, 2*emb_dim),
@@ -124,69 +124,4 @@ class GINConv(MessagePassing):
         """
         return self.mlp(aggr_out)
 
-# import torch
-# import torch.nn as nn
-# from torch_geometric.nn import MessagePassing
-# from torch_geometric.utils import add_self_loops
-
-# class GINConv(MessagePassing):
-#     """
-#     GINConv is an extension of the Graph Isomorphism Network (GIN) that incorporates edge information
-#     by concatenating edge embeddings with node features before aggregation. This class extends the
-#     MessagePassing class to enable edge feature utilization in message passing.
-    
-#     Args:
-#         emb_dim (int): The dimensionality of embeddings for nodes and edges.
-#         aggr (str): The aggregation scheme to use ('add', 'mean', 'max').
-
-#     Reference:
-#         Xu, K., Hu, W., Leskovec, J., & Jegelka, S. (2018). How powerful are graph neural networks?
-#         https://arxiv.org/abs/1810.00826
-#     """
-
-#     def __init__(self, emb_dim, aggr='add'):
-#         super(GINConv, self).__init__(aggr=aggr)
-#         # Multi-layer perceptron for node features
-#         self.mlp = nn.Sequential(
-#             nn.Linear(emb_dim, 2 * emb_dim),
-#             nn.ReLU(),
-#             nn.Linear(2 * emb_dim, emb_dim)
-#         )
-#         self.mlp.apply(self.init_weights)  # Apply weight initialization
-
-#         # Multi-layer perceptron for combining node and edge features
-#         self.edge_mlp = nn.Sequential(
-#             nn.Linear(5, 2 * emb_dim),  # Assuming edge_attr and x_j are of the same dimension
-#             nn.ReLU(),
-#             nn.Linear(2 * emb_dim, emb_dim)
-#         )
-#         self.edge_mlp.apply(self.init_weights)  # Apply weight initialization
-
-#     @staticmethod
-#     def init_weights(m):
-#         if isinstance(m, nn.Linear):
-#             torch.nn.init.xavier_uniform_(m.weight)
-#             if m.bias is not None:
-#                 m.bias.data.fill_(0.01)
-
-#     def forward(self, x, edge_index, edge_attr):
-#         # Add self-loops to the edge space
-#         edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
-
-#         # Add features corresponding to self-loop edges, assuming edge_attr is initially zero-padded
-#         self_loop_attr = torch.zeros(x.size(0), edge_attr.size(1), device=edge_attr.device)
-#         self_loop_attr[:, 0] = 7  # An example feature for self-loops
-#         edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
-        
-#         # Start message passing
-#         return self.propagate(edge_index, x=x, edge_attr=self.edge_mlp(edge_attr))
-
-#     def message(self, x_j, edge_attr):
-#         # Combine node and edge features
-#         # combined_features = torch.cat([x_j, edge_attr], dim=-1)
-#         return x_j + edge_attr
-
-#     def update(self, aggr_out):
-#         # Update node features
-#         return self.mlp(aggr_out)
 

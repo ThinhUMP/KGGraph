@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model/pretrain.pth",
+        default="saved_model_nomask/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

@@ -92,7 +92,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bbbp",
+        default="sider",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(

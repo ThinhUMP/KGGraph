@@ -46,7 +46,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=1,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_nomask/pretrain.pth",
+        default="",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

@@ -55,7 +55,7 @@ class GINConv(MessagePassing):
         torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
-        
+
         self.aggr = aggr
 
     def forward(self, x, edge_index, edge_attr):
@@ -79,7 +79,6 @@ class GINConv(MessagePassing):
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
 
-        
         edge_embeddings = (
             self.edge_embedding0(edge_attr[:, 0])
             + self.edge_embedding1(edge_attr[:, 1])
@@ -114,5 +113,3 @@ class GINConv(MessagePassing):
             Tensor: The updated node features.
         """
         return self.mlp(aggr_out)
-
-

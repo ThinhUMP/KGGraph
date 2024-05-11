@@ -54,21 +54,13 @@ class GNN(torch.nn.Module):
         # List of MLPs
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):
-            if gnn_type == "gin":
-                self.gnns.append(GINConv(emb_dim, aggr="add"))
-            elif gnn_type == "gcn":
-                pass
-            elif gnn_type == "gat":
-                pass
-            elif gnn_type == "graphsage":
-                pass
+            self.gnns.append(GINConv(emb_dim, aggr="add"))
 
         # List of batchnorms
         self.batch_norms = torch.nn.ModuleList()
         for layer in range(num_layer):
             self.batch_norms.append(torch.nn.BatchNorm1d(emb_dim))
 
-    # def forward(self, x, edge_index, edge_attr):
     def forward(self, *argv):
         if len(argv) == 3:
             x, edge_index, edge_attr = argv[0], argv[1], argv[2]

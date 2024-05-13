@@ -297,9 +297,9 @@ class EdgeFeature:
         """
         # Calculate the number of edges to be masked
         if fix_ratio:
-            num_masked_edges = max(0, math.floor(0.25 * num_bonds))
+            num_masked_edges = max(0, math.floor(0.1 * num_bonds))
         else:
-            num_masked_edges = random.randint(0, math.floor(0.25 * num_bonds))
+            num_masked_edges = random.randint(0, math.floor(0.1 * num_bonds))
 
         # Sample the indices of edges to be masked
         masked_edges_single = random.sample(list(range(num_bonds)), num_masked_edges)

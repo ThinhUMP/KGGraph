@@ -218,7 +218,7 @@ def main():
 
         print(train_dataset[0])
         
-        with open("Data/test_smiles.txt") as f:
+        with open("Data/test_smiles.txt", "a") as f:
                 f.writelines("%s\n" % s for s in test_smiles)
 
     #     # data loader

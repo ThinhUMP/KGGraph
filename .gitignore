@@ -54,3 +54,4 @@ flake8_report/
 .pytest_cache/
 pretrain_model/
 Data/cleanup/
+Data/zinc/standsmi_zinc.txt

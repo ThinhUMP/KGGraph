@@ -53,3 +53,4 @@ htmlcov/
 flake8_report/
 .pytest_cache/
 pretrain_model/
+Data/cleanup/

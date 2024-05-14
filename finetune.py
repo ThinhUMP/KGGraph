@@ -71,7 +71,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -89,13 +89,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
+        default="toxcast",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mask25_11/pretrain.pth",
+        default="saved_model_mask10_11/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -218,108 +218,108 @@ def main():
 
         print(train_dataset[0])
         
-        with open("Data/test_smiles.txt", "a") as f:
-                f.writelines("%s\n" % s for s in test_smiles)
+        # with open("Data/test_smiles.txt", "a") as f:
+        #         f.writelines("%s\n" % s for s in test_smiles)
 
-    #     # data loader
-    #     if args.dataset == "freesolv":
-    #         train_loader = DataLoader(
-    #             train_dataset,
-    #             batch_size=args.batch_size,
-    #             shuffle=True,
-    #             num_workers=args.num_workers,
-    #             drop_last=True,
-    #         )
-    #     else:
-    #         train_loader = DataLoader(
-    #             train_dataset,
-    #             batch_size=args.batch_size,
-    #             shuffle=True,
-    #             num_workers=args.num_workers,
-    #         )
-    #     val_loader = DataLoader(
-    #         valid_dataset,
-    #         batch_size=args.batch_size,
-    #         shuffle=False,
-    #         num_workers=args.num_workers,
-    #     )
-    #     test_loader = DataLoader(
-    #         test_dataset,
-    #         batch_size=args.batch_size,
-    #         shuffle=False,
-    #         num_workers=args.num_workers,
-    #     )
+        # data loader
+        if args.dataset == "freesolv":
+            train_loader = DataLoader(
+                train_dataset,
+                batch_size=args.batch_size,
+                shuffle=True,
+                num_workers=args.num_workers,
+                drop_last=True,
+            )
+        else:
+            train_loader = DataLoader(
+                train_dataset,
+                batch_size=args.batch_size,
+                shuffle=True,
+                num_workers=args.num_workers,
+            )
+        val_loader = DataLoader(
+            valid_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
+        )
+        test_loader = DataLoader(
+            test_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
+        )
 
-    #     # set up model
-    #     model = GINTrain(
-    #         args.num_layer,
-    #         args.emb_dim,
-    #         num_tasks,
-    #         JK=args.JK,
-    #         drop_ratio=args.dropout_ratio,
-    #         gnn_type=args.gnn_type,
-    #     )
-    #     if not args.input_model_file == "":
-    #         model.from_pretrained(args.input_model_file)
+        # set up model
+        model = GINTrain(
+            args.num_layer,
+            args.emb_dim,
+            num_tasks,
+            JK=args.JK,
+            drop_ratio=args.dropout_ratio,
+            gnn_type=args.gnn_type,
+        )
+        if not args.input_model_file == "":
+            model.from_pretrained(args.input_model_file)
 
-    #     model.to(device)
+        model.to(device)
 
-    #     # set up optimizer
-    #     # different learning rate for different part of GNN
-    #     model_param_group = []
-    #     if args.GNN_different_lr:
-    #         print("GNN update")
-    #         model_param_group.append(
-    #             {"params": model.gnn.parameters(), "lr": args.lr_feat}
-    #         )
-    #     else:
-    #         print("No GNN update")
-    #     model_param_group.append(
-    #         {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
-    #     )
-    #     # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
-    #     optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
-    #     print(optimizer)
+        # set up optimizer
+        # different learning rate for different part of GNN
+        model_param_group = []
+        if args.GNN_different_lr:
+            print("GNN update")
+            model_param_group.append(
+                {"params": model.gnn.parameters(), "lr": args.lr_feat}
+            )
+        else:
+            print("No GNN update")
+        model_param_group.append(
+            {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
+        )
+        # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
+        optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
+        print(optimizer)
 
-    #     # set up criterion
-    #     if task_type == "classification":
-    #         criterion = nn.BCEWithLogitsLoss(reduction="none")
-    #     else:
-    #         pass
+        # set up criterion
+        if task_type == "classification":
+            criterion = nn.BCEWithLogitsLoss(reduction="none")
+        else:
+            pass
 
-    #     # training based on task type
-    #     if task_type == "classification":
-    #         metrics_training = train_epoch_cls(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             criterion,
-    #             task_type,
-    #             training_round=i,
-    #         )
+        # training based on task type
+        if task_type == "classification":
+            metrics_training = train_epoch_cls(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                criterion,
+                task_type,
+                training_round=i,
+            )
 
-    #     elif task_type == "regression":
-    #         test_mae_list = train_epoch_reg(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             args.save_path,
-    #         )
+        elif task_type == "regression":
+            test_mae_list = train_epoch_reg(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                args.save_path,
+            )
 
-    # # craw metrics
-    # average_test_metrics(args, task_type)
-    # df_train = average_train_metrics(args, task_type, remove=True)
+    # craw metrics
+    average_test_metrics(args, task_type)
+    df_train = average_train_metrics(args, task_type, remove=True)
 
-    # # plot training metrics
-    # plot_metrics(args, df_train, task_type)
+    # plot training metrics
+    plot_metrics(args, df_train, task_type)
 
 
 if __name__ == "__main__":

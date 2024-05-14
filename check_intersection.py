@@ -1,7 +1,7 @@
-with open("Data/zinc/all.txt", "r") as f:
+with open("Data/cleanup/standsmi_chembl.txt", "r") as f:
     data = [line.strip("\r\n").split()[0] for line in f]
     
-with open("Data/zinc/test.txt", "r") as f:
+with open("Data/cleanup/standsmi_test.txt", "r") as f:
     data_test = [line.strip("\r\n").split()[0] for line in f]
     
 # Convert the lists to sets

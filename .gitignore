@@ -55,3 +55,4 @@ flake8_report/
 pretrain_model/
 Data/cleanup/
 Data/zinc/standsmi_zinc.txt
+check_intersection.py

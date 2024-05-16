@@ -93,13 +93,13 @@ def main():
     parser.add_argument(
         "--mask_node",
         type=bool,
-        default=True,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=True,
+        default=False,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(

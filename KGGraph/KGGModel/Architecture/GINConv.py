@@ -46,15 +46,15 @@ class GINConv(MessagePassing):
 
         self.edge_embedding0 = torch.nn.Embedding(num_bond_type, emb_dim)
         self.edge_embedding1 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
-        self.edge_embedding2 = torch.nn.Embedding(bond_type_1, emb_dim)
-        self.edge_embedding3 = torch.nn.Embedding(bond_type_2, emb_dim)
-        self.edge_embedding4 = torch.nn.Embedding(bond_type_3, emb_dim)
+        # self.edge_embedding2 = torch.nn.Embedding(bond_type_1, emb_dim)
+        # self.edge_embedding3 = torch.nn.Embedding(bond_type_2, emb_dim)
+        # self.edge_embedding4 = torch.nn.Embedding(bond_type_3, emb_dim)
 
         torch.nn.init.xavier_uniform_(self.edge_embedding0.weight.data)
         torch.nn.init.xavier_uniform_(self.edge_embedding1.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
+        # torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
 
         self.aggr = aggr
 
@@ -82,9 +82,9 @@ class GINConv(MessagePassing):
         edge_embeddings = (
             self.edge_embedding0(edge_attr[:, 0])
             + self.edge_embedding1(edge_attr[:, 1])
-            + self.edge_embedding2(edge_attr[:, 2])
-            + self.edge_embedding3(edge_attr[:, 3])
-            + self.edge_embedding4(edge_attr[:, 4])
+            # + self.edge_embedding2(edge_attr[:, 2])
+            # + self.edge_embedding3(edge_attr[:, 3])
+            # + self.edge_embedding4(edge_attr[:, 4])
         )
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)

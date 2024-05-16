@@ -37,9 +37,10 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=40,
+        default=20,
         help="number of epochs to train (default: 100)",
     )
+
     parser.add_argument(
         "--lr", type=float, default=0.001, help="learning rate (default: 0.001)"
     )

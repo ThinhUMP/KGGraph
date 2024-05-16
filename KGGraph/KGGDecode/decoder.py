@@ -348,9 +348,9 @@ class Model_decoder(nn.Module):
     def forward(self, mol_batch, node_rep, super_node_rep):
         loss_tur = self.topo_pred(mol_batch, node_rep, super_node_rep)
         loss = 0
-        loss_weight = create_var(torch.rand(10), self.device, requires_grad=True)
-        loss_wei = torch.softmax(loss_weight, dim=-1)
+        # loss_weight = create_var(torch.rand(10), self.device, requires_grad=True)
+        # loss_wei = torch.softmax(loss_weight, dim=-1)
         for index in range(len(loss_tur)):
-            loss += loss_tur[index] * loss_wei[index]
-            # loss += loss_tur[index]
+            # loss += loss_tur[index] * loss_wei[index]
+            loss += loss_tur[index]
         return loss

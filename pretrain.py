@@ -37,7 +37,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=20,
+        default=60,
         help="number of epochs to train (default: 100)",
     )
 
@@ -81,7 +81,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_nomask_rmbondtype/pretrain.pth",
+        default="./saved_model_nomask_rmbondtype_sumloss/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -147,9 +147,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_nomask_rmbondtype"):
-        os.mkdir("./saved_model_nomask_rmbondtype")
-    if "pretrain.pth" in os.listdir("saved_model_nomask_rmbondtype"):
+    if not os.path.isdir("./saved_model_nomask_rmbondtype_sumloss"):
+        os.mkdir("./saved_model_nomask_rmbondtype_sumloss")
+    if "pretrain.pth" in os.listdir("saved_model_nomask_rmbondtype_sumloss"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

@@ -71,7 +71,7 @@ class AtomFeature:
             x_node_list.append(atom_feature)
 
         x_node_array = np.array(x_node_list)
-        x_node = torch.tensor(x_node_array, dtype=torch.long)
+        x_node = torch.tensor(x_node_array, dtype=torch.float32)
 
         return x_node
 
@@ -123,16 +123,16 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
     x_motif = []
 
     if num_motif > 0:
-        template_motif = torch.zeros((1, number_atom_node_attr), dtype=torch.long)
+        template_motif = torch.zeros((1, number_atom_node_attr), dtype=torch.float32)
         template_motif[0, 0] = 120
         x_motif = template_motif.repeat_interleave(num_motif, dim=0)
-        x_supernode = torch.zeros((1, number_atom_node_attr), dtype=torch.long)
+        x_supernode = torch.zeros((1, number_atom_node_attr), dtype=torch.float32)
         x_supernode[0, 0] = 119
     else:
         x_motif = torch.empty(
-            0, number_atom_node_attr, dtype=torch.long
+            0, number_atom_node_attr, dtype=torch.float32
         )  # Handle cases with no motifs
-        x_supernode = torch.zeros((1, number_atom_node_attr), dtype=torch.long)
+        x_supernode = torch.zeros((1, number_atom_node_attr), dtype=torch.float32)
         x_supernode[0, 0] = 119
 
     return x_motif, x_supernode
@@ -156,7 +156,7 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node, fix_ratio):
         # Concatenate features
         x = torch.cat(
             (x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0
-        ).to(torch.long)
+        ).to(torch.float32)
     else:
         x_node_masked = AtomFeature.masked_atom_feature(mol, x_node, fix_ratio)
         x = torch.cat(
@@ -166,7 +166,7 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node, fix_ratio):
                 x_supernode.to(x_node_masked.device),
             ),
             dim=0,
-        ).to(torch.long)
+        ).to(torch.float32)
 
     num_part = (x_node.size(0), x_motif.size(0), x_supernode.size(0))
 

@@ -2,15 +2,6 @@ import torch
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
 
-num_bond_type = 8
-num_bond_in_ring = 3
-bond_type_1 = 2
-bond_type_2 = 3
-bond_type_3 = 2
-bond_type_4 = 2
-bond_type_5 = 6
-
-
 class GINConv(MessagePassing):
     """
     GINConv is an extension of the Graph Isomorphism Network (GIN) that incorporates edge information
@@ -44,17 +35,31 @@ class GINConv(MessagePassing):
             torch.nn.Linear(2 * emb_dim, emb_dim),
         )
 
-        self.edge_embedding0 = torch.nn.Embedding(num_bond_type, emb_dim)
-        self.edge_embedding1 = torch.nn.Embedding(num_bond_in_ring, emb_dim)
-        # self.edge_embedding2 = torch.nn.Embedding(bond_type_1, emb_dim)
-        # self.edge_embedding3 = torch.nn.Embedding(bond_type_2, emb_dim)
-        # self.edge_embedding4 = torch.nn.Embedding(bond_type_3, emb_dim)
-
-        torch.nn.init.xavier_uniform_(self.edge_embedding0.weight.data)
-        torch.nn.init.xavier_uniform_(self.edge_embedding1.weight.data)
-        # torch.nn.init.xavier_uniform_(self.edge_embedding2.weight.data)
-        # torch.nn.init.xavier_uniform_(self.edge_embedding3.weight.data)
-        # torch.nn.init.xavier_uniform_(self.edge_embedding4.weight.data)
+        self.edge_mlp1 = torch.nn.Sequential(
+            torch.nn.Linear(1, 2 * emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2 * emb_dim, emb_dim),
+        )
+        self.edge_mlp2 = torch.nn.Sequential(
+            torch.nn.Linear(1, 2 * emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2 * emb_dim, emb_dim),
+        )
+        self.edge_mlp3 = torch.nn.Sequential(
+            torch.nn.Linear(1, 2 * emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2 * emb_dim, emb_dim),
+        )
+        self.edge_mlp4 = torch.nn.Sequential(
+            torch.nn.Linear(1, 2 * emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2 * emb_dim, emb_dim),
+        )
+        self.edge_mlp5 = torch.nn.Sequential(
+            torch.nn.Linear(1, 2 * emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2 * emb_dim, emb_dim),
+        )
 
         self.aggr = aggr
 
@@ -80,11 +85,11 @@ class GINConv(MessagePassing):
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
 
         edge_embeddings = (
-            self.edge_embedding0(edge_attr[:, 0])
-            + self.edge_embedding1(edge_attr[:, 1])
-            # + self.edge_embedding2(edge_attr[:, 2])
-            # + self.edge_embedding3(edge_attr[:, 3])
-            # + self.edge_embedding4(edge_attr[:, 4])
+            self.edge_mlp1(edge_attr[:, 0].view(-1, 1))
+            + self.edge_mlp2(edge_attr[:, 1].view(-1, 1))
+            + self.edge_mlp3(edge_attr[:, 2].view(-1, 1))
+            + self.edge_mlp4(edge_attr[:, 3].view(-1, 1))
+            + self.edge_mlp5(edge_attr[:, 4].view(-1, 1))
         )
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)

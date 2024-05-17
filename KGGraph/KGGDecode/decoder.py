@@ -107,7 +107,7 @@ class Model_decoder(nn.Module):
         # bond type features
         self.bond_type_sigma_pred_loss = nn.MSELoss()
         self.bond_type_pi_pred_loss = nn.MSELoss()
-        self.bond_type_conjugate_pred_loss = nn.MSELoss()
+        self.bond_type_conjugate_pred_loss = nn.BCEWithLogitsLoss()
 
         # self.atom_type_pred_loss = nn.CrossEntropyLoss()
         # hybridization features

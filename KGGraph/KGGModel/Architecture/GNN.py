@@ -22,45 +22,20 @@ class GNN(torch.nn.Module):
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
         self.JK = JK
+        self.emb_dim = emb_dim
 
         if self.num_layer < 2:
             raise ValueError("Number of GNN layers must be greater than 1.")
 
-        self.x_mlp1 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.x_mlp2 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.x_mlp3 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.x_mlp4 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.x_mlp5 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.x_mlp6 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.x_mlp7 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
+        # Initialize a list of x MLPs
+        self.x_mlps = torch.nn.ModuleList([
+            torch.nn.Sequential(
+                torch.nn.Linear(1, 2 * emb_dim),
+                torch.nn.ReLU(),
+                torch.nn.Linear(2 * emb_dim, emb_dim)
+            ) for _ in range(7)  # 7 is number of x features
+        ])
+        
         # List of MLPs
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):
@@ -80,17 +55,12 @@ class GNN(torch.nn.Module):
         else:
             raise ValueError("unmatched number of arguments.")
 
-        x = (
-            self.x_mlp1(x[:, 0].view(-1, 1))
-            + self.x_mlp2(x[:, 1].view(-1, 1))
-            + self.x_mlp3(x[:, 2].view(-1, 1))
-            + self.x_mlp4(x[:, 3].view(-1, 1))
-            + self.x_mlp5(x[:, 4].view(-1, 1))
-            + self.x_mlp6(x[:, 5].view(-1, 1))
-            + self.x_mlp7(x[:, 6].view(-1, 1))
-        )
+        # Apply each MLP to its corresponding edge feature slice
+        x_embeddings = torch.zeros(x.size(0), self.emb_dim).to(x.device)
+        for i, mlp in enumerate(self.x_mlps):
+            x_embeddings += mlp(x[:, i].view(-1, 1))
 
-        h_list = [x]
+        h_list = [x_embeddings]
 
         for layer in range(self.num_layer):
             h = self.gnns[layer](h_list[layer], edge_index, edge_attr)

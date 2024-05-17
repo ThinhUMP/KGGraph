@@ -35,32 +35,15 @@ class GINConv(MessagePassing):
             torch.nn.Linear(2 * emb_dim, emb_dim),
         )
 
-        self.edge_mlp1 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.edge_mlp2 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.edge_mlp3 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.edge_mlp4 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-        self.edge_mlp5 = torch.nn.Sequential(
-            torch.nn.Linear(1, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
-        )
-
+        # Initialize a list of edge MLPs
+        self.edge_mlps = torch.nn.ModuleList([
+            torch.nn.Sequential(
+                torch.nn.Linear(1, 2 * emb_dim),
+                torch.nn.ReLU(),
+                torch.nn.Linear(2 * emb_dim, emb_dim)
+            ) for _ in range(5)  # 5 is number of edge features
+        ])
+        self.emb_dim = emb_dim
         self.aggr = aggr
 
     def forward(self, x, edge_index, edge_attr):
@@ -84,13 +67,10 @@ class GINConv(MessagePassing):
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
 
-        edge_embeddings = (
-            self.edge_mlp1(edge_attr[:, 0].view(-1, 1))
-            + self.edge_mlp2(edge_attr[:, 1].view(-1, 1))
-            + self.edge_mlp3(edge_attr[:, 2].view(-1, 1))
-            + self.edge_mlp4(edge_attr[:, 3].view(-1, 1))
-            + self.edge_mlp5(edge_attr[:, 4].view(-1, 1))
-        )
+        # Apply each MLP to its corresponding edge feature slice
+        edge_embeddings = torch.zeros(edge_attr.size(0), self.emb_dim).to(edge_attr.device)
+        for i, mlp in enumerate(self.edge_mlps):
+            edge_embeddings += mlp(edge_attr[:, i].view(-1, 1))
 
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 

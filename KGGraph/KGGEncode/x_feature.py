@@ -79,9 +79,9 @@ class AtomFeature:
     def masked_atom_feature(mol: Chem.Mol, x_node, fix_ratio):
         num_node = mol.GetNumAtoms()
         if fix_ratio:
-            num_masked_node = max([1, math.floor(0.1 * num_node)])
+            num_masked_node = max([1, math.floor(0.25 * num_node)])
         else:
-            num_masked_node = random.randint(1, math.floor(0.1 * num_node))
+            num_masked_node = random.randint(1, math.floor(0.25 * num_node))
 
         masked_node = random.sample(list(range(num_node)), num_masked_node)
 

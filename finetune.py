@@ -71,7 +71,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -89,7 +89,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="toxcast",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(

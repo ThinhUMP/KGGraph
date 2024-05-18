@@ -106,7 +106,7 @@ class Model_decoder(nn.Module):
         # self.bond_type_pred_loss = nn.CrossEntropyLoss()
         # bond type features
         self.bond_type_sigma_pred_loss = nn.BCEWithLogitsLoss()
-        self.bond_type_pi_pred_loss = nn.MSELoss()
+        self.bond_type_pi_pred_loss = nn.SmoothL1Loss()
         self.bond_type_conjugate_pred_loss = nn.BCEWithLogitsLoss()
 
         # self.atom_type_pred_loss = nn.CrossEntropyLoss()
@@ -117,8 +117,8 @@ class Model_decoder(nn.Module):
         self.atom_hybri_a_pred_loss = nn.CrossEntropyLoss()
         self.atom_hybri_lonepair_pred_loss = nn.CrossEntropyLoss()
 
-        self.atom_num_pred_loss = nn.MSELoss()
-        self.bond_num_pred_loss = nn.MSELoss()
+        self.atom_num_pred_loss = nn.SmoothL1Loss()
+        self.bond_num_pred_loss = nn.SmoothL1Loss()
 
     def super_node_rep(self, mol_batch, node_rep):
         super_group = []

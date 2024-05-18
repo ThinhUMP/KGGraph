@@ -76,18 +76,18 @@ class Model_decoder(nn.Module):
             nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 1)
         )
         self.atom_hybri_s_p = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 1)
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 4)
         )
         self.atom_hybri_s_d = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 1)
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 3)
         )
         self.atom_hybri_s_a = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 1)
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 7)
         )
         self.atom_hybri_s_lonepair = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, 1),
+            nn.Linear(hidden_size, 7),
         )
 
         self.atom_num_s = nn.Sequential(
@@ -105,17 +105,17 @@ class Model_decoder(nn.Module):
         self.bond_pred_loss = nn.BCEWithLogitsLoss()
         # self.bond_type_pred_loss = nn.CrossEntropyLoss()
         # bond type features
-        self.bond_type_sigma_pred_loss = nn.MSELoss()
+        self.bond_type_sigma_pred_loss = nn.BCEWithLogitsLoss()
         self.bond_type_pi_pred_loss = nn.MSELoss()
         self.bond_type_conjugate_pred_loss = nn.BCEWithLogitsLoss()
 
         # self.atom_type_pred_loss = nn.CrossEntropyLoss()
         # hybridization features
-        self.atom_hybri_s_pred_loss = nn.MSELoss()
-        self.atom_hybri_p_pred_loss = nn.MSELoss()
-        self.atom_hybri_d_pred_loss = nn.MSELoss()
-        self.atom_hybri_a_pred_loss = nn.MSELoss()
-        self.atom_hybri_lonepair_pred_loss = nn.MSELoss()
+        self.atom_hybri_s_pred_loss = nn.BCEWithLogitsLoss()
+        self.atom_hybri_p_pred_loss = nn.CrossEntropyLoss()
+        self.atom_hybri_d_pred_loss = nn.CrossEntropyLoss()
+        self.atom_hybri_a_pred_loss = nn.CrossEntropyLoss()
+        self.atom_hybri_lonepair_pred_loss = nn.CrossEntropyLoss()
 
         self.atom_num_pred_loss = nn.MSELoss()
         self.bond_num_pred_loss = nn.MSELoss()
@@ -237,11 +237,11 @@ class Model_decoder(nn.Module):
 
                 # bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device).long()
                 bond_type_sigma_target = (
-                    mol.edge_attr_nosuper[:, 2].to(self.device).float()
+                    mol.edge_attr_nosuper[:, 2].to(self.device)
                 )
                 bond_type_pi_target = mol.edge_attr_nosuper[:, 3].to(self.device)
                 bond_type_conjugate_target = (
-                    mol.edge_attr_nosuper[:, 4].to(self.device).float()
+                    mol.edge_attr_nosuper[:, 4].to(self.device)
                 )
 
                 # bond_type_loss += self.bond_type_pred_loss(
@@ -277,11 +277,11 @@ class Model_decoder(nn.Module):
                 atom_hybri_a_pred = self.atom_hybri_s_a(mol_rep)
                 atom_hybri_lonepair_pred = self.atom_hybri_s_lonepair(mol_rep)
 
-                atom_hybri_s_target = mol.x_nosuper[:, 2].to(self.device).float()
-                atom_hybri_p_target = mol.x_nosuper[:, 3].to(self.device)
-                atom_hybri_d_target = mol.x_nosuper[:, 4].to(self.device)
-                atom_hybri_a_target = mol.x_nosuper[:, 5].to(self.device)
-                atom_hybri_lonepair_target = mol.x_nosuper[:, 6].to(self.device)
+                atom_hybri_s_target = mol.x_nosuper[:, 2].to(self.device)
+                atom_hybri_p_target = mol.x_nosuper[:, 3].to(self.device).long()
+                atom_hybri_d_target = mol.x_nosuper[:, 4].to(self.device).long()
+                atom_hybri_a_target = mol.x_nosuper[:, 5].to(self.device).long()
+                atom_hybri_lonepair_target = mol.x_nosuper[:, 6].to(self.device).long()
 
                 atom_hybri_s_loss += self.atom_hybri_s_pred_loss(
                     atom_hybri_s_pred, atom_hybri_s_target

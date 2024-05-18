@@ -71,7 +71,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -95,7 +95,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="",
+        default="saved_model_mlp_mse_25/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -258,6 +258,8 @@ def main():
             JK=args.JK,
             drop_ratio=args.dropout_ratio,
             gnn_type=args.gnn_type,
+            x_features=dataset[0].x.size(1),
+            edge_features=dataset[0].edge_attr.size(1),
         )
         if not args.input_model_file == "":
             model.from_pretrained(args.input_model_file)

@@ -18,7 +18,7 @@ class GINConv(MessagePassing):
         https://arxiv.org/abs/1810.00826
     """
 
-    def __init__(self, emb_dim, aggr="add"):
+    def __init__(self, emb_dim, aggr="add", edge_features=5):
         """
         Initializes the GINConv layer with the specified parameters.
 
@@ -41,7 +41,7 @@ class GINConv(MessagePassing):
                 torch.nn.Linear(1, 2 * emb_dim),
                 torch.nn.ReLU(),
                 torch.nn.Linear(2 * emb_dim, emb_dim)
-            ) for _ in range(5)  # 5 is number of edge features
+            ) for _ in range(edge_features)  # number of edge features
         ])
         self.emb_dim = emb_dim
         self.aggr = aggr

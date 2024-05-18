@@ -17,7 +17,8 @@ class GNN(torch.nn.Module):
 
     """
 
-    def __init__(self, num_layer, emb_dim, JK="last", drop_ratio=0, gnn_type="gin"):
+    def __init__(self, num_layer, emb_dim, JK="last", drop_ratio=0, gnn_type="gin",
+                 x_features=7, edge_features=5):
         super(GNN, self).__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
@@ -33,13 +34,13 @@ class GNN(torch.nn.Module):
                 torch.nn.Linear(1, 2 * emb_dim),
                 torch.nn.ReLU(),
                 torch.nn.Linear(2 * emb_dim, emb_dim)
-            ) for _ in range(7)  # 7 is number of x features
+            ) for _ in range(x_features)  # number of x features
         ])
         
         # List of MLPs
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):
-            self.gnns.append(GINConv(emb_dim, aggr="add"))
+            self.gnns.append(GINConv(emb_dim, aggr="add", edge_features=edge_features))
 
         # List of batchnorms
         self.batch_norms = torch.nn.ModuleList()

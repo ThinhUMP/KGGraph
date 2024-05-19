@@ -68,11 +68,12 @@ class MoleculeDataset(InMemoryDataset):
         if not mask_node and not mask_edge:
             print("Not masking node and edge")
         elif not mask_node and mask_edge:
-            print("Masking edge with fix ratio at 0.25", fix_ratio)
+            print("Masking edge with ratio at", mask_edge_ratio, "with fix state is", fix_ratio)
         elif mask_node and not mask_edge:
-            print("Masking node with fix ratio at 0.25", fix_ratio)
+            print("Masking node with ratio at", mask_node_ratio, "with fix state is", fix_ratio)
         else:
-            print("Masking node and edge with fix ratio at 0.25", fix_ratio)
+            print("Masking node with ratio at", mask_node_ratio, 
+                "and masking edge with ratio at", mask_edge_ratio, "with fix state is", fix_ratio)
 
         super(MoleculeDataset, self).__init__(
             root, transform, pre_transform, pre_filter

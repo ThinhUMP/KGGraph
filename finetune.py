@@ -1,5 +1,6 @@
 from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
+import os
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
 from KGGraph.KGGModel.Architecture.GIN_train import GINTrain
@@ -334,9 +335,15 @@ def main():
 
     # craw metrics
     average_test_metrics(args, task_type)
-    df_train = average_train_metrics(args, task_type, remove=True)
 
     # plot training metrics
+    df_train_path = os.path.join(
+        args.save_path,
+        task_type,
+        args.dataset,
+        f"train_metrics_round_1.csv",
+    )
+    df_train = pd.read_csv(df_train_path)
     plot_metrics(args, df_train, task_type)
 
 

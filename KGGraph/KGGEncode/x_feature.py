@@ -81,7 +81,10 @@ class AtomFeature:
         if fix_ratio:
             num_masked_node = max([1, math.floor(mask_node_ratio * num_node)])
         else:
-            num_masked_node = random.randint(0, math.floor(mask_node_ratio * num_node))
+            if math.floor(mask_node_ratio * num_node)>0:
+                num_masked_node = random.randint(1, math.floor(mask_node_ratio * num_node))
+            else:
+                num_masked_node = 0
 
         masked_node = random.sample(list(range(num_node)), num_masked_node)
 

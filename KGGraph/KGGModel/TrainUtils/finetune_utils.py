@@ -269,23 +269,21 @@ def train_epoch_cls(
     Returns:
         dict: A dictionary containing the training metrics for each epoch, including the training and validation loss, AUC, AP, and F1 scores.
     """
-    train_df = pd.DataFrame(
-        columns=[
-            "train_loss",
-            "train_auc",
-            "train_ap",
-            "train_f1",
-            "val_loss",
-            "val_auc",
-            "val_ap",
-            "val_f1",
-            "test_loss",
-            "test_auc",
-            "test_ap",
-            "test_f1",
-        ],
-        index=range(args.epochs),
-    )
+    columns = [
+        "train_loss",
+        "train_auc",
+        "train_ap",
+        "train_f1",
+        "val_loss",
+        "val_auc",
+        "val_ap",
+        "val_f1",
+        "test_loss",
+        "test_auc",
+        "test_ap",
+        "test_f1",
+    ]
+    train_df = pd.DataFrame(columns=columns, index=range(args.epochs))
 
     for epoch in range(1, args.epochs + 1):
         print("====epoch:", epoch)

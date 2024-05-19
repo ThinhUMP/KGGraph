@@ -40,13 +40,13 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=1,
+        default=3,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=1,
+        default=2,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -89,13 +89,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce/pretrain.pth",
+        default="",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

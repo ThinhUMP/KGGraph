@@ -76,19 +76,19 @@ class AtomFeature:
         return x_node
 
     @staticmethod
-    def masked_atom_feature(mol: Chem.Mol, x_node, fix_ratio):
+    def masked_atom_feature(mol: Chem.Mol, x_node, mask_node_ratio, fix_ratio):
         num_node = mol.GetNumAtoms()
         if fix_ratio:
-            num_masked_node = max([1, math.floor(0.25 * num_node)])
+            num_masked_node = max([1, math.floor(mask_node_ratio * num_node)])
         else:
-            num_masked_node = random.randint(1, math.floor(0.25 * num_node))
+            num_masked_node = random.randint(1, math.floor(mask_node_ratio * num_node))
 
         masked_node = random.sample(list(range(num_node)), num_masked_node)
 
         x_node_masked = deepcopy(x_node)
         for atom_idx in masked_node:
             x_node_masked[atom_idx, :] = torch.tensor(
-                [121, 0, 0, 0, 0, 0, 0]
+                [121] + [0] * (x_node.size(1) - 1), dtype=torch.float32
             )  # 121 implies masked atom
 
         return x_node_masked
@@ -138,7 +138,7 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
     return x_motif, x_supernode
 
 
-def x_feature(mol: Chem.Mol, decompose_type, mask_node, fix_ratio):
+def x_feature(mol: Chem.Mol, decompose_type, mask_node, mask_node_ratio, fix_ratio):
     """
     Compute the feature vector for a given molecule.
 
@@ -158,7 +158,7 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node, fix_ratio):
             (x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0
         ).to(torch.float32)
     else:
-        x_node_masked = AtomFeature.masked_atom_feature(mol, x_node, fix_ratio)
+        x_node_masked = AtomFeature.masked_atom_feature(mol, x_node, mask_node_ratio, fix_ratio)
         x = torch.cat(
             (
                 x_node_masked,

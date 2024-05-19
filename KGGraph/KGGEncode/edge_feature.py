@@ -281,7 +281,8 @@ class EdgeFeature:
         edge_attr_node: torch.Tensor,
         num_bonds: int,
         num_edge_features: int,
-        fix_ratio,
+        mask_edge_ratio: float,
+        fix_ratio: bool,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Mask a portion of the edges in the graph by setting their attributes to zero.
@@ -297,9 +298,9 @@ class EdgeFeature:
         """
         # Calculate the number of edges to be masked
         if fix_ratio:
-            num_masked_edges = max(0, math.floor(0.25 * num_bonds))
+            num_masked_edges = max(0, math.floor(mask_edge_ratio * num_bonds))
         else:
-            num_masked_edges = random.randint(0, math.floor(0.25 * num_bonds))
+            num_masked_edges = random.randint(0, math.floor(mask_edge_ratio * num_bonds))
 
         # Sample the indices of edges to be masked
         masked_edges_single = random.sample(list(range(num_bonds)), num_masked_edges)
@@ -326,7 +327,7 @@ class EdgeFeature:
         return edge_attr_masked, edge_index_masked
 
 
-def edge_feature(mol, decompose_type, mask_edge, fix_ratio):
+def edge_feature(mol, decompose_type, mask_edge, mask_edge_ratio, fix_ratio):
     """
     This function generates edge features for a given molecule.
 
@@ -373,6 +374,7 @@ def edge_feature(mol, decompose_type, mask_edge, fix_ratio):
             edge_attr_node,
             obj.num_bonds,
             obj.num_edge_features,
+            mask_edge_ratio,
             fix_ratio=fix_ratio,
         )
         # Get the edge index tensor for the graph and the edge attribute tensor for the graph

@@ -144,6 +144,18 @@ def main():
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(
+        "--mask_node_ratio",
+        type=float,
+        default=0.1,
+        help="Ratio of removal nodes",
+    )
+    parser.add_argument(
+        "--mask_edge_ratio",
+        type=float,
+        default=0.1,
+        help="Ratio of removal edges",
+    )
+    parser.add_argument(
         "--fix_ratio",
         type=bool,
         default=True,
@@ -184,6 +196,8 @@ def main():
             decompose_type=args.decompose_type,
             mask_node=args.mask_node,
             mask_edge=args.mask_edge,
+            mask_node_ratio=args.mask_node_ratio,
+            mask_edge_ratio=args.mask_edge_ratio,
             fix_ratio=args.fix_ratio,
         )
         print(dataset)

@@ -104,6 +104,12 @@ def main():
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(
+        "--masked_ratio",
+        type=float,
+        default=0.1,
+        help="Ratio of removal nodes and edges",
+    )
+    parser.add_argument(
         "--fix_ratio",
         type=bool,
         default=False,

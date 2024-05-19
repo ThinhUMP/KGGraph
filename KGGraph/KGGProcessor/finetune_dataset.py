@@ -25,12 +25,15 @@ from KGGraph.KGGEncode.x_feature import x_feature
 from KGGraph.KGGEncode.edge_feature import edge_feature
 
 
-def feature(mol, decompose_type, mask_node=False, mask_edge=False, fix_ratio=False):
+def feature(mol, decompose_type, mask_node=False, mask_edge=False, 
+            mask_node_ratio=0.1, mask_edge_ratio=0.1, fix_ratio=False):
     x_node, x, num_part = x_feature(
-        mol, decompose_type=decompose_type, mask_node=mask_node, fix_ratio=fix_ratio
+        mol, decompose_type=decompose_type, mask_node=mask_node, 
+        mask_node_ratio=mask_node_ratio, fix_ratio=fix_ratio
     )
     edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(
-        mol, decompose_type=decompose_type, mask_edge=mask_edge, fix_ratio=fix_ratio
+        mol, decompose_type=decompose_type, mask_edge=mask_edge, 
+        mask_edge_ratio=mask_edge_ratio, fix_ratio=fix_ratio
     )
 
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
@@ -44,6 +47,8 @@ class MoleculeDataset(InMemoryDataset):
         decompose_type,
         mask_node,
         mask_edge,
+        mask_node_ratio,
+        mask_edge_ratio,
         fix_ratio=True,
         transform=None,
         pre_transform=None,
@@ -56,6 +61,8 @@ class MoleculeDataset(InMemoryDataset):
         self.root = root
         self.mask_node = mask_node
         self.mask_edge = mask_edge
+        self.mask_node_ratio = mask_node_ratio
+        self.mask_edge_ratio = mask_edge_ratio
         self.fix_ratio = fix_ratio
 
         if not mask_node and not mask_edge:
@@ -115,6 +122,8 @@ class MoleculeDataset(InMemoryDataset):
                     self.decompose_type,
                     self.mask_node,
                     self.mask_edge,
+                    self.mask_node_ratio,
+                    self.mask_edge_ratio,
                     self.fix_ratio,
                 )
                 for mol in tqdm(mols_list)
@@ -135,6 +144,8 @@ class MoleculeDataset(InMemoryDataset):
                     self.decompose_type,
                     self.mask_node,
                     self.mask_edge,
+                    self.mask_node_ratio,
+                    self.mask_edge_ratio,
                     self.fix_ratio,
                 )
                 for mol in tqdm(mols_list)
@@ -156,6 +167,8 @@ class MoleculeDataset(InMemoryDataset):
                     self.decompose_type,
                     self.mask_node,
                     self.mask_edge,
+                    self.mask_node_ratio,
+                    self.mask_edge_ratio,
                     self.fix_ratio,
                 )
                 for mol in tqdm(mols_list)
@@ -176,6 +189,8 @@ class MoleculeDataset(InMemoryDataset):
                     self.decompose_type,
                     self.mask_node,
                     self.mask_edge,
+                    self.mask_node_ratio,
+                    self.mask_edge_ratio,
                     self.fix_ratio,
                 )
                 for mol in tqdm(mols_list)
@@ -196,6 +211,8 @@ class MoleculeDataset(InMemoryDataset):
                     self.decompose_type,
                     self.mask_node,
                     self.mask_edge,
+                    self.mask_node_ratio,
+                    self.mask_edge_ratio,
                     self.fix_ratio,
                 )
                 for mol in tqdm(mols_list)
@@ -216,6 +233,8 @@ class MoleculeDataset(InMemoryDataset):
                     self.decompose_type,
                     self.mask_node,
                     self.mask_edge,
+                    self.mask_node_ratio,
+                    self.mask_edge_ratio,
                     self.fix_ratio,
                 )
                 for mol in tqdm(mols_list)
@@ -255,6 +274,8 @@ if __name__ == "__main__":
         decompose_type="motif",
         mask_node=False,
         mask_edge=False,
+        mask_node_ratio=0.1,
+        mask_edge_ratio=0.1,
         fix_ratio=False,
     )
     print(dataset)

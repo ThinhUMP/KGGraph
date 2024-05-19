@@ -25,15 +25,28 @@ from KGGraph.KGGEncode.x_feature import x_feature
 from KGGraph.KGGEncode.edge_feature import edge_feature
 
 
-def feature(mol, decompose_type, mask_node=False, mask_edge=False, 
-            mask_node_ratio=0.1, mask_edge_ratio=0.1, fix_ratio=False):
+def feature(
+    mol,
+    decompose_type,
+    mask_node=False,
+    mask_edge=False,
+    mask_node_ratio=0.1,
+    mask_edge_ratio=0.1,
+    fix_ratio=False,
+):
     x_node, x, num_part = x_feature(
-        mol, decompose_type=decompose_type, mask_node=mask_node, 
-        mask_node_ratio=mask_node_ratio, fix_ratio=fix_ratio
+        mol,
+        decompose_type=decompose_type,
+        mask_node=mask_node,
+        mask_node_ratio=mask_node_ratio,
+        fix_ratio=fix_ratio,
     )
     edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(
-        mol, decompose_type=decompose_type, mask_edge=mask_edge, 
-        mask_edge_ratio=mask_edge_ratio, fix_ratio=fix_ratio
+        mol,
+        decompose_type=decompose_type,
+        mask_edge=mask_edge,
+        mask_edge_ratio=mask_edge_ratio,
+        fix_ratio=fix_ratio,
     )
 
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
@@ -68,12 +81,28 @@ class MoleculeDataset(InMemoryDataset):
         if not mask_node and not mask_edge:
             print("Not masking node and edge")
         elif not mask_node and mask_edge:
-            print("Masking edge with ratio at", mask_edge_ratio, "and fix state is", fix_ratio)
+            print(
+                "Masking edge with ratio at",
+                mask_edge_ratio,
+                "and fix state is",
+                fix_ratio,
+            )
         elif mask_node and not mask_edge:
-            print("Masking node with ratio at", mask_node_ratio, "and fix state is", fix_ratio)
+            print(
+                "Masking node with ratio at",
+                mask_node_ratio,
+                "and fix state is",
+                fix_ratio,
+            )
         else:
-            print("Masking node with ratio at", mask_node_ratio, 
-                "and masking edge with ratio at", mask_edge_ratio, "and fix state is", fix_ratio)
+            print(
+                "Masking node with ratio at",
+                mask_node_ratio,
+                "and masking edge with ratio at",
+                mask_edge_ratio,
+                "and fix state is",
+                fix_ratio,
+            )
 
         super(MoleculeDataset, self).__init__(
             root, transform, pre_transform, pre_filter

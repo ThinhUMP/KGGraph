@@ -134,7 +134,7 @@ class Model_decoder(nn.Module):
             bond_type_sigma_loss,
             bond_type_pi_loss,
             bond_type_conjugate_loss,
-        ) = (0,0,0)
+        ) = (0, 0, 0)
         # atom_type_loss = 0
         (
             atom_hybri_s_loss,
@@ -236,13 +236,9 @@ class Model_decoder(nn.Module):
                 ).squeeze(-1)
 
                 # bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device).long()
-                bond_type_sigma_target = (
-                    mol.edge_attr_nosuper[:, 2].to(self.device)
-                )
+                bond_type_sigma_target = mol.edge_attr_nosuper[:, 2].to(self.device)
                 bond_type_pi_target = mol.edge_attr_nosuper[:, 3].to(self.device)
-                bond_type_conjugate_target = (
-                    mol.edge_attr_nosuper[:, 4].to(self.device)
-                )
+                bond_type_conjugate_target = mol.edge_attr_nosuper[:, 4].to(self.device)
 
                 # bond_type_loss += self.bond_type_pred_loss(
                 #     bond_type_pred, bond_type_target

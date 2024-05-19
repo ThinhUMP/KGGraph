@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from .GINConv import GINConv
 
+
 class GNN(torch.nn.Module):
     """
     Args:
@@ -17,8 +18,16 @@ class GNN(torch.nn.Module):
 
     """
 
-    def __init__(self, num_layer, emb_dim, JK="last", drop_ratio=0, gnn_type="gin",
-                 x_features=7, edge_features=5):
+    def __init__(
+        self,
+        num_layer,
+        emb_dim,
+        JK="last",
+        drop_ratio=0,
+        gnn_type="gin",
+        x_features=7,
+        edge_features=5,
+    ):
         super(GNN, self).__init__()
         self.num_layer = num_layer
         self.drop_ratio = drop_ratio
@@ -29,14 +38,17 @@ class GNN(torch.nn.Module):
             raise ValueError("Number of GNN layers must be greater than 1.")
 
         # Initialize a list of x MLPs
-        self.x_mlps = torch.nn.ModuleList([
-            torch.nn.Sequential(
-                torch.nn.Linear(1, 2 * emb_dim),
-                torch.nn.ReLU(),
-                torch.nn.Linear(2 * emb_dim, emb_dim)
-            ) for _ in range(x_features)  # number of x features
-        ])
-        
+        self.x_mlps = torch.nn.ModuleList(
+            [
+                torch.nn.Sequential(
+                    torch.nn.Linear(1, 2 * emb_dim),
+                    torch.nn.ReLU(),
+                    torch.nn.Linear(2 * emb_dim, emb_dim),
+                )
+                for _ in range(x_features)  # number of x features
+            ]
+        )
+
         # List of MLPs
         self.gnns = torch.nn.ModuleList()
         for layer in range(num_layer):

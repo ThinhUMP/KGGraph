@@ -2,6 +2,7 @@ import torch
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
 
+
 class GINConv(MessagePassing):
     """
     GINConv is an extension of the Graph Isomorphism Network (GIN) that incorporates edge information
@@ -36,13 +37,16 @@ class GINConv(MessagePassing):
         )
 
         # Initialize a list of edge MLPs
-        self.edge_mlps = torch.nn.ModuleList([
-            torch.nn.Sequential(
-                torch.nn.Linear(1, 2 * emb_dim),
-                torch.nn.ReLU(),
-                torch.nn.Linear(2 * emb_dim, emb_dim)
-            ) for _ in range(edge_features)  # number of edge features
-        ])
+        self.edge_mlps = torch.nn.ModuleList(
+            [
+                torch.nn.Sequential(
+                    torch.nn.Linear(1, 2 * emb_dim),
+                    torch.nn.ReLU(),
+                    torch.nn.Linear(2 * emb_dim, emb_dim),
+                )
+                for _ in range(edge_features)  # number of edge features
+            ]
+        )
         self.emb_dim = emb_dim
         self.aggr = aggr
 
@@ -68,7 +72,9 @@ class GINConv(MessagePassing):
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
 
         # Apply each MLP to its corresponding edge feature slice
-        edge_embeddings = torch.zeros(edge_attr.size(0), self.emb_dim).to(edge_attr.device)
+        edge_embeddings = torch.zeros(edge_attr.size(0), self.emb_dim).to(
+            edge_attr.device
+        )
         for i, mlp in enumerate(self.edge_mlps):
             edge_embeddings += mlp(edge_attr[:, i].view(-1, 1))
 

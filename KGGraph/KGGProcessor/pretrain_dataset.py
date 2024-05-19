@@ -14,8 +14,16 @@ from KGGraph.KGGChem.atom_utils import get_mol
 
 
 class MoleculeDataset(Dataset):
-    def __init__(self, data_file, decompose_type, mask_node, mask_edge, 
-                mask_node_ratio, mask_edge_ratio, fix_ratio):
+    def __init__(
+        self,
+        data_file,
+        decompose_type,
+        mask_node,
+        mask_edge,
+        mask_node_ratio,
+        mask_edge_ratio,
+        fix_ratio,
+    ):
         self.decompose_type = decompose_type
         self.mask_node = mask_node
         self.mask_edge = mask_edge
@@ -28,12 +36,28 @@ class MoleculeDataset(Dataset):
         if not mask_node and not mask_edge:
             print("Not masking node and edge")
         elif not mask_node and mask_edge:
-            print("Masking edge with ratio at", mask_edge_ratio, "and fix state is", fix_ratio)
+            print(
+                "Masking edge with ratio at",
+                mask_edge_ratio,
+                "and fix state is",
+                fix_ratio,
+            )
         elif mask_node and not mask_edge:
-            print("Masking node with ratio at", mask_node_ratio, "and fix state is", fix_ratio)
+            print(
+                "Masking node with ratio at",
+                mask_node_ratio,
+                "and fix state is",
+                fix_ratio,
+            )
         else:
-            print("Masking node with ratio at", mask_node_ratio, 
-                "and masking edge with ratio at", mask_edge_ratio, "and fix state is", fix_ratio)
+            print(
+                "Masking node with ratio at",
+                mask_node_ratio,
+                "and masking edge with ratio at",
+                mask_edge_ratio,
+                "and fix state is",
+                fix_ratio,
+            )
 
         print("Decompose type", decompose_type)
 
@@ -43,14 +67,28 @@ class MoleculeDataset(Dataset):
     def __getitem__(self, idx):
         smiles = self.data[idx]
         mol_graph = MolGraph(
-            smiles, self.decompose_type, self.mask_node, self.mask_edge, 
-            self.mask_node_ratio, self.mask_edge_ratio, self.fix_ratio
+            smiles,
+            self.decompose_type,
+            self.mask_node,
+            self.mask_edge,
+            self.mask_node_ratio,
+            self.mask_edge_ratio,
+            self.fix_ratio,
         )
         return mol_graph
 
 
 class MolGraph(object):
-    def __init__(self, smiles, decompose_type, mask_node, mask_edge, mask_node_ratio, mask_edge_ratio, fix_ratio):
+    def __init__(
+        self,
+        smiles,
+        decompose_type,
+        mask_node,
+        mask_edge,
+        mask_node_ratio,
+        mask_edge_ratio,
+        fix_ratio,
+    ):
         self.smiles = smiles
         self.mol = get_mol(smiles)
         self._x_nosuper, self._x, self._num_part = x_feature(
@@ -61,7 +99,9 @@ class MolGraph(object):
             self._edge_index_nosuper,
             self._edge_index,
             self._edge_attr,
-        ) = edge_feature(self.mol, decompose_type, mask_edge, mask_edge_ratio, fix_ratio)
+        ) = edge_feature(
+            self.mol, decompose_type, mask_edge, mask_edge_ratio, fix_ratio
+        )
 
     @property
     def x(self):

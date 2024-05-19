@@ -300,7 +300,9 @@ class EdgeFeature:
         if fix_ratio:
             num_masked_edges = max(0, math.floor(mask_edge_ratio * num_bonds))
         else:
-            num_masked_edges = random.randint(0, math.floor(mask_edge_ratio * num_bonds))
+            num_masked_edges = random.randint(
+                0, math.floor(mask_edge_ratio * num_bonds)
+            )
 
         # Sample the indices of edges to be masked
         masked_edges_single = random.sample(list(range(num_bonds)), num_masked_edges)
@@ -414,8 +416,11 @@ def main():
     t1 = time.time()
     for mol in mols_list:
         edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(
-            mol, decompose_type="motif", mask_edge=True, 
-            mask_edge_ratio=0.1,fix_ratio=False
+            mol,
+            decompose_type="motif",
+            mask_edge=True,
+            mask_edge_ratio=0.1,
+            fix_ratio=False,
         )
         print(edge_attr.size())
         print(edge_index.size())

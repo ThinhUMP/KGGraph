@@ -81,8 +81,10 @@ class AtomFeature:
         if fix_ratio:
             num_masked_node = max([1, math.floor(mask_node_ratio * num_node)])
         else:
-            if math.floor(mask_node_ratio * num_node)>0:
-                num_masked_node = random.randint(1, math.floor(mask_node_ratio * num_node))
+            if math.floor(mask_node_ratio * num_node) > 0:
+                num_masked_node = random.randint(
+                    1, math.floor(mask_node_ratio * num_node)
+                )
             else:
                 num_masked_node = 0
 
@@ -161,7 +163,9 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node, mask_node_ratio, fix_rat
             (x_node, x_motif.to(x_node.device), x_supernode.to(x_node.device)), dim=0
         ).to(torch.float32)
     else:
-        x_node_masked = AtomFeature.masked_atom_feature(mol, x_node, mask_node_ratio, fix_ratio)
+        x_node_masked = AtomFeature.masked_atom_feature(
+            mol, x_node, mask_node_ratio, fix_ratio
+        )
         x = torch.cat(
             (
                 x_node_masked,
@@ -191,7 +195,11 @@ def main():
     t1 = time.time()
     for mol in mols:
         x_node, x, num_part = x_feature(
-            mol, decompose_type="motif", mask_node=True, mask_node_ratio=0.25, fix_ratio=False
+            mol,
+            decompose_type="motif",
+            mask_node=True,
+            mask_node_ratio=0.25,
+            fix_ratio=False,
         )
         print(x)
     t2 = time.time()

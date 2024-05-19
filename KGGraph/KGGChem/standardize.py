@@ -2,8 +2,9 @@ from rdkit.Chem.MolStandardize import rdMolStandardize
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
+
 class SmileStandardizer:
-    
+
     @staticmethod
     def standardize(input_file, output_file, n_jobs=8):
         # Load SMILES from file
@@ -21,9 +22,11 @@ class SmileStandardizer:
 
         # Write the results to file using efficient list handling
         with open(output_file, "w") as f:
-            f.writelines(s + '\n' for s in standsmi_list if s)
+            f.writelines(s + "\n" for s in standsmi_list if s)
 
-        assert len(smile_list) == len(standsmi_list), "Mismatch in number of input and output SMILES"
+        assert len(smile_list) == len(
+            standsmi_list
+        ), "Mismatch in number of input and output SMILES"
 
     @staticmethod
     def safe_standardize_smiles(smiles):
@@ -33,4 +36,3 @@ class SmileStandardizer:
         except Exception as e:
             print(f"Error processing {smiles}: {e}")
             return None
-

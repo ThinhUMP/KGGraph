@@ -159,7 +159,7 @@ def main():
         "--fix_ratio",
         type=bool,
         default=False,
-        help="Fixing ratio of removal nodes and edges or not at 0.25",
+        help="Fixing ratio of removal nodes and edges or not at specified ratio",
     )
     args = parser.parse_args()
 

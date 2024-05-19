@@ -46,7 +46,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=1,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -89,13 +89,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="",
+        default="saved_model_mlp_ce/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -146,7 +146,7 @@ def main():
     parser.add_argument(
         "--mask_node_ratio",
         type=float,
-        default=0.1,
+        default=0.25,
         help="Ratio of removal nodes",
     )
     parser.add_argument(
@@ -158,7 +158,7 @@ def main():
     parser.add_argument(
         "--fix_ratio",
         type=bool,
-        default=True,
+        default=False,
         help="Fixing ratio of removal nodes and edges or not at 0.25",
     )
     args = parser.parse_args()

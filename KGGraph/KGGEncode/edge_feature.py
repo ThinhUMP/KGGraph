@@ -414,11 +414,11 @@ def main():
     t1 = time.time()
     for mol in mols_list:
         edge_attr_node, edge_index_node, edge_index, edge_attr = edge_feature(
-            mol, decompose_type="motif", mask_edge=False, fix_ratio=False
+            mol, decompose_type="motif", mask_edge=True, 
+            mask_edge_ratio=0.1,fix_ratio=False
         )
         print(edge_attr.size())
         print(edge_index.size())
-        break
     t2 = time.time()
     print(t2 - t1)
 

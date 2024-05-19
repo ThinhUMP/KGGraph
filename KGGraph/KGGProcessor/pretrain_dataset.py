@@ -19,7 +19,7 @@ class MoleculeDataset(Dataset):
         self.decompose_type = decompose_type
         self.mask_node = mask_node
         self.mask_edge = mask_edge
-        self.amask_node_ratio = mask_node_ratio
+        self.mask_node_ratio = mask_node_ratio
         self.mask_edge_ratio = mask_edge_ratio
         self.fix_ratio = fix_ratio
         with open(data_file) as f:
@@ -28,12 +28,12 @@ class MoleculeDataset(Dataset):
         if not mask_node and not mask_edge:
             print("Not masking node and edge")
         elif not mask_node and mask_edge:
-            print("Masking edge with ratio at", mask_edge_ratio, "with fix state is", fix_ratio)
+            print("Masking edge with ratio at", mask_edge_ratio, "and fix state is", fix_ratio)
         elif mask_node and not mask_edge:
-            print("Masking node with ratio at", mask_node_ratio, "with fix state is", fix_ratio)
+            print("Masking node with ratio at", mask_node_ratio, "and fix state is", fix_ratio)
         else:
             print("Masking node with ratio at", mask_node_ratio, 
-                "and masking edge with ratio at", mask_edge_ratio, "with fix state is", fix_ratio)
+                "and masking edge with ratio at", mask_edge_ratio, "and fix state is", fix_ratio)
 
         print("Decompose type", decompose_type)
 

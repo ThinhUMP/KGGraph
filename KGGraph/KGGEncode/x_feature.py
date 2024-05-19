@@ -81,7 +81,7 @@ class AtomFeature:
         if fix_ratio:
             num_masked_node = max([1, math.floor(mask_node_ratio * num_node)])
         else:
-            num_masked_node = random.randint(1, math.floor(mask_node_ratio * num_node))
+            num_masked_node = random.randint(0, math.floor(mask_node_ratio * num_node))
 
         masked_node = random.sample(list(range(num_node)), num_masked_node)
 
@@ -188,7 +188,7 @@ def main():
     t1 = time.time()
     for mol in mols:
         x_node, x, num_part = x_feature(
-            mol, decompose_type="motif", mask_node=False, fix_ratio=False
+            mol, decompose_type="motif", mask_node=True, mask_node_ratio=0.25, fix_ratio=False
         )
         print(x)
     t2 = time.time()

@@ -81,7 +81,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce_mask10/pretrain.pth",
+        default="./saved_model_mlp_ce_mask5/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -106,13 +106,13 @@ def main():
     parser.add_argument(
         "--mask_node_ratio",
         type=float,
-        default=0.1,
+        default=0.05,
         help="Ratio of removal nodes",
     )
     parser.add_argument(
         "--mask_edge_ratio",
         type=float,
-        default=0.1,
+        default=0.05,
         help="Ratio of removal edges",
     )
     parser.add_argument(
@@ -161,9 +161,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce_mask10"):
-        os.mkdir("./saved_model_mlp_ce_mask10")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce_mask10"):
+    if not os.path.isdir("./saved_model_mlp_ce_mask5"):
+        os.mkdir("./saved_model_mlp_ce_mask5")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce_mask5"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

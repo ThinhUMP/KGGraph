@@ -41,17 +41,17 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=3,
+        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=2,
+        default=100,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -72,7 +72,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -90,13 +90,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="tox21",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="",
+        default="saved_model_mlp_ce_mask10/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -135,13 +135,13 @@ def main():
     parser.add_argument(
         "--mask_node",
         type=bool,
-        default=True,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=True,
+        default=False,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(

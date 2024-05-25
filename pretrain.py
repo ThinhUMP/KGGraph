@@ -37,7 +37,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=60,
+        default=20,
         help="number of epochs to train (default: 100)",
     )
 
@@ -81,7 +81,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce_mask5/pretrain.pth",
+        default="./saved_model_mlp_ce80/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -94,13 +94,13 @@ def main():
     parser.add_argument(
         "--mask_node",
         type=bool,
-        default=True,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=True,
+        default=False,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(
@@ -161,9 +161,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce_mask5"):
-        os.mkdir("./saved_model_mlp_ce_mask5")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce_mask5"):
+    if not os.path.isdir("./saved_model_mlp_ce80"):
+        os.mkdir("./saved_model_mlp_ce80")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce80"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

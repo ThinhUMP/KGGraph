@@ -2,23 +2,24 @@ from rdkit import Chem
 from typing import List, Set, Tuple
 from collections import defaultdict
 
+
 class SMotifDecomposition:
     @staticmethod
     def generate_mark_pattern(mol: Chem.Mol) -> Set[int]:
         """
         Generate marks for atoms that are part of identified functional groups in a molecule.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object to analyze.
 
         Returns:
         Set[int]: A set of atom indices that are part of identified functional groups.
         """
         PATTERNS = {
-            'HETEROATOM': '[!#6]',  # Matches atoms that are not carbon (heteroatoms).
-            'DOUBLE_TRIPLE_BOND': '*=,#*',  # Matches double or triple bonds.
-            'ACETAL': '[CX4]([O,N,S])[O,N,S]',  # Matches acetal functional groups.
-            'PROPYL': '[CX4]([#6,#9,#17,#35,#53])([#6,#9,#17,#35,#53])([#6,#7,#9,#8,#16,#17,#35,#53])'
+            "HETEROATOM": "[!#6]",  # Matches atoms that are not carbon (heteroatoms).
+            "DOUBLE_TRIPLE_BOND": "*=,#*",  # Matches double or triple bonds.
+            "ACETAL": "[CX4]([O,N,S])[O,N,S]",  # Matches acetal functional groups.
+            "PROPYL": "[C;X4]([#6,#9,#17,#35,#53])([#6,#9,#17,#35,#53])([#6,#7,#8,#16,#9,#17,#35,#53])",
         }
         PATTERNS = {k: Chem.MolFromSmarts(v) for k, v in PATTERNS.items()}
 
@@ -26,22 +27,19 @@ class SMotifDecomposition:
 
         for name, patt in PATTERNS.items():
             for sub in mol.GetSubstructMatches(patt):
-                if name not in ["PROPYL", 'DOUBLE_TRIPLE_BOND']:
+                if name not in ["PROPYL", "DOUBLE_TRIPLE_BOND"]:
                     marks.update(sub)
-                elif name == 'DOUBLE_TRIPLE_BOND':
+                elif name == "DOUBLE_TRIPLE_BOND":
                     bond = mol.GetBondBetweenAtoms(sub[0], sub[1])
                     if not bond.IsInRing():
                         marks.update(sub)
                 else:
-                    # print("check sub", sub)
-                    # atom = mol.GetAtomWithIdx(sub[1])    
-                    # if atom.IsInRing():
-                    #     continue
-                    # else:
-                    #     marks.add(sub[0])
-                    #     continue
-                    marks.add(sub[0])
-                    continue
+                    atom = mol.GetAtomWithIdx(sub[1])
+                    if atom.IsInRing():
+                        break
+                    else:
+                        marks.add(sub[1])
+                        break
 
         return marks
 
@@ -50,7 +48,7 @@ class SMotifDecomposition:
         """
         Merges rings in a molecule that share more than one atom, identifying fused ring systems.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object to analyze.
 
         Returns:
@@ -61,7 +59,8 @@ class SMotifDecomposition:
         while flag:
             flag = False
             for i in range(len(rings)):
-                if len(rings[i]) == 0: continue
+                if len(rings[i]) == 0:
+                    continue
                 for j in range(i + 1, len(rings)):
                     shared_atoms = rings[i] & rings[j]
                     if len(shared_atoms) > 1:
@@ -70,24 +69,27 @@ class SMotifDecomposition:
                         flag = True
         return [list(r) for r in rings if len(r) > 0]
 
-
     @staticmethod
     def find_carbonyl(mol: Chem.Mol) -> Tuple[List[List[int]], List[Tuple[int]]]:
         """
         Identify carbonyl groups in the molecule and merge adjacent or overlapping CO groups.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
 
         Returns:
-        Tuple[List[List[int]], List[Tuple[int]]]: 
+        Tuple[List[List[int]], List[Tuple[int]]]:
         List of merged CO groups and list of merged COO groups.
         """
-        CO = list(mol.GetSubstructMatches(Chem.MolFromSmarts('[C;D3](=O)([#0,#6,#7,#8,#17,#35,#53])')))
+        CO = list(
+            mol.GetSubstructMatches(
+                Chem.MolFromSmarts("[C;D3](=O)([#0,#6,#7,#8,#17,#35,#53])")
+            )
+        )
         COO = []
 
         for idx, sub1 in enumerate(CO):
-            for sub2 in CO[idx + 1:]:
+            for sub2 in CO[idx + 1 :]:
                 if sub1[0] == sub2[0]:
                     merge = sub1 + tuple(set(sub2).difference(set(sub1)))
                     CO.insert(idx, merge)
@@ -95,22 +97,30 @@ class SMotifDecomposition:
                     CO.remove(sub2)
 
         for idx, sub1 in enumerate(CO):
-            for sub2 in CO[idx + 1:]:
+            for sub2 in CO[idx + 1 :]:
                 (a1, a2) = (sub1[0], sub2[0])
                 bond = mol.GetBondBetweenAtoms(a1, a2)
                 if bond is not None:
                     COO.append(tuple(set(sub1 + sub2)))
-                    if sub1 in CO: CO.remove(sub1)
-                    if sub2 in CO: CO.remove(sub2)
+                    if sub1 in CO:
+                        CO.remove(sub1)
+                    if sub2 in CO:
+                        CO.remove(sub2)
 
         return CO, COO
 
     @staticmethod
-    def fix_carbonyl_and_cluster_atoms(mol: Chem.Mol, CO: List[List[int]], COO: List[Tuple[int]], rings: List[Set[int]], marks: Set[int]) -> List[List[int]]:
+    def fix_carbonyl_and_cluster_atoms(
+        mol: Chem.Mol,
+        CO: List[List[int]],
+        COO: List[Tuple[int]],
+        rings: List[Set[int]],
+        marks: Set[int],
+    ) -> List[List[int]]:
         """
         Merge carbonyl groups and cluster atoms based on their connectivity.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
         CO (List[List[int]]): List of merged CO groups.
         COO (List[Tuple[int]]): List of merged COO groups.
@@ -139,10 +149,10 @@ class SMotifDecomposition:
                     marks.remove(i)
 
             check = set(value) - atom_carbonyl
-            
+
             for k in check:
                 atom = mol.GetAtomWithIdx(k)
-                if atom.GetSymbol() == 'C':
+                if atom.GetSymbol() == "C":
                     if k in marks:
                         if not atom.IsInRing():
                             nei = [c.GetIdx() for c in atom.GetNeighbors()]
@@ -168,7 +178,7 @@ class SMotifDecomposition:
                     break
             if not is_subset:
                 cluster.append(pre_cluster[i])
-        
+
         for coo in COO:
             cluster.append(list(coo))
         cluster.extend(rings)
@@ -176,11 +186,13 @@ class SMotifDecomposition:
         return cluster, marks
 
     @staticmethod
-    def cluster_atoms_and_identify_functional_groups(mol: Chem.Mol, marks: Set[int], cluster: List[Set[int]]) -> List[Set[int]]:
+    def cluster_atoms_and_identify_functional_groups(
+        mol: Chem.Mol, marks: Set[int], cluster: List[Set[int]]
+    ) -> List[Set[int]]:
         """
         Cluster atoms and identify functional groups.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
         marks (Set[int]): Set of marks indicating atoms that have not been clustered yet.
         cluster (List[Set[int]]): List of clusters of atoms.
@@ -190,16 +202,16 @@ class SMotifDecomposition:
         """
         atom2fg = [[] for _ in range(mol.GetNumAtoms())]
         fgs = []
-        # print("marks", marks)
+
         for atom in marks:
             fgs.append({atom})
-            atom2fg[atom] = [len(fgs)-1]
+            atom2fg[atom] = [len(fgs) - 1]
 
         for bond in mol.GetBonds():
             if bond.IsInRing():
                 continue
             a1, a2 = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-            
+
             found_in_cluster = False
             for c in cluster:
                 if (a1 in c) and (a2 in c):
@@ -224,17 +236,19 @@ class SMotifDecomposition:
                 atom2fg[a1].extend(atom2fg[a2])
             else:
                 fgs.append({a1, a2})
-                atom2fg[a1].append(len(fgs)-1)
-                atom2fg[a2].append(len(fgs)-1)
+                atom2fg[a1].append(len(fgs) - 1)
+                atom2fg[a2].append(len(fgs) - 1)
 
         return [fg for fg in fgs if fg]
 
     @staticmethod
-    def finalize_function_groups(fgs: List[Set[int]], cluster: List[Set[int]], mol: Chem.Mol) -> List[str]:
+    def finalize_function_groups(
+        fgs: List[Set[int]], cluster: List[Set[int]], mol: Chem.Mol
+    ) -> List[str]:
         """
         Finalize the identified functional groups and convert them to SMILES representations.
 
-        Parameters:
+        Args:
         fgs (List[Set[int]]): List of identified functional groups.
         cluster (List[Set[int]]): List of atom clusters.
         mol (Chem.Mol): RDKit molecule object.
@@ -242,20 +256,25 @@ class SMotifDecomposition:
         Returns:
         List[str]: List of SMILES representations of the final functional groups.
         """
-        tmp = [list(fg) for fg in fgs if fg and (len(fg) > 1 or not mol.GetAtomWithIdx(list(fg)[0]).IsInRing())]
+        tmp = [
+            list(fg)
+            for fg in fgs
+            if fg and (len(fg) > 1 or not mol.GetAtomWithIdx(list(fg)[0]).IsInRing())
+        ]
         fgs = tmp
         fgs.extend(cluster)
+
         for i, fg in enumerate(fgs):
-            for fg2 in fgs[i+1:]:
+            for fg2 in fgs[i + 1 :]:
                 inter = set(fg) & set(fg2)
-                if len(inter) >1:
+                if len(inter) > 1:
                     fgs[i].extend(list(set(fg2).difference(set(fg))))
                     fgs.remove(fg2)
 
         if 0 not in fgs[0]:
             for i, cls in enumerate(fgs):
                 if 0 in cls:
-                    fgs = [fgs[i]] + fgs[:i] + fgs[i+1:]
+                    fgs = [fgs[i]] + fgs[:i] + fgs[i + 1 :]
                     break
 
         atom_cls = [[] for _ in range(mol.GetNumAtoms())]
@@ -263,35 +282,43 @@ class SMotifDecomposition:
             for atom in fg:
                 atom_cls[atom].append(i)
 
-        # edges = defaultdict(int)
-        # for atom, nei_cls in enumerate(atom_cls):
-        #     for i,c1 in enumerate(nei_cls):
-        #         for c2 in nei_cls[i + 1:]:
-        #             inter = set(fgs[c1]) & set(fgs[c2])
-        #             edges[(c1,c2)] = len(inter)
+        edges = defaultdict(int)
+        for atom, nei_cls in enumerate(atom_cls):
+            for i, c1 in enumerate(nei_cls):
+                for c2 in nei_cls[i + 1 :]:
+                    inter = set(fgs[c1]) & set(fgs[c2])
+                    edges[(c1, c2)] = len(inter)
+        edges_list = [k for k, v in edges.items()]
 
+        return list(fgs), edges_list
 
-        # return list(fgs),edges
-        return list(fgs),atom_cls
-
-    def defragment(self, mol: Chem.Mol) -> List[str]:
+    @staticmethod
+    def defragment(mol: Chem.Mol) -> List[str]:
         """
         Perform defragmentation of a molecule into functional groups.
 
-        Parameters:
+        Args:
         mol (Chem.Mol): RDKit molecule object.
 
         Returns:
         List[str]: List of SMILES strings representing the identified functional groups.
         """
+        n_atoms = mol.GetNumAtoms()
+        if n_atoms == 1:
+            return [[0]], []
+
         marks = SMotifDecomposition.generate_mark_pattern(mol)
         rings = SMotifDecomposition.merge_rings(mol)
 
         CO, COO = SMotifDecomposition.find_carbonyl(mol)
         for val in COO:
             marks.difference_update(val)
-        # print("origin marks",marks)
-        cluster, marks = SMotifDecomposition.fix_carbonyl_and_cluster_atoms(mol, CO, COO, rings, marks)
-        fgs = SMotifDecomposition.cluster_atoms_and_identify_functional_groups(mol, marks, cluster)
+
+        cluster, marks = SMotifDecomposition.fix_carbonyl_and_cluster_atoms(
+            mol, CO, COO, rings, marks
+        )
+        fgs = SMotifDecomposition.cluster_atoms_and_identify_functional_groups(
+            mol, marks, cluster
+        )
 
         return SMotifDecomposition.finalize_function_groups(fgs, cluster, mol)

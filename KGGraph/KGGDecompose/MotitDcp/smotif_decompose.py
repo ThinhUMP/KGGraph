@@ -3,6 +3,7 @@ from typing import List, Set, Tuple
 from collections import defaultdict
 
 class SMotifDecomposition:
+    
     @staticmethod
     def generate_mark_pattern(mol: Chem.Mol) -> Set[int]:
         """
@@ -263,18 +264,19 @@ class SMotifDecomposition:
             for atom in fg:
                 atom_cls[atom].append(i)
 
-        # edges = defaultdict(int)
-        # for atom, nei_cls in enumerate(atom_cls):
-        #     for i,c1 in enumerate(nei_cls):
-        #         for c2 in nei_cls[i + 1:]:
-        #             inter = set(fgs[c1]) & set(fgs[c2])
-        #             edges[(c1,c2)] = len(inter)
+        edges = defaultdict(int)
+        for atom, nei_cls in enumerate(atom_cls):
+            for i,c1 in enumerate(nei_cls):
+                for c2 in nei_cls[i + 1:]:
+                    inter = set(fgs[c1]) & set(fgs[c2])
+                    edges[(c1,c2)] = len(inter)
 
 
-        # return list(fgs),edges
-        return list(fgs),atom_cls
+        return list(fgs),edges
+        # return list(fgs),atom_cls
 
-    def defragment(self, mol: Chem.Mol) -> List[str]:
+    @staticmethod
+    def defragment(mol: Chem.Mol) -> List[str]:
         """
         Perform defragmentation of a molecule into functional groups.
 

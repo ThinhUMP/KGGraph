@@ -60,7 +60,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=2e-5, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-5, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -96,7 +96,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="",
+        default="saved_model_mlp_ce40/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

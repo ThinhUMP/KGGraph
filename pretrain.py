@@ -37,7 +37,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=40,
+        default=60,
         help="number of epochs to train (default: 100)",
     )
 
@@ -81,7 +81,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce40/pretrain.pth",
+        default="./saved_model_mlp_ce60_1layer/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -161,9 +161,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce40"):
-        os.mkdir("./saved_model_mlp_ce40")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce40"):
+    if not os.path.isdir("./saved_model_mlp_ce60_1layer"):
+        os.mkdir("./saved_model_mlp_ce60_1layer")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce60_1layer"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

@@ -84,19 +84,19 @@ def main():
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="motif",
+        default="smotif",
         help="decompose_type (brics, jin, motif, smotif) (default: motif).",
     )
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce40/pretrain.pth",
+        default="",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

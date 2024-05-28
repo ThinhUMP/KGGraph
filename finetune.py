@@ -51,7 +51,7 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="sider",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(

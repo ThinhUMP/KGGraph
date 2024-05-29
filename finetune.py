@@ -51,7 +51,7 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -90,13 +90,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
+        default="bbbp",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce100_1layer/pretrain.pth",
+        default="saved_model_mlp_ce_mask5/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

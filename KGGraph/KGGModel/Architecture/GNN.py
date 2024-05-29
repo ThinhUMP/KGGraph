@@ -41,9 +41,9 @@ class GNN(torch.nn.Module):
         self.x_mlps = torch.nn.ModuleList(
             [
                 torch.nn.Sequential(
-                    torch.nn.Linear(1, emb_dim),
-                    # torch.nn.ReLU(),
-                    # torch.nn.Linear(2 * emb_dim, emb_dim),
+                    torch.nn.Linear(1, 2 * emb_dim),
+                    torch.nn.ReLU(),
+                    torch.nn.Linear(2 * emb_dim, emb_dim),
                 )
                 for _ in range(x_features)  # number of x features
             ]

@@ -96,7 +96,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce_charger/pretrain.pth",
+        default="saved_model_mlp_ce_charger_test/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

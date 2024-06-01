@@ -35,7 +35,7 @@ def main():
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=32,
+        default=2,
         help="input batch size for training (default: 32)",
     )
     parser.add_argument(
@@ -90,13 +90,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="toxcast",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce_charger/pretrain.pth",
+        default="",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

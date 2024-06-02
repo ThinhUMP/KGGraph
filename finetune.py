@@ -90,13 +90,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="toxcast",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="",
+        default="saved_model_mlp_ce_dropout/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

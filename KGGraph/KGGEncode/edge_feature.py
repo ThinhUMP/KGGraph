@@ -164,18 +164,18 @@ class EdgeFeature:
             for k, motif_nodes in enumerate(cliques):
                 motif_edge_index.extend([[i, num_atoms + k] for i in motif_nodes])
 
-            # for k in range(len(cliques)):
-            #     for h in range(k + 1, len(cliques)):
-            #         for bond in clique_edges:
-            #             if (bond[0] == k and bond[1] == h) or (
-            #                 bond[0] == h and bond[1] == k
-            #             ):
-            #                 motif_edge_index.extend(
-            #                     [
-            #                         [num_atoms + k, num_atoms + h],
-            #                         [num_atoms + h, num_atoms + k],
-            #                     ]
-            #                 )
+            for k in range(len(cliques)):
+                for h in range(k + 1, len(cliques)):
+                    for bond in clique_edges:
+                        if (bond[0] == k and bond[1] == h) or (
+                            bond[0] == h and bond[1] == k
+                        ):
+                            motif_edge_index.extend(
+                                [
+                                    [num_atoms + k, num_atoms + h],
+                                    [num_atoms + h, num_atoms + k],
+                                ]
+                            )
 
             motif_edge_index = torch.tensor(
                 np.array(motif_edge_index).T, dtype=torch.long
@@ -226,27 +226,27 @@ class EdgeFeature:
         """
         if num_motif > 0:
             # Initialize motif edge attributes
-            motif_edge_attr = torch.zeros((motif_edge_index.size(1), num_edge_features))
-            motif_edge_attr[:, 0] = (
-                6  # Set bond type for the edge between atoms and motif,
-            )
-            # motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(clique_edges)*2, num_edge_features))
-            # motif_node_edge_attr[:, 0] = (
+            # motif_edge_attr = torch.zeros((motif_edge_index.size(1), num_edge_features))
+            # motif_edge_attr[:, 0] = (
             #     6  # Set bond type for the edge between atoms and motif,
             # )
+            motif_node_edge_attr = torch.zeros((motif_edge_index.size(1)-len(clique_edges)*2, num_edge_features))
+            motif_node_edge_attr[:, 0] = (
+                6  # Set bond type for the edge between atoms and motif,
+            )
 
             # Initialize motif-motif edge attributes
-            # motif_motif_edge_attr = torch.zeros(
-            #     (len(clique_edges) * 2, num_edge_features)
-            # )
-            # motif_motif_edge_attr[:, 0] = (
-            #     7  # Set bond type for the edge between motif and motif
-            # )
+            motif_motif_edge_attr = torch.zeros(
+                (len(clique_edges) * 2, num_edge_features)
+            )
+            motif_motif_edge_attr[:, 0] = (
+                7  # Set bond type for the edge between motif and motif
+            )
 
-            # # Motif edge attributes
-            # motif_edge_attr = torch.cat(
-            #     (motif_node_edge_attr, motif_motif_edge_attr), dim=0
-            # )
+            # Motif edge attributes
+            motif_edge_attr = torch.cat(
+                (motif_node_edge_attr, motif_motif_edge_attr), dim=0
+            )
 
             # Initialize super edge attributes
             super_edge_attr = torch.zeros((num_motif, num_edge_features))

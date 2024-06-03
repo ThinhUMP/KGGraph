@@ -12,10 +12,10 @@ import numpy as np
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.KGGDecompose.MotitDcp.brics_decompose import BRCISDecomposition
-from KGGraph.KGGDecompose.MotitDcp.jin_decompose import TreeDecomposition
-from KGGraph.KGGDecompose.MotitDcp.motif_decompose import MotifDecomposition
-from KGGraph.KGGDecompose.MotitDcp.smotif_decompose import SMotifDecomposition
+from KGGraph.KGGDecompose.brics_decompose import BRCISDecomposition
+from KGGraph.KGGDecompose.jin_decompose import TreeDecomposition
+from KGGraph.KGGDecompose.motif_decompose import MotifDecomposition
+from KGGraph.KGGDecompose.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGChem.bond_features import bond_type_feature
 
 

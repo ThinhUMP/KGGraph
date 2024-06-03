@@ -3,17 +3,15 @@ import pandas as pd
 import os
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.Graph_model import GINTrain
-from KGGraph.KGGModel.TrainUtils.finetune_utils import train_epoch_cls, train_epoch_reg
-from KGGraph.KGGModel.TrainUtils.visualize import plot_metrics
-from KGGraph.KGGModel.TrainUtils.get_task_type_num_tasks import (
+from KGGraph.KGGModel.graph_model import GraphModel
+from KGGraph.KGGModel.finetune_utils import (
+    train_epoch_cls,
+    train_epoch_reg,
     get_num_task,
     get_task_type,
 )
-from KGGraph.KGGModel.TrainUtils.crawl_metrics import (
-    average_test_metrics,
-    average_train_metrics,
-)
+from KGGraph.KGGModel.visualize import plot_metrics
+from KGGraph.KGGModel.crawl_metrics import average_test_metrics
 import torch
 import torch.nn as nn
 import argparse
@@ -265,7 +263,7 @@ def main():
         )
 
         # set up model
-        model = GINTrain(
+        model = GraphModel(
             args.num_layer,
             args.emb_dim,
             num_tasks,

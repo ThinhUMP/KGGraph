@@ -4,11 +4,11 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import rdkit
 import numpy as np
-from KGGraph.KGGModel.Architecture.GNN import GNN
+from KGGraph.KGGModel.graph_model import GNN
 from KGGraph.KGGDecode.decoder import Model_decoder
 from KGGraph.KGGProcessor.pretrain_dataset import MoleculeDataset
-from KGGraph.KGGModel.TrainUtils.visualize import plot_pretrain_loss
-from KGGraph.KGGModel.TrainUtils.pretrain_utils import train
+from KGGraph.KGGModel.visualize import plot_pretrain_loss
+from KGGraph.KGGModel.pretrain_utils import train
 import os
 import pandas as pd
 
@@ -134,7 +134,7 @@ def main():
         torch.cuda.manual_seed_all(42)
     print("device", device)
 
-    torch.multiprocessing.set_sharing_strategy('file_system')
+    torch.multiprocessing.set_sharing_strategy("file_system")
 
     dataset = MoleculeDataset(
         args.dataset,

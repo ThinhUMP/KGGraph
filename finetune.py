@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.Architecture.GIN_train import GINTrain
+from KGGraph.KGGModel.Graph_model import GINTrain
 from KGGraph.KGGModel.TrainUtils.finetune_utils import train_epoch_cls, train_epoch_reg
 from KGGraph.KGGModel.TrainUtils.visualize import plot_metrics
 from KGGraph.KGGModel.TrainUtils.get_task_type_num_tasks import (
@@ -117,7 +117,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=10,
+        default=16,
         help="number of workers for dataset loading",
     )
     parser.add_argument(

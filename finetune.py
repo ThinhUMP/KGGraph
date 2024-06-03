@@ -96,7 +96,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce_dropout/pretrain.pth",
+        default="",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -117,7 +117,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=8,
+        default=10,
         help="number of workers for dataset loading",
     )
     parser.add_argument(
@@ -170,17 +170,14 @@ def main():
         # set up seeds
         torch.manual_seed(args.runseed)
         np.random.seed(args.runseed)
-        device = (
-            torch.device("cuda:" + str(args.device))
-            if torch.cuda.is_available()
-            else torch.device("cpu")
-        )
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(args.runseed)
 
         # set up device
         device = (
-            torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+            torch.device("cuda:" + str(args.device))
+            if torch.cuda.is_available()
+            else torch.device("cpu")
         )
         print("device", device)
 

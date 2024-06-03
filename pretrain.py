@@ -87,7 +87,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=8,
+        default=16,
         help="number of workers for dataset loading",
     )
     parser.add_argument("--hidden_size", type=int, default=512, help="hidden size")
@@ -133,6 +133,8 @@ def main():
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(42)
     print("device", device)
+
+    torch.multiprocessing.set_sharing_strategy('file_system')
 
     dataset = MoleculeDataset(
         args.dataset,

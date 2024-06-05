@@ -127,14 +127,17 @@ def clean_state_dict(state_dict):
 
 def visualize_embeddings(model, device, loader):
     def extract_embeddings(model, device, loader):
+        model.to(device)
         model.eval()
         embeddings_list = []
 
         with torch.no_grad():
             for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+                print(batch)
                 batch = batch.to(device)
                 node_representation = model(batch.x, batch.edge_index, batch.edge_attr)
-                super_rep = GraphModel.super_node_rep(node_representation, batch)
+                print(node_representation)
+                super_rep = GraphModel.super_node_rep(node_representation, batch.batch)
                 embeddings_list.append(super_rep.cpu())
 
         embeddings = torch.stack(embeddings_list).numpy()

@@ -4,10 +4,7 @@ from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
 from KGGraph.KGGModel.visualize import clean_state_dict, visualize_embeddings
 from KGGraph.KGGModel.graph_model import GNN
-from KGGraph.KGGModel.finetune_utils import (
-    get_num_task,
-    get_task_type,
-)
+from KGGraph.KGGModel.finetune_utils import get_task_type
 import torch
 import argparse
 import numpy as np
@@ -114,102 +111,96 @@ def main():
     )
     args = parser.parse_args()
 
-    for i in range(1, args.training_rounds + 1):
-        print("====Round ", i)
+    # set up seeds
+    torch.manual_seed(args.runseed)
+    np.random.seed(args.runseed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.runseed)
 
-        # set up seeds
-        torch.manual_seed(args.runseed)
-        np.random.seed(args.runseed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(args.runseed)
+    # set up device
+    device = (
+        torch.device("cuda:" + str(args.device))
+        if torch.cuda.is_available()
+        else torch.device("cpu")
+    )
+    print("device", device)
 
-        # set up device
-        device = (
-            torch.device("cuda:" + str(args.device))
-            if torch.cuda.is_available()
-            else torch.device("cpu")
-        )
-        print("device", device)
+    # set up task type
+    task_type = get_task_type(args)
 
-        # set up task type
-        task_type = get_task_type(args)
+    # set up dataset
+    dataset = MoleculeDataset(
+        "Data/" + task_type + "/" + args.dataset,
+        dataset=args.dataset,
+        decompose_type=args.decompose_type,
+        mask_node=args.mask_node,
+        mask_edge=args.mask_edge,
+        mask_node_ratio=args.mask_node_ratio,
+        mask_edge_ratio=args.mask_edge_ratio,
+        fix_ratio=args.fix_ratio,
+    )
+    print(dataset)
 
-        # set up dataset
-        dataset = MoleculeDataset(
-            "Data/" + task_type + "/" + args.dataset,
-            dataset=args.dataset,
-            decompose_type=args.decompose_type,
-            mask_node=args.mask_node,
-            mask_edge=args.mask_edge,
-            mask_node_ratio=args.mask_node_ratio,
-            mask_edge_ratio=args.mask_edge_ratio,
-            fix_ratio=args.fix_ratio,
-        )
-        print(dataset)
-
-        # data split
-        if args.split == "scaffold":
-            smiles_list = pd.read_csv(
-                "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
-                header=None,
-            )[0].tolist()
-            train_dataset, valid_dataset, test_dataset, (_, _, test_smiles) = (
-                scaffold_split(
-                    dataset,
-                    smiles_list,
-                    null_value=0,
-                    frac_train=0.8,
-                    frac_valid=0.1,
-                    frac_test=0.1,
-                )
-            )
-            print("scaffold")
-        elif args.split == "random":
-            train_dataset, valid_dataset, test_dataset = random_split(
+    # data split
+    if args.split == "scaffold":
+        smiles_list = pd.read_csv(
+            "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
+            header=None,
+        )[0].tolist()
+        train_dataset, valid_dataset, test_dataset, (_, _, test_smiles) = (
+            scaffold_split(
                 dataset,
+                smiles_list,
                 null_value=0,
                 frac_train=0.8,
                 frac_valid=0.1,
                 frac_test=0.1,
-                seed=args.seed,
             )
-            print("random")
-        else:
-            raise ValueError("Invalid split option.")
+        )
+        print("scaffold")
+    elif args.split == "random":
+        train_dataset, valid_dataset, test_dataset = random_split(
+            dataset,
+            null_value=0,
+            frac_train=0.8,
+            frac_valid=0.1,
+            frac_test=0.1,
+            seed=args.seed,
+        )
+        print("random")
+    else:
+        raise ValueError("Invalid split option.")
 
-        print(train_dataset[0])
+    print(train_dataset[0])
 
-        # with open("Data/test_smiles.txt", "a") as f:
-        #         f.writelines("%s\n" % s for s in test_smiles)
-
-        # data loader
-        if args.dataset == "freesolv":
-            train_loader = DataLoader(
-                train_dataset,
-                batch_size=args.batch_size,
-                shuffle=True,
-                num_workers=args.num_workers,
-                drop_last=True,
-            )
-        else:
-            train_loader = DataLoader(
-                train_dataset,
-                batch_size=args.batch_size,
-                shuffle=True,
-                num_workers=args.num_workers,
-            )
-        val_loader = DataLoader(
-            valid_dataset,
+    # data loader
+    if args.dataset == "freesolv":
+        train_loader = DataLoader(
+            train_dataset,
             batch_size=args.batch_size,
-            shuffle=False,
+            shuffle=True,
+            num_workers=args.num_workers,
+            drop_last=True,
+        )
+    else:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
             num_workers=args.num_workers,
         )
-        test_loader = DataLoader(
-            test_dataset,
-            batch_size=args.batch_size,
-            shuffle=False,
-            num_workers=args.num_workers,
-        )
+    val_loader = DataLoader(
+        valid_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+    )
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+    )
 
     state_dict = clean_state_dict(torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth"))
         
@@ -224,3 +215,6 @@ def main():
         )
     model.load_state_dict(state_dict)
     visualize_embeddings(model, device, test_dataset)
+
+if __name__ == "__main__":
+    main()

@@ -146,9 +146,9 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     tsne = TSNE(n_components=2, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings)
-    plt.figure(figsize=(10, 10))
-    plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=loader.dataset.y[148:], cmap='viridis', s=50)
-    plt.colorbar()
+    plt.figure(figsize=(20, 10))
+    plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=loader.dataset.y, s=50)
+    # plt.colorbar()
     plt.title(f"t-SNE Visualization of {args.dataset} on the test set")
     plt.xlabel("tsne-1")
     plt.ylabel("tsne-2")

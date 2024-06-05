@@ -31,30 +31,6 @@ def main():
         help="input batch size for training (default: 32)",
     )
     parser.add_argument(
-        "--training_rounds",
-        type=int,
-        default=1,
-        help="number of rounds to train to get the average test auc (default: 3)",
-    )
-    parser.add_argument(
-        "--epochs",
-        type=int,
-        default=100,
-        help="number of epochs to train (default: 100)",
-    )
-    parser.add_argument(
-        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
-    )
-    parser.add_argument(
-        "--lr_pred",
-        type=float,
-        default=0.0005,
-        help="learning rate for the prediction layer (default: 0.001)",
-    )
-    parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
-    )
-    parser.add_argument(
         "--num_layer",
         type=int,
         default=5,
@@ -86,12 +62,6 @@ def main():
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
-        "--input_model_file",
-        type=str,
-        default="saved_model_mlp_ce60/pretrain.pth",
-        help="filename to read the model (if there is any)",
-    )
-    parser.add_argument(
         "--seed", type=int, default=42, help="Seed for splitting the dataset."
     )
     parser.add_argument(
@@ -111,18 +81,6 @@ def main():
         type=int,
         default=16,
         help="number of workers for dataset loading",
-    )
-    parser.add_argument(
-        "--save_path",
-        type=str,
-        default="Data/",
-        help="path for saving training images, test_metrics csv, model",
-    )
-    parser.add_argument(
-        "--GNN_different_lr",
-        type=bool,
-        default=True,
-        help="if the learning rate of GNN backbone is different from the learning rate of prediction layers",
     )
     parser.add_argument(
         "--mask_node",
@@ -175,9 +133,6 @@ def main():
 
         # set up task type
         task_type = get_task_type(args)
-
-        # set up number of tasks
-        num_tasks = get_num_task(args)
 
         # set up dataset
         dataset = MoleculeDataset(

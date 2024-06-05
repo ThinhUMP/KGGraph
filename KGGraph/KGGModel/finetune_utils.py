@@ -8,6 +8,8 @@ sys.path.append(str(root_dir))
 from KGGraph.KGGModel.crawl_metrics import (
     create_test_round_df,
     create_train_round_df,
+    create_train_reg_round_df,
+    create_test_reg_round_df,
 )
 import torch
 from tqdm import tqdm
@@ -33,7 +35,16 @@ def get_task_type(args):
     str: The type of task associated with the dataset ('classification' or 'regression').
     """
     # List of datasets associated with classification tasks
-    classification_datasets = ["tox21", "bace", "bbbp", "toxcast", "sider", "clintox"]
+    classification_datasets = [
+        "tox21",
+        "bace",
+        "bbbp",
+        "toxcast",
+        "sider",
+        "clintox",
+        "hiv",
+        "muv",
+    ]
 
     if args.dataset in classification_datasets:
         return "classification"
@@ -59,9 +70,11 @@ def get_num_task(args):
         "toxcast": 617,
         "sider": 27,
         "clintox": 2,
+        "hiv": 1,
+        "muv": 17,
         "esol": 1,
         "freesolv": 1,
-        "lipophilicity": 1,
+        "lipo": 1,
         "qm7": 1,
         "qm8": 12,
         "qm9": 12,
@@ -162,12 +175,14 @@ def train_reg(args, model, device, loader, optimizer):
         y = batch.y.view(pred.shape).to(torch.float64)
         if args.dataset in ["qm7", "qm8", "qm9"]:
             loss = torch.sum(torch.abs(pred - y)) / y.size(0)
-        elif args.dataset in ["esol", "freesolv", "lipophilicity"]:
+        elif args.dataset in ["esol", "freesolv", "lipo"]:
             loss = torch.sum((pred - y) ** 2) / y.size(0)
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+    train_loss = loss.detach().cpu().numpy()
+    return train_loss
 
 
 def evaluate(args, model, device, loader, task_type, criterion):
@@ -267,31 +282,9 @@ def eval_reg(model, device, loader):
     y_true = torch.cat(y_true, dim=0).cpu().numpy().flatten()
     y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
 
-    mse = mean_squared_error(y_true, y_scores)
     mae = mean_absolute_error(y_true, y_scores)
     rmse = np.sqrt(mean_squared_error(y_true, y_scores))
-    return mse, mae, rmse
-
-
-def save_emb(model, device, loader, num_tasks, out_file):
-    model.eval()
-
-    emb, label = [], []
-    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-        batch = batch.to(device)
-        graph_emb = (
-            model.graph_emb(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
-            .cpu()
-            .detach()
-            .numpy()
-        )
-        y = batch.y.view(-1, num_tasks).cpu().detach().numpy()
-        emb.append(graph_emb)
-        label.append(y)
-    output_emb = np.row_stack(emb)
-    output_label = np.row_stack(label)
-
-    np.savez(out_file, emb=output_emb, label=output_label)
+    return mae, rmse
 
 
 def train_epoch_cls(
@@ -400,40 +393,59 @@ def train_epoch_reg(
     val_loader,
     test_loader,
     optimizer,
-    model_save_path,
+    task_type,
+    training_round,
 ):
-    train_list, test_list = [], []
+    columns = [
+        "train_loss",
+        "val_loss",
+        "test_loss",
+    ]
+    train_df = pd.DataFrame(columns=columns, index=range(args.epochs))
+
     for epoch in range(1, args.epochs + 1):
         print("====epoch:", epoch)
-
-        train_reg(args, model, device, train_loader, optimizer)
+        train_loss = train_reg(args, model, device, train_loader, optimizer)
 
         print("====Evaluation")
-        if args.eval_train:
-            train_mse, train_mae, train_rmse = eval_reg(
-                args, model, device, train_loader
+        val_mae, val_rmse = eval_reg(model, device, val_loader)
+        test_mae, test_rmse = eval_reg(model, device, test_loader)
+
+        if args.dataset in ["qm7", "qm8", "qm9"]:
+            create_train_reg_round_df(
+                args,
+                train_df,
+                train_loss,
+                val_mae,
+                test_mae,
+                task_type,
+                epoch,
+                training_round,
+            )
+            create_test_reg_round_df(args, test_mae, task_type, training_round)
+            print(
+                "train_mae: %f val_mae: %f test_mae: %f"
+                % (train_loss, val_mae, test_mae)
             )
         else:
-            print("omit the training accuracy computation")
-            train_mse, train_mae, train_rmse = 0, 0, 0
-        val_mse, val_mae, val_rmse = eval_reg(args, model, device, val_loader)
-        test_mse, test_mae, test_rmse = eval_reg(args, model, device, test_loader)
+            create_train_reg_round_df(
+                args,
+                train_df,
+                train_loss,
+                val_rmse,
+                test_rmse,
+                task_type,
+                epoch,
+                training_round,
+            )
 
-        if args.dataset in ["esol", "freesolv", "lipophilicity"]:
-            test_list.append(float("{:.6f}".format(test_rmse)))
-            train_list.append(float("{:.6f}".format(train_rmse)))
-            torch.save(model.state_dict(), model_save_path)
+            create_test_reg_round_df(args, test_rmse, task_type, training_round)
+            print(
+                "train_rmse: %f val_rmse: %f test_rmse: %f"
+                % (train_loss, val_rmse, test_rmse)
+            )
 
-        elif args.dataset in ["qm7", "qm8", "qm9"]:
-            test_list.append(float("{:.6f}".format(test_mae)))
-            train_list.append(float("{:.6f}".format(train_mae)))
-            torch.save(model.state_dict(), model_save_path)
-
-        print("train_mse: %f val_mse: %f test_mse: %f" % (train_mse, val_mse, test_mse))
-        print("train_mae: %f val_mae: %f test_mae: %f" % (train_mae, val_mae, test_mae))
-        print(
-            "train_rmse: %f val_rmse: %f test_rmse: %f"
-            % (train_rmse, val_rmse, test_rmse)
+        torch.save(
+            model.state_dict(),
+            f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth",
         )
-
-    return test_list

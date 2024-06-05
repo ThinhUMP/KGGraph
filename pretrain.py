@@ -106,13 +106,13 @@ def main():
     parser.add_argument(
         "--mask_node_ratio",
         type=float,
-        default=0.1,
+        default=0.15,
         help="Ratio of removal nodes",
     )
     parser.add_argument(
         "--mask_edge_ratio",
         type=float,
-        default=0.1,
+        default=0.15,
         help="Ratio of removal edges",
     )
     parser.add_argument(

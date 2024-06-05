@@ -37,6 +37,62 @@ def load_tox21_dataset(input_path):
     return smiles_list, mols_list, labels.values
 
 
+def load_hiv_dataset(input_path):
+    """
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels
+    """
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    labels = input_df["HIV_active"]
+    # convert 0 to -1
+    labels = labels.replace(0, -1)
+    # there are no nans
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+
+def load_muv_dataset(input_path):
+    """
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels
+    """
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    tasks = [
+        "MUV-466",
+        "MUV-548",
+        "MUV-600",
+        "MUV-644",
+        "MUV-652",
+        "MUV-689",
+        "MUV-692",
+        "MUV-712",
+        "MUV-713",
+        "MUV-733",
+        "MUV-737",
+        "MUV-810",
+        "MUV-832",
+        "MUV-846",
+        "MUV-852",
+        "MUV-858",
+        "MUV-859",
+    ]
+    labels = input_df[tasks]
+    # convert 0 to -1
+    labels = labels.replace(0, -1)
+    # convert nan to 0
+    labels = labels.fillna(0)
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+
 def load_bace_dataset(input_path):
     """
 
@@ -190,4 +246,129 @@ def load_toxcast_dataset(input_path):
     # Assertions to check list lengths
     assert len(smiles_list) == len(mols_list) == len(labels)
 
+    return smiles_list, mols_list, labels.values
+
+
+def load_esol_dataset(input_path):
+    """
+
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels (regression task)
+    """
+    # NB: some examples have multiple species
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    labels = input_df["logSolubility"]
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+
+def load_freesolv_dataset(input_path):
+    """
+
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels (regression task)
+    """
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    labels = input_df["y"]
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+
+def load_lipo_dataset(input_path):
+    """
+
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels (regression task)
+    """
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    labels = input_df["lipo"]
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+
+def load_qm7_dataset(input_path):
+    """
+
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels (regression task)
+    """
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    labels = input_df["u0_atom"]
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+
+def load_qm8_dataset(input_path):
+    """
+
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels (regression task)
+    """
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    tasks = [
+        "E1-CC2",
+        "E2-CC2",
+        "f1-CC2",
+        "f2-CC2",
+        "E1-PBE0",
+        "E2-PBE0",
+        "f1-PBE0",
+        "f2-PBE0",
+        "E1-CAM",
+        "E2-CAM",
+        "f1-CAM",
+        "f2-CAM",
+    ]
+    labels = input_df[tasks]
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
+    return smiles_list, mols_list, labels.values
+
+
+def load_qm9_dataset(input_path):
+    """
+
+    :param input_path:
+    :return: list of smiles, list of rdkit mol obj, np.array containing the
+    labels (regression task)
+    """
+    input_df = pd.read_csv(input_path, sep=",")
+    smiles_list = input_df["smiles"]
+    mols_list = [get_mol(smile) for smile in smiles_list]
+    tasks = [
+        "mu",
+        "alpha",
+        "homo",
+        "lumo",
+        "gap",
+        "r2",
+        "zpve",
+        "cv",
+        "u0",
+        "u298",
+        "h298",
+        "g298",
+    ]
+    labels = input_df[tasks]
+    assert len(smiles_list) == len(mols_list)
+    assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values

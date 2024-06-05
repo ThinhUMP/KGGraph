@@ -6,6 +6,7 @@ from sklearn.manifold import TSNE
 import sys
 import pathlib
 import numpy as np
+from matplotlib.colors import ListedColormap
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGModel.graph_model import GraphModel
@@ -146,9 +147,19 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     tsne = TSNE(n_components=2, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings)
-    plt.figure(figsize=(20, 10))
-    plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=loader.dataset.y, s=50)
-    # plt.colorbar()
+    
+    # Define custom colormap for inactive (purple) and active (yellow)
+    custom_cmap = ListedColormap(['yellow', 'green'])
+    plt.figure(figsize=(15, 15))
+    scatter = plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=loader.dataset.y, cmap=custom_cmap , s=50)
+    plt.colorbar()
+    # Create a custom legend
+    handles = [
+        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='yellow', markersize=10, label='Inactive'),
+        plt.Line2D([0], [0], marker='o', color='w',markerfacecolor='green', markersize=10, label='Active')
+    ]
+    
+    plt.legend(handles=handles)
     plt.title(f"t-SNE Visualization of {args.dataset} on the test set")
     plt.xlabel("tsne-1")
     plt.ylabel("tsne-2")

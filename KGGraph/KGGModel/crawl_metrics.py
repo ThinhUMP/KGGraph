@@ -196,14 +196,14 @@ def average_test_metrics(args, task_type, remove=True):
         )
     else:
         if args.dataset in ["qm7", "qm8", "qm9"]:
-            mae_loss = round(df_avg["MAE"].mean(), 3)
-            std_loss = round(df_std["MAE"].mean(), 3)
+            mae_loss = df_avg["MAE"].mean()
+            std_loss = df_std["MAE"].mean()
             print(
-                f"MAE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {mae_loss:.2f}±{std_loss:.2f}"
+                f"MAE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {mae_loss:.4f}±{std_loss:.4f}"
             )
         else:
-            rmse_loss = round(df_avg["RMSE"].mean(), 3)
-            std_loss = round(df_std["RMSE"].mean(), 3)
+            rmse_loss = df_avg["RMSE"].mean()
+            std_loss = df_std["RMSE"].mean()
             print(
-                f"RMSE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {rmse_loss:.2f}±{std_loss:.2f}"
+                f"RMSE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {rmse_loss:.4f}±{std_loss:.4f}"
             )

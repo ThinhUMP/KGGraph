@@ -45,20 +45,20 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=1,
+        default=100,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
         type=float,
-        default=0.0005,
+        default=0.001,
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-5, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -70,7 +70,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.4, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",

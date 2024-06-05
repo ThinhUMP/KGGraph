@@ -79,6 +79,6 @@ tsne = TSNE(n_components=2, random_state=42)
 embeddings_2d = tsne.fit_transform(embeddings)
 
 plt.figure(figsize=(10, 10))
-plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=data.y, cmap='viridis', s=50)
+plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=test_dataset.y, cmap='viridis', s=50)
 plt.colorbar()
 plt.show()

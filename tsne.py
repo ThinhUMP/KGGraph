@@ -55,7 +55,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="lipo",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -214,7 +214,7 @@ def main():
         edge_features=dataset[0].edge_attr.size(1),
         )
     model.load_state_dict(state_dict)
-    visualize_embeddings(model, device, test_dataset)
+    visualize_embeddings(args, model, device, test_loader)
 
 if __name__ == "__main__":
     main()

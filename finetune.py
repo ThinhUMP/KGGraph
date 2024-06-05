@@ -45,7 +45,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=1,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -88,7 +88,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="lipo",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(

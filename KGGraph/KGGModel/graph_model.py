@@ -335,5 +335,5 @@ class GraphModel(torch.nn.Module):
         node_representation = self.gnn(x, edge_index, edge_attr)
 
         super_rep = self.super_node_rep(node_representation, batch)
-
+        print(batch)
         return self.graph_pred_linear(super_rep)

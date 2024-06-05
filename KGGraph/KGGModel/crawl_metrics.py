@@ -29,6 +29,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
     )
     test_metric_df.to_csv(file_path, index=False)
 
+
 def create_test_reg_round_df(args, loss, task_type, training_round):
     """
     Creates and saves a test metrics DataFrame for various datasets.
@@ -47,15 +48,12 @@ def create_test_reg_round_df(args, loss, task_type, training_round):
         f"test_metrics_round_{training_round}.csv",
     )
     if args.dataset in ["qm7", "qm8", "qm9"]:
-    # Create a DataFrame and save it to CSV in one step
-        test_metric_df = pd.DataFrame(
-            {"MAE": [np.mean(loss)]}
-        )
+        # Create a DataFrame and save it to CSV in one step
+        test_metric_df = pd.DataFrame({"MAE": [np.mean(loss)]})
     else:
-        test_metric_df = pd.DataFrame(
-            {"RMSE": [np.mean(loss)]}
-        )
+        test_metric_df = pd.DataFrame({"RMSE": [np.mean(loss)]})
     test_metric_df.to_csv(file_path, index=False)
+
 
 def create_train_round_df(
     args,
@@ -113,6 +111,7 @@ def create_train_round_df(
     )
     train_df.to_csv(file_path, index=False)
 
+
 def create_train_reg_round_df(
     args,
     train_df,
@@ -152,6 +151,7 @@ def create_train_reg_round_df(
     )
     train_df.to_csv(file_path, index=False)
 
+
 def average_test_metrics(args, task_type, remove=True):
     """
     Reads multiple test metrics CSV files, calculates their average and standard deviation,
@@ -186,8 +186,8 @@ def average_test_metrics(args, task_type, remove=True):
     # Save the average and standard deviation metrics
     df_avg.to_csv(os.path.join(base_path, "test_metrics_avg.csv"), index=False)
     df_std.to_csv(os.path.join(base_path, "test_metrics_std.csv"), index=False)
-    
-    if task_type == 'classification':
+
+    if task_type == "classification":
         # Print the results for AUC
         mean_auc = df_avg["AUC"].mean() * 100
         std_auc = df_std["AUC"].mean() * 100
@@ -199,11 +199,11 @@ def average_test_metrics(args, task_type, remove=True):
             mae_loss = round(df_avg["MAE"].mean(), 3)
             std_loss = round(df_std["MAE"].mean(), 3)
             print(
-            f"MAE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {mae_loss:.2f}±{std_loss:.2f}"
-        )
+                f"MAE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {mae_loss:.2f}±{std_loss:.2f}"
+            )
         else:
             rmse_loss = round(df_avg["RMSE"].mean(), 3)
             std_loss = round(df_std["RMSE"].mean(), 3)
             print(
-            f"RMSE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {rmse_loss:.2f}±{std_loss:.2f}"
-        )
+                f"RMSE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {rmse_loss:.2f}±{std_loss:.2f}"
+            )

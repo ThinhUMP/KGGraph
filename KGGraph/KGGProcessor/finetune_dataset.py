@@ -195,7 +195,7 @@ class MoleculeDataset(InMemoryDataset):
                 data.y = torch.tensor(labels[idx])
                 data_list.append(data)
                 data_smiles_list.append(smiles_list[idx])
-                
+
         elif self.dataset == "muv":
             smiles_list, mols_list, labels = load_muv_dataset(self.raw_paths[0])
             data_result_list = Parallel(n_jobs=-1)(
@@ -217,7 +217,7 @@ class MoleculeDataset(InMemoryDataset):
                 data.y = torch.tensor(labels[idx])
                 data_list.append(data)
                 data_smiles_list.append(smiles_list[idx])
-        
+
         elif self.dataset == "bace":
             smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
             data_result_list = Parallel(n_jobs=-1)(

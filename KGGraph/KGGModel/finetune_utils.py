@@ -35,7 +35,16 @@ def get_task_type(args):
     str: The type of task associated with the dataset ('classification' or 'regression').
     """
     # List of datasets associated with classification tasks
-    classification_datasets = ["tox21", "bace", "bbbp", "toxcast", "sider", "clintox", "hiv", "muv"]
+    classification_datasets = [
+        "tox21",
+        "bace",
+        "bbbp",
+        "toxcast",
+        "sider",
+        "clintox",
+        "hiv",
+        "muv",
+    ]
 
     if args.dataset in classification_datasets:
         return "classification"
@@ -277,6 +286,7 @@ def eval_reg(model, device, loader):
     rmse = np.sqrt(mean_squared_error(y_true, y_scores))
     return mae, rmse
 
+
 def train_epoch_cls(
     args,
     model,
@@ -390,9 +400,9 @@ def train_epoch_reg(
         "train_loss",
         "val_loss",
         "test_loss",
-        ]
+    ]
     train_df = pd.DataFrame(columns=columns, index=range(args.epochs))
-    
+
     for epoch in range(1, args.epochs + 1):
         print("====epoch:", epoch)
         train_loss = train_reg(args, model, device, train_loader, optimizer)
@@ -400,7 +410,7 @@ def train_epoch_reg(
         print("====Evaluation")
         val_mae, val_rmse = eval_reg(model, device, val_loader)
         test_mae, test_rmse = eval_reg(model, device, test_loader)
-        
+
         if args.dataset in ["qm7", "qm8", "qm9"]:
             create_train_reg_round_df(
                 args,
@@ -412,10 +422,11 @@ def train_epoch_reg(
                 epoch,
                 training_round,
             )
-            create_test_reg_round_df(
-            args, test_mae, task_type, training_round
-        )
-            print("train_mae: %f val_mae: %f test_mae: %f" % (train_loss, val_mae, test_mae))
+            create_test_reg_round_df(args, test_mae, task_type, training_round)
+            print(
+                "train_mae: %f val_mae: %f test_mae: %f"
+                % (train_loss, val_mae, test_mae)
+            )
         else:
             create_train_reg_round_df(
                 args,
@@ -428,13 +439,11 @@ def train_epoch_reg(
                 training_round,
             )
 
-            create_test_reg_round_df(
-                args, test_rmse, task_type, training_round
-            )
+            create_test_reg_round_df(args, test_rmse, task_type, training_round)
             print(
-            "train_rmse: %f val_rmse: %f test_rmse: %f"
-            % (train_loss, val_rmse, test_rmse)
-        )
+                "train_rmse: %f val_rmse: %f test_rmse: %f"
+                % (train_loss, val_rmse, test_rmse)
+            )
 
         torch.save(
             model.state_dict(),

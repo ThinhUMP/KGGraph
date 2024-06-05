@@ -13,7 +13,7 @@ def plot_metrics(args, df, task_type):
 
     The function saves the plot to a file and displays it.
     """
-    if task_type == 'classification':
+    if task_type == "classification":
         fig, axs = plt.subplots(2, 2, figsize=(10, 10))
 
         # Plot loss
@@ -53,7 +53,8 @@ def plot_metrics(args, df, task_type):
         if not os.path.isdir(f"{args.save_path+task_type}/{args.dataset}/figures"):
             os.mkdir(f"{args.save_path+task_type}/{args.dataset}/figures")
         plt.savefig(
-            f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png", dpi=600
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
+            dpi=600,
         )
         plt.show()
     else:

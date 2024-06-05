@@ -45,11 +45,11 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=2,
+        default=100,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -94,7 +94,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce_mask15_60/pretrain.pth",
+        default="saved_model_mlp_ce60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

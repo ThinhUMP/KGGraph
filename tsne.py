@@ -55,7 +55,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -78,6 +78,12 @@ def main():
         type=int,
         default=16,
         help="number of workers for dataset loading",
+    )
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default="Data/",
+        help="path for saving training images, test_metrics csv, model",
     )
     parser.add_argument(
         "--mask_node",
@@ -214,7 +220,7 @@ def main():
         edge_features=dataset[0].edge_attr.size(1),
         )
     model.load_state_dict(state_dict)
-    visualize_embeddings(args, model, device, test_loader)
+    visualize_embeddings(args, model, device, test_loader, task_type)
 
 if __name__ == "__main__":
     main()

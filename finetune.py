@@ -49,7 +49,7 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -58,7 +58,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-4, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -88,13 +88,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="toxcast",
+        default="sider",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce_mask10_100/pretrain.pth",
+        default="saved_model_mlp_ce_mask15_60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

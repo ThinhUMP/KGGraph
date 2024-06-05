@@ -281,7 +281,8 @@ class GraphModel(torch.nn.Module):
         print("Loading pre-trained model from %s" % model_file)
         self.gnn.load_state_dict(torch.load(model_file))
 
-    def super_node_rep(self, node_rep, batch):
+    @staticmethod
+    def super_node_rep(node_rep, batch):
         """
         Aggregates node representations to form super node representations.
 

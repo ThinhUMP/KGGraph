@@ -68,20 +68,20 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/zinc/all.txt",
+        default="./Data/zinc/all_inter_2m.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument("--gnn_type", type=str, default="gin")
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="smotif",
+        default="motif",
         help="decompose_type (brics, jin, motif, smotif) (default: motif).",
     )
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce_smotif_60/pretrain.pth",
+        default="./saved_model_mlp_ce60_2m/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -163,9 +163,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce_smotif_60"):
-        os.mkdir("./saved_model_mlp_ce_smotif_60")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce_smotif_60"):
+    if not os.path.isdir("./saved_model_mlp_ce60_2m"):
+        os.mkdir("./saved_model_mlp_ce60_2m")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce60_2m"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

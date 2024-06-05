@@ -75,13 +75,13 @@ def main():
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="motif",
+        default="smotif",
         help="decompose_type (brics, jin, motif, smotif) (default: motif).",
     )
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce_dropout/pretrain.pth",
+        default="./saved_model_mlp_ce_smotif_60/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -163,9 +163,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce_dropout"):
-        os.mkdir("./saved_model_mlp_ce_dropout")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce_dropout"):
+    if not os.path.isdir("./saved_model_mlp_ce_smotif_60"):
+        os.mkdir("./saved_model_mlp_ce_smotif_60")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce_smotif_60"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

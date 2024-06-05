@@ -18,7 +18,7 @@ def create_var(tensor, device, requires_grad=None):
 
 
 class Model_decoder(nn.Module):
-    def __init__(self, hidden_size, device, dropout=0.3):
+    def __init__(self, hidden_size, device, dropout=0.2):
         super(Model_decoder, self).__init__()
         self.hidden_size = hidden_size
         self.device = device

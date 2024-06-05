@@ -240,7 +240,7 @@ def load_esol_dataset(input_path):
     input_df = pd.read_csv(input_path, sep=',')
     smiles_list = input_df['smiles']
     mols_list = [get_mol(smile) for smile in smiles_list]
-    labels = input_df['measured log solubility in mols per litre']
+    labels = input_df['logSolubility']
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values
@@ -255,12 +255,12 @@ def load_freesolv_dataset(input_path):
     input_df = pd.read_csv(input_path, sep=',')
     smiles_list = input_df['smiles']
     mols_list = [get_mol(smile) for smile in smiles_list]
-    labels = input_df['expt']
+    labels = input_df['y']
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values
 
-def load_lipophilicity_dataset(input_path):
+def load_lipo_dataset(input_path):
     """
 
     :param input_path:
@@ -270,7 +270,7 @@ def load_lipophilicity_dataset(input_path):
     input_df = pd.read_csv(input_path, sep=',')
     smiles_list = input_df['smiles']
     mols_list = [get_mol(smile) for smile in smiles_list]
-    labels = input_df['exp']
+    labels = input_df['lipo']
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values

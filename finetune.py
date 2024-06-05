@@ -45,7 +45,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=2,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -58,7 +58,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=1e-4, help="weight decay (default: 0)"
+        "--decay", type=float, default=0, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -70,7 +70,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -88,8 +88,8 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="sider",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipophilicity]",
+        default="qm9",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
@@ -303,7 +303,7 @@ def main():
 
         # training based on task type
         if task_type == "classification":
-            metrics_training = train_epoch_cls(
+            train_epoch_cls(
                 args,
                 model,
                 device,
@@ -317,7 +317,7 @@ def main():
             )
 
         elif task_type == "regression":
-            test_mae_list = train_epoch_reg(
+            train_epoch_reg(
                 args,
                 model,
                 device,
@@ -325,7 +325,8 @@ def main():
                 val_loader,
                 test_loader,
                 optimizer,
-                args.save_path,
+                task_type,
+                training_round=i,
             )
 
     # craw metrics

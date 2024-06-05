@@ -64,14 +64,17 @@ def plot_metrics(args, df, task_type):
             plt.plot(df["val_loss"], label="Val mae loss")
             plt.plot(df["test_loss"], label="Test mae loss")
             plt.title("MAE Loss")
-            plt.show()
         else:
             # Plot loss
             plt.plot(df["train_loss"], label="Train rmse loss")
             plt.plot(df["val_loss"], label="Val rmse loss")
             plt.plot(df["test_loss"], label="Test rmse loss")
             plt.title("RMSE Loss")
-            plt.show()
+        plt.savefig(
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
+            dpi=600,
+        )
+        plt.show()
 
 
 def plot_pretrain_loss(pretrain_loss):

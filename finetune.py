@@ -82,7 +82,7 @@ def main():
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="smotif",
+        default="motif",
         help="decompose_type (brics, jin, motif, smotif) (default: motif).",
     )
     parser.add_argument(
@@ -94,7 +94,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce_smotif_60/pretrain.pth",
+        default="saved_model_mlp_ce60_2m/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

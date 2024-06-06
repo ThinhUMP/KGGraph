@@ -5,6 +5,8 @@ from tqdm import tqdm
 from sklearn.manifold import TSNE
 import sys
 import pathlib
+import numpy as np
+from matplotlib.colors import ListedColormap
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGModel.graph_model import GraphModel
@@ -125,7 +127,7 @@ def clean_state_dict(state_dict):
     return new_state_dict
 
 
-def visualize_embeddings(model, device, loader):
+def visualize_embeddings(args, model, device, loader, task_type):
     def extract_embeddings(model, device, loader):
         model.to(device)
         model.eval()
@@ -133,27 +135,38 @@ def visualize_embeddings(model, device, loader):
 
         with torch.no_grad():
             for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-                print(batch)
                 batch = batch.to(device)
                 node_representation = model(batch.x, batch.edge_index, batch.edge_attr)
-                print(node_representation)
                 super_rep = GraphModel.super_node_rep(node_representation, batch.batch)
-                embeddings_list.append(super_rep.cpu())
+                embeddings_list.append(super_rep.detach().cpu().numpy())
 
-        embeddings = torch.stack(embeddings_list).numpy()
+        embeddings = np.concatenate(embeddings_list, axis=0)
         return embeddings
 
     embeddings = extract_embeddings(model, device, loader)
 
     tsne = TSNE(n_components=2, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings)
-
-    plt.figure(figsize=(10, 10))
-    plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=loader.dataset.y, cmap='viridis', s=50)
+    
+    # Define custom colormap for inactive (purple) and active (yellow)
+    custom_cmap = ListedColormap(['yellow', 'green'])
+    plt.figure(figsize=(15, 15))
+    scatter = plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=loader.dataset.y, cmap=custom_cmap , s=50)
     plt.colorbar()
-    plt.title("t-SNE Visualization of Embeddings")
+    # Create a custom legend
+    handles = [
+        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='yellow', markersize=10, label='Inactive'),
+        plt.Line2D([0], [0], marker='o', color='w',markerfacecolor='green', markersize=10, label='Active')
+    ]
+    
+    plt.legend(handles=handles)
+    plt.title(f"t-SNE Visualization of {args.dataset} on the test set")
     plt.xlabel("tsne-1")
     plt.ylabel("tsne-2")
+    plt.savefig(
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
+            dpi=600,
+        )
     plt.show()
 
 

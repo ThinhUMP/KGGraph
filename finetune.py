@@ -54,7 +54,7 @@ def main():
     parser.add_argument(
         "--lr_pred",
         type=float,
-        default=0.0005,
+        default=0.001,
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
@@ -70,7 +70,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.4, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -88,13 +88,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="lipo",
+        default="toxcast",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60/pretrain.pth",
+        default="saved_model_mlp_ce60_2m/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

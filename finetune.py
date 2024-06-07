@@ -88,13 +88,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="toxcast",
+        default="qm9",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60_2m/pretrain.pth",
+        default="",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

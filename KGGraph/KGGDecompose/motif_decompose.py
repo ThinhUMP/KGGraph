@@ -47,6 +47,36 @@ class MotifDecomposition:
                 )  # Reverse indices if not found in order
             cliques.extend([[bond[0][0]], [bond[0][1]]])
         return cliques, res_list
+    
+    @staticmethod
+    def _break_ring_bonds(mol, cliques):
+        """
+        Breaking ring and non-ring atoms.
+
+        Args:
+        cliques (list): The current list of cliques.
+        mol (Chem.Mol): RDKit molecule object.
+        
+        Returns:
+        list: Updated list of cliques after breaking ring and non-ring atoms.
+        """
+        breaks = []
+
+        for c in cliques:
+            if len(c) > 1:
+                atom1_in_ring = mol.GetAtomWithIdx(c[0]).IsInRing()
+                atom2_in_ring = mol.GetAtomWithIdx(c[1]).IsInRing()
+                
+                if atom1_in_ring and not atom2_in_ring:
+                    cliques.remove(c)
+                    cliques.append([c[1]])
+                    breaks.append(c)
+                elif atom2_in_ring and not atom1_in_ring:
+                    cliques.remove(c)
+                    cliques.append([c[0]])
+                    breaks.append(c)
+        
+        return cliques, breaks
 
     @staticmethod
     def _merge_cliques(cliques, mol):
@@ -143,7 +173,9 @@ class MotifDecomposition:
 
         cliques = MotifDecomposition._initial_cliques(mol)
         cliques, res_list = MotifDecomposition._apply_brics_breaks(cliques, mol)
+        cliques, _ = MotifDecomposition._break_ring_bonds(mol, cliques)
         cliques = MotifDecomposition._merge_cliques(cliques, mol)
         cliques = MotifDecomposition._refine_cliques(cliques, mol)
         edges = MotifDecomposition.find_edges(cliques, res_list)
+        
         return cliques, edges

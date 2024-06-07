@@ -75,8 +75,8 @@ def main():
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="motif",
-        help="decompose_type (brics, jin, motif, smotif) (default: motif).",
+        default="tmotif",
+        help="decompose_type (brics, jin, motif, smotif, tmotif) (default: motif).",
     )
     parser.add_argument(
         "--output_model_file",

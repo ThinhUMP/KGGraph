@@ -16,6 +16,7 @@ from KGGraph.KGGDecompose.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.jin_decompose import TreeDecomposition
 from KGGraph.KGGDecompose.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.smotif_decompose import SMotifDecomposition
+from KGGraph.KGGDecompose.tmotif_decompose import TMotifDecomposition
 from KGGraph.KGGChem.bond_features import bond_type_feature
 
 
@@ -54,6 +55,8 @@ class EdgeFeature:
             return TreeDecomposition.defragment(self.mol)
         elif self.decompose_type == "smotif":
             return SMotifDecomposition.defragment(self.mol)
+        elif self.decompose_type == "tmotif":
+            return TMotifDecomposition.defragment(self.mol)
         else:
             raise ValueError(
                 f"Unknown decomposition type: {self.decompose_type}. It should be motif, brics, jin or smotif."

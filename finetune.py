@@ -82,13 +82,13 @@ def main():
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="motif",
-        help="decompose_type (brics, jin, motif, smotif) (default: motif).",
+        default="tmotif",
+        help="decompose_type (brics, jin, motif, smotif, tmotif) (default: motif).",
     )
     parser.add_argument(
         "--dataset",
         type=str,
-        default="qm9",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(

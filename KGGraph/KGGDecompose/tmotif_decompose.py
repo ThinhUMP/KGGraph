@@ -75,59 +75,7 @@ class TMotifDecomposition:
                     cliques.append([c[0]])
                     res_list.append(c)
         return cliques, res_list
-
-    @staticmethod
-    def _merge_cliques(cliques, mol):
-        """
-        Merge overlapping cliques.
-
-        Args:
-        cliques (list): The current list of cliques.
-
-        Returns:
-        list: Updated list of cliques after merging.
-        """
-        n_atoms = mol.GetNumAtoms()
-        for i in range(len(cliques) - 1):
-            # if i >= len(cliques):
-            #     break
-            for j in range(i + 1, len(cliques)):
-                # if j >= len(cliques):
-                #     break
-                if set(cliques[i]) & set(cliques[j]):  # Intersection is not empty
-                    cliques[i] = list(set(cliques[i]) | set(cliques[j]))  # Union
-                    cliques[j] = []
-            cliques = [c for c in cliques if c]
-        cliques = [c for c in cliques if n_atoms >= len(c) > 0]
-        return cliques
-
-    @staticmethod
-    def _refine_cliques(cliques, mol):
-        """
-        Refine cliques to consider symmetrically equivalent substructures.
-
-        Args:
-        cliques (list): The current list of cliques.
-
-        Returns:
-        list: Refined list of cliques.
-        """
-        n_atoms = mol.GetNumAtoms()
-        num_cli = len(cliques)
-        ssr_mol = Chem.GetSymmSSSR(mol)
-        for i in range(num_cli):
-            c = cliques[i]
-            cmol = get_clique_mol(mol, c)
-            ssr = Chem.GetSymmSSSR(cmol)
-            if len(ssr) > 1:
-                for ring in ssr_mol:
-                    if set(list(ring)) <= set(c):
-                        cliques.append(list(ring))
-                cliques[i] = []
-
-        cliques = [c for c in cliques if n_atoms > len(c) > 0]
-        return cliques
-
+    
     @staticmethod
     def _generate_mark_pattern(mol: Chem.Mol) -> Set[int]:
         """
@@ -183,6 +131,8 @@ class TMotifDecomposition:
             for subCOO in COO:
                 if len(set(subCO) & set(subCOO)) == 2:
                     CO.remove(subCO)
+            if mol.GetAtomWithIdx(subCO[0]).IsInRing():
+                CO.remove(subCO)
 
         return CO, COO
     
@@ -208,22 +158,78 @@ class TMotifDecomposition:
 
         Returns:
         """
-        print(cliques)
-        for group in functional_groups:
-            for c in cliques:
-                if set(group) & set(c) and len(group) < len(c):
-                    cliques.append(group)
-                    # print("add1", cliques)
-                    cliques.append([item for item in c if item not in group])
-                    # print("add2", cliques)
-                    cliques.remove(c)
-                    print(cliques)
-                elif set(c).issubset(set(group)):
-                    print("check", c, group)
-                    if group not in cliques:
-                        cliques.append(group)
-                    cliques.remove(c)
-                    print(cliques)
+        res = []
+        for value in functional_groups:
+            atom = mol.GetAtomWithIdx(value[0])
+            for bond in atom.GetBonds():
+                begin_atom = bond.GetBeginAtomIdx()
+                end_atom = bond.GetEndAtomIdx()
+                if begin_atom in value and end_atom not in value and not bond.GetBeginAtom().IsInRing() and not bond.GetEndAtom().IsInRing():
+                    res.append([begin_atom, end_atom])
+                elif begin_atom not in value and end_atom in value and not bond.GetBeginAtom().IsInRing() and not bond.GetEndAtom().IsInRing():
+                    res.append([begin_atom, end_atom])
+        # print(res)
+        for bond in res:
+            bond_indices = [bond[0], bond[1]]
+            if bond_indices in cliques:
+                cliques.remove(bond_indices)
+            elif bond_indices[::-1] in cliques:
+                cliques.remove(
+                    bond_indices[::-1]
+                )  # Reverse indices if not found in order
+            cliques.extend([[bond[0]], [bond[1]]])
+        return cliques
+
+    @staticmethod
+    def _merge_cliques(cliques, mol):
+        """
+        Merge overlapping cliques.
+
+        Args:
+        cliques (list): The current list of cliques.
+
+        Returns:
+        list: Updated list of cliques after merging.
+        """
+        n_atoms = mol.GetNumAtoms()
+        for i in range(len(cliques) - 1):
+            # if i >= len(cliques):
+            #     break
+            for j in range(i + 1, len(cliques)):
+                # if j >= len(cliques):
+                #     break
+                if set(cliques[i]) & set(cliques[j]):  # Intersection is not empty
+                    cliques[i] = list(set(cliques[i]) | set(cliques[j]))  # Union
+                    cliques[j] = []
+            cliques = [c for c in cliques if c]
+        cliques = [c for c in cliques if n_atoms >= len(c) > 0]
+        return cliques
+
+    @staticmethod
+    def _refine_cliques(cliques, mol):
+        """
+        Refine cliques to consider symmetrically equivalent substructures.
+
+        Args:
+        cliques (list): The current list of cliques.
+
+        Returns:
+        list: Refined list of cliques.
+        """
+        n_atoms = mol.GetNumAtoms()
+        num_cli = len(cliques)
+        ssr_mol = Chem.GetSymmSSSR(mol)
+        for i in range(num_cli):
+            c = cliques[i]
+            cmol = get_clique_mol(mol, c)
+            ssr = Chem.GetSymmSSSR(cmol)
+            if len(ssr) > 1:
+                for ring in ssr_mol:
+                    if set(list(ring)) <= set(c):
+                        cliques.append(list(ring))
+                cliques[i] = []
+
+        cliques = [c for c in cliques if n_atoms > len(c) > 0]
         return cliques
 
     @staticmethod
@@ -272,18 +278,22 @@ class TMotifDecomposition:
         cliques, res_list = TMotifDecomposition._break_ring_bonds(
             mol, cliques, res_list
         )
-        cliques = TMotifDecomposition._merge_cliques(cliques, mol)
-        cliques = TMotifDecomposition._refine_cliques(cliques, mol)
+        # print("break ring bonds", cliques)
         marks = TMotifDecomposition._generate_mark_pattern(mol)
         CO, COO = TMotifDecomposition._find_carbonyl(mol)
         merged_functional_groups = TMotifDecomposition._merge_functional_groups(CO, COO, marks, mol)
-        print("merged functional groups: ", merged_functional_groups)
+        # print("merged functional groups: ", merged_functional_groups)
         cliques = TMotifDecomposition._find_functional_group(merged_functional_groups, cliques)
+        # print("functional group", cliques)
+        cliques = TMotifDecomposition._merge_cliques(cliques, mol)
+        cliques = TMotifDecomposition._refine_cliques(cliques, mol)
+        
+        
         edges = TMotifDecomposition._find_edges(cliques, res_list)
 
         return cliques, edges
 
-if "__name__" == "__main__":
+if __name__ == "__main__":
     smile = "CC(N)C1N(C)C2=CC=CC(C(OCC)=O)=C2C1C(C)=O"
     # smile = "C1CCCCC12OCCO2"
     mol = Chem.MolFromSmiles(smile)

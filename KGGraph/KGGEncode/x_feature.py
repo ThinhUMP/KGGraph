@@ -16,6 +16,7 @@ from KGGraph.KGGDecompose.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.jin_decompose import TreeDecomposition
 from KGGraph.KGGDecompose.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.smotif_decompose import SMotifDecomposition
+from KGGraph.KGGDecompose.tmotif_decompose import TMotifDecomposition
 from KGGraph.KGGChem.hybridization import HybridizationFeaturize
 from KGGraph.KGGChem.atom_features import (
     get_degree,
@@ -120,6 +121,8 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
         cliques, _ = TreeDecomposition.defragment(mol)
     elif decompose_type == "smotif":
         cliques, _ = SMotifDecomposition.defragment(mol)
+    elif decompose_type == "tmotif":
+        cliques, _ = TMotifDecomposition.defragment(mol)
     else:
         raise ValueError(
             f"Unknown decomposition type: {decompose_type}. It should be motif, brics, jin or smotif."

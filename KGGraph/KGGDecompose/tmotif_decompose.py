@@ -127,11 +127,11 @@ class TMotifDecomposition:
             )
         ]
         
-        for subCO in CO:
-            for subCOO in COO:
+        for subCOO in COO:
+            for subCO in CO:
                 if len(set(subCO) & set(subCOO)) == 2:
                     CO.remove(subCO)
-            if mol.GetAtomWithIdx(subCO[0]).IsInRing():
+            if mol.GetAtomWithIdx(subCO[0]).IsInRing() and subCO in CO:
                 CO.remove(subCO)
 
         return CO, COO
@@ -148,7 +148,7 @@ class TMotifDecomposition:
         functional_groups = TMotifDecomposition._merge_cliques(list_of_functional_groups, mol)
         return functional_groups
     
-    def _find_functional_group(functional_groups, cliques):
+    def _find_functional_group(functional_groups, cliques, mol):
         """
         Find the functional groups in the molecule.
 
@@ -283,7 +283,7 @@ class TMotifDecomposition:
         CO, COO = TMotifDecomposition._find_carbonyl(mol)
         merged_functional_groups = TMotifDecomposition._merge_functional_groups(CO, COO, marks, mol)
         # print("merged functional groups: ", merged_functional_groups)
-        cliques = TMotifDecomposition._find_functional_group(merged_functional_groups, cliques)
+        cliques = TMotifDecomposition._find_functional_group(merged_functional_groups, cliques, mol)
         # print("functional group", cliques)
         cliques = TMotifDecomposition._merge_cliques(cliques, mol)
         cliques = TMotifDecomposition._refine_cliques(cliques, mol)

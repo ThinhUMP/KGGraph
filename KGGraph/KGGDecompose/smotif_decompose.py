@@ -34,12 +34,11 @@ class SMotifDecomposition:
                     if not bond.IsInRing():
                         marks.update(sub)
                 else:
-                    atom = mol.GetAtomWithIdx(sub[1])
-                    if atom.IsInRing():
-                        break
+                    atom = mol.GetAtomWithIdx(sub[0])
+                    if not atom.IsInRing():
+                        marks.add(sub[0])
                     else:
-                        marks.add(sub[1])
-                        break
+                        continue
 
         return marks
 

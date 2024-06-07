@@ -35,15 +35,9 @@ class SMotifDecomposition:
                     if not bond.IsInRing():
                         marks.update(sub)
                 else:
-                    # print("check sub", sub)
-                    # atom = mol.GetAtomWithIdx(sub[1])
-                    # if atom.IsInRing():
-                    #     continue
-                    # else:
-                    #     marks.add(sub[0])
-                    #     continue
-                    marks.add(sub[0])
-                    continue
+                    atom = mol.GetAtomWithIdx(sub[0])
+                    if not atom.IsInRing():
+                        marks.add(sub[0])
 
         return marks
 
@@ -90,7 +84,9 @@ class SMotifDecomposition:
                 Chem.MolFromSmarts("[C;D3](=O)([#0,#6,#7,#8,#17,#35,#53])")
             )
         )
-        COO = []
+        COO = list(
+            mol.GetSubstructMatches(Chem.MolFromSmarts("[C;D3](=O)([#0,#6,#7,#8])O"))
+        )
 
         for idx, sub1 in enumerate(CO):
             for sub2 in CO[idx + 1 :]:
@@ -100,16 +96,10 @@ class SMotifDecomposition:
                     CO.remove(sub1)
                     CO.remove(sub2)
 
-        for idx, sub1 in enumerate(CO):
-            for sub2 in CO[idx + 1 :]:
-                (a1, a2) = (sub1[0], sub2[0])
-                bond = mol.GetBondBetweenAtoms(a1, a2)
-                if bond is not None:
-                    COO.append(tuple(set(sub1 + sub2)))
-                    if sub1 in CO:
-                        CO.remove(sub1)
-                    if sub2 in CO:
-                        CO.remove(sub2)
+        for idx, subCO in enumerate(CO):
+            for subCOO in COO:
+                if subCO == subCOO:
+                    CO.remove(subCO)
 
         return CO, COO
 
@@ -139,21 +129,24 @@ class SMotifDecomposition:
         for value in CO:
             if mol.GetAtomWithIdx(value[0]).IsInRing():
                 if not mol.GetAtomWithIdx(value[1]).IsInRing():
-                    for i in rings:
-                        if value[0] in i:
-                            i.append(value[1])
-                for idx in value:
-                    if idx in marks:
-                        marks.remove(idx)
+                    for idx in value:
+                        if idx in marks:
+                            marks.remove(idx)
+                    value = value[1]
+
+        for value in COO:
+            if mol.GetAtomWithIdx(value[0]).IsInRing():
+                if not mol.GetAtomWithIdx(value[1]).IsInRing():
+                    for idx in value:
+                        if idx in marks:
+                            marks.remove(idx)
+                    value = value[1]
                 continue
 
             atom_carbonyl = set((value[0], value[1]))
-            for i in list(atom_carbonyl):
-                if i in marks:
-                    marks.remove(i)
 
             check = set(value) - atom_carbonyl
-
+            print("check", check)
             for k in check:
                 atom = mol.GetAtomWithIdx(k)
                 if atom.GetSymbol() == "C":
@@ -307,9 +300,13 @@ class SMotifDecomposition:
         List[str]: List of SMILES strings representing the identified functional groups.
         """
         marks = SMotifDecomposition.generate_mark_pattern(mol)
+        print("marks", marks)
         rings = SMotifDecomposition.merge_rings(mol)
+        print("rings", rings)
 
         CO, COO = SMotifDecomposition.find_carbonyl(mol)
+        print("CO", CO)
+        print("COO", COO)
         for val in COO:
             marks.difference_update(val)
         # print("origin marks",marks)

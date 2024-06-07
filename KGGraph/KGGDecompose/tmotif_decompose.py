@@ -2,13 +2,14 @@ from rdkit.Chem import BRICS
 from rdkit import Chem
 import pathlib
 import sys
+from typing import List, Tuple, Set
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGChem.chemutils import get_clique_mol
 
 
-class MotifDecomposition:
+class TMotifDecomposition:
     @staticmethod
     def _initial_cliques(mol: Chem.Mol):
         """
@@ -128,6 +129,104 @@ class MotifDecomposition:
         return cliques
 
     @staticmethod
+    def _generate_mark_pattern(mol: Chem.Mol) -> Set[int]:
+        """
+        Generate marks for atoms that are part of identified functional groups in a molecule.
+
+        Parameters:
+        mol (Chem.Mol): RDKit molecule object to analyze.
+
+        Returns:
+        Set[int]: A set of atom indices that are part of identified functional groups.
+        """
+        PATTERNS = {
+            "HETEROATOM": "[!#6]",  # Matches atoms that are not carbon (heteroatoms).
+        }
+        PATTERNS = {k: Chem.MolFromSmarts(v) for k, v in PATTERNS.items()}
+
+        marks = []
+
+        for name, patt in PATTERNS.items():
+            for sub in mol.GetSubstructMatches(patt):
+                atom = mol.GetAtomWithIdx(sub[0])
+                if not atom.IsInRing():
+                    marks.append(list(sub))
+
+        return marks
+
+    @staticmethod
+    def _find_carbonyl(mol: Chem.Mol) -> Tuple[List[List[int]], List[Tuple[int]]]:
+        """
+        Identify carbonyl groups in the molecule and merge adjacent or overlapping CO groups.
+
+        Parameters:
+        mol (Chem.Mol): RDKit molecule object.
+
+        Returns:
+        Tuple[List[List[int]], List[Tuple[int]]]:
+        List of merged CO groups and list of merged COO groups.
+        """
+        CO = [
+            list(CO_group)
+            for CO_group in mol.GetSubstructMatches(
+                Chem.MolFromSmarts("[C;D3](=[O,N,S])")
+            )
+        ]
+        COO = [
+            list(COO_group)
+            for COO_group in (
+                mol.GetSubstructMatches(Chem.MolFromSmarts("[C;D3](=[O,N,S])[O,N,S]"))
+            )
+        ]
+        
+        for subCO in CO:
+            for subCOO in COO:
+                if len(set(subCO) & set(subCOO)) == 2:
+                    CO.remove(subCO)
+
+        return CO, COO
+    
+    @staticmethod
+    def _merge_functional_groups(CO, COO, marks, mol):
+        list_of_functional_groups = []
+        for value in CO:
+            list_of_functional_groups.append(value)
+        for value in COO:
+            list_of_functional_groups.append(value)
+        for value in marks:
+            list_of_functional_groups.append(value)
+        functional_groups = TMotifDecomposition._merge_cliques(list_of_functional_groups, mol)
+        return functional_groups
+    
+    def _find_functional_group(functional_groups, cliques):
+        """
+        Find the functional groups in the molecule.
+
+        Args:
+        functional_groups (List[List[int]]): The list of functional groups.
+        cliques (List[List[int]]): The list of cliques.
+
+        Returns:
+        """
+        print(cliques)
+        for group in functional_groups:
+            for c in cliques:
+                if set(group) & set(c) and len(group) < len(c):
+                    cliques.append(group)
+                    # print("add1", cliques)
+                    cliques.append([item for item in c if item not in group])
+                    # print("add2", cliques)
+                    cliques.remove(c)
+                    print(cliques)
+                elif set(c).issubset(set(group)):
+                    print("check", c, group)
+                    if group not in cliques:
+                        cliques.append(group)
+                    cliques.remove(c)
+                    print(cliques)
+        return cliques
+
+    @staticmethod
     def _find_edges(cliques, res_list):
         """
         Find edges based on the breaks.
@@ -168,11 +267,26 @@ class MotifDecomposition:
         if n_atoms == 1:
             return [[0]], []
 
-        cliques = MotifDecomposition._initial_cliques(mol)
-        cliques, res_list = MotifDecomposition._apply_brics_breaks(cliques, mol)
-        cliques, res_list = MotifDecomposition._break_ring_bonds(mol, cliques, res_list)
-        cliques = MotifDecomposition._merge_cliques(cliques, mol)
-        cliques = MotifDecomposition._refine_cliques(cliques, mol)
-        edges = MotifDecomposition._find_edges(cliques, res_list)
+        cliques = TMotifDecomposition._initial_cliques(mol)
+        cliques, res_list = TMotifDecomposition._apply_brics_breaks(cliques, mol)
+        cliques, res_list = TMotifDecomposition._break_ring_bonds(
+            mol, cliques, res_list
+        )
+        cliques = TMotifDecomposition._merge_cliques(cliques, mol)
+        cliques = TMotifDecomposition._refine_cliques(cliques, mol)
+        marks = TMotifDecomposition._generate_mark_pattern(mol)
+        CO, COO = TMotifDecomposition._find_carbonyl(mol)
+        merged_functional_groups = TMotifDecomposition._merge_functional_groups(CO, COO, marks, mol)
+        print("merged functional groups: ", merged_functional_groups)
+        cliques = TMotifDecomposition._find_functional_group(merged_functional_groups, cliques)
+        edges = TMotifDecomposition._find_edges(cliques, res_list)
 
         return cliques, edges
+
+if "__name__" == "__main__":
+    smile = "CC(N)C1N(C)C2=CC=CC(C(OCC)=O)=C2C1C(C)=O"
+    # smile = "C1CCCCC12OCCO2"
+    mol = Chem.MolFromSmiles(smile)
+    cliques, edges = TMotifDecomposition.defragment(mol)
+    print(cliques)
+    print(edges)

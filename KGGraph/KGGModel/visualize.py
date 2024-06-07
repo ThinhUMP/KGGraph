@@ -7,9 +7,11 @@ import sys
 import pathlib
 import numpy as np
 from matplotlib.colors import ListedColormap
+
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGModel.graph_model import GraphModel
+
 
 def plot_metrics(args, df, task_type):
     """
@@ -93,14 +95,14 @@ def plot_pretrain_loss(pretrain_loss):
     plt.title("Pretraining Loss")
     plt.savefig(f"Data/pretraining.png", dpi=600)
     plt.show()
-    
-    
+
+
 def clean_state_dict(state_dict):
     """
     This function processes the given state dictionary by:
     1. Removing the 'gnn.' prefix from keys that start with 'gnn.'.
     2. Removing keys that contain 'graph_pred_linear'.
-    
+
     Args:
     state_dict (dict): The state dictionary to be processed.
 
@@ -113,8 +115,8 @@ def clean_state_dict(state_dict):
     # Iterate over the state_dict
     for name, param in state_dict.items():
         # If the key starts with 'gnn.', remove the 'gnn.' prefix
-        if name.startswith('gnn.'):
-            new_name = name.replace('gnn.', '')
+        if name.startswith("gnn."):
+            new_name = name.replace("gnn.", "")
             new_state_dict[new_name] = param
         else:
             new_state_dict[name] = param
@@ -147,27 +149,46 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     tsne = TSNE(n_components=2, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings)
-    
+
     # Define custom colormap for inactive (purple) and active (yellow)
-    custom_cmap = ListedColormap(['yellow', 'green'])
+    custom_cmap = ListedColormap(["yellow", "green"])
     plt.figure(figsize=(15, 15))
-    scatter = plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=loader.dataset.y, cmap=custom_cmap , s=50)
+    scatter = plt.scatter(
+        embeddings_2d[:, 0],
+        embeddings_2d[:, 1],
+        c=loader.dataset.y,
+        cmap=custom_cmap,
+        s=50,
+    )
     plt.colorbar()
     # Create a custom legend
     handles = [
-        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='yellow', markersize=10, label='Inactive'),
-        plt.Line2D([0], [0], marker='o', color='w',markerfacecolor='green', markersize=10, label='Active')
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="yellow",
+            markersize=10,
+            label="Inactive",
+        ),
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="green",
+            markersize=10,
+            label="Active",
+        ),
     ]
-    
+
     plt.legend(handles=handles)
     plt.title(f"t-SNE Visualization of {args.dataset} on the test set")
     plt.xlabel("tsne-1")
     plt.ylabel("tsne-2")
     plt.savefig(
-            f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
-            dpi=600,
-        )
+        f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
+        dpi=600,
+    )
     plt.show()
-
-
-

@@ -55,7 +55,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="bbbp",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(

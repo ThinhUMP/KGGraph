@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 from tqdm import tqdm
 from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 import sys
 import pathlib
 import numpy as np
@@ -147,8 +148,11 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     embeddings = extract_embeddings(model, device, loader)
 
+    # tsne = PCA(n_components=)
+    pca = PCA(n_components=50)
+    pca_embeddings = pca.fit_transform(embeddings)
     tsne = TSNE(n_components=2, random_state=42)
-    embeddings_2d = tsne.fit_transform(embeddings)
+    embeddings_2d = tsne.fit_transform(pca_embeddings)
 
     # Define custom colormap for inactive (purple) and active (yellow)
     custom_cmap = ListedColormap(["yellow", "green"])
@@ -160,7 +164,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
         cmap=custom_cmap,
         s=50,
     )
-    plt.colorbar()
+    # plt.colorbar()
     # Create a custom legend
     handles = [
         plt.Line2D(

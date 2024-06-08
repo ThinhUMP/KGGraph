@@ -70,7 +70,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -82,19 +82,19 @@ def main():
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="motif",
+        default="tmotif",
         help="decompose_type (brics, jin, motif, smotif, tmotif) (default: motif).",
     )
     parser.add_argument(
         "--dataset",
         type=str,
-        default="toxcast",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60_breaking/pretrain.pth",
+        default="saved_model_mlp_ce60_tmotif/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

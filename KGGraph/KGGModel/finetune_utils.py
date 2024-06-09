@@ -20,6 +20,7 @@ from sklearn.metrics import (
     mean_absolute_error,
     f1_score,
     average_precision_score,
+    r2_score,
 )
 import pandas as pd
 
@@ -78,6 +79,7 @@ def get_num_task(args):
         "qm7": 1,
         "qm8": 12,
         "qm9": 12,
+        "ecoli": 1,
     }
 
     # Get the number of tasks based on the dataset
@@ -173,7 +175,7 @@ def train_reg(args, model, device, loader, optimizer):
         batch = batch.to(device)
         pred = model(batch)
         y = batch.y.view(pred.shape).to(torch.float64)
-        if args.dataset in ["qm7", "qm8", "qm9"]:
+        if args.dataset in ["qm7", "qm8", "qm9", "ecoli"]:
             loss = torch.sum(torch.abs(pred - y)) / y.size(0)
         elif args.dataset in ["esol", "freesolv", "lipo"]:
             loss = torch.sum((pred - y) ** 2) / y.size(0)
@@ -282,9 +284,11 @@ def eval_reg(model, device, loader):
     y_true = torch.cat(y_true, dim=0).cpu().numpy().flatten()
     y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
 
+    r2 = r2_score(y_true, y_scores)
+    mse = mean_squared_error(y_true, y_scores)
     mae = mean_absolute_error(y_true, y_scores)
     rmse = np.sqrt(mean_squared_error(y_true, y_scores))
-    return mae, rmse
+    return mae, mse, rmse, r2
 
 
 def train_epoch_cls(
@@ -408,10 +412,11 @@ def train_epoch_reg(
         train_loss = train_reg(args, model, device, train_loader, optimizer)
 
         print("====Evaluation")
-        val_mae, val_rmse = eval_reg(model, device, val_loader)
-        test_mae, test_rmse = eval_reg(model, device, test_loader)
+        train_mae, train_mse, train_rmse, train_r2 = eval_reg(model, device, train_loader)
+        val_mae, val_mse, val_rmse, val_r2 = eval_reg(model, device, val_loader)
+        test_mae, test_mse, test_rmse, test_r2 = eval_reg(model, device, test_loader)
 
-        if args.dataset in ["qm7", "qm8", "qm9"]:
+        if args.dataset in ["qm7", "qm8", "qm9", "ecoli"]:
             create_train_reg_round_df(
                 args,
                 train_df,
@@ -425,7 +430,13 @@ def train_epoch_reg(
             create_test_reg_round_df(args, test_mae, task_type, training_round)
             print(
                 "train_mae: %f val_mae: %f test_mae: %f"
-                % (train_loss, val_mae, test_mae)
+                % (train_loss, val_mae, test_mae),
+                "train_mse: %f val_mse: %f test_mse: %f"
+                % (train_mse, val_mse, test_mse),
+                "train_rmse: %f val_rmse: %f test_rmse: %f"
+                % (train_rmse, val_rmse, test_rmse),
+                "train_r2: %f val_r2: %f test_r2: %f"
+                % (train_rmse, val_rmse, test_rmse),
             )
         else:
             create_train_reg_round_df(

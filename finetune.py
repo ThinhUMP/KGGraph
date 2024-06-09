@@ -70,7 +70,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.2, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -88,13 +88,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="sider",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
+        default="ecoli",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9, ecoli]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60_1layer_edge/pretrain.pth",
+        default="saved_model_mlp_ce60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -109,7 +109,7 @@ def main():
     parser.add_argument(
         "--split",
         type=str,
-        default="scaffold",
+        default="random",
         help="random or scaffold or random_scaffold",
     )
     parser.add_argument(

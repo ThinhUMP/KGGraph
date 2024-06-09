@@ -70,7 +70,7 @@ def plot_metrics(args, df, task_type):
         )
         plt.show()
     else:
-        if args.dataset in ["qm7", "qm8", "qm9"]:
+        if args.dataset in ["qm7", "qm8", "qm9", "ecoli"]:
             # Plot loss
             plt.plot(df["train_loss"], label="Train mae loss")
             plt.plot(df["val_loss"], label="Val mae loss")
@@ -82,6 +82,8 @@ def plot_metrics(args, df, task_type):
             plt.plot(df["val_loss"], label="Val rmse loss")
             plt.plot(df["test_loss"], label="Test rmse loss")
             plt.title("RMSE Loss")
+        if not os.path.isdir(f"{args.save_path+task_type}/{args.dataset}/figures"):
+            os.mkdir(f"{args.save_path+task_type}/{args.dataset}/figures")
         plt.savefig(
             f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
             dpi=600,

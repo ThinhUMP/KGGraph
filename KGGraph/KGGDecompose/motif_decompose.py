@@ -170,7 +170,7 @@ class MotifDecomposition:
 
         cliques = MotifDecomposition._initial_cliques(mol)
         cliques, res_list = MotifDecomposition._apply_brics_breaks(cliques, mol)
-        cliques, res_list = MotifDecomposition._break_ring_bonds(mol, cliques, res_list)
+        # cliques, res_list = MotifDecomposition._break_ring_bonds(mol, cliques, res_list)
         cliques = MotifDecomposition._merge_cliques(cliques, mol)
         cliques = MotifDecomposition._refine_cliques(cliques, mol)
         edges = MotifDecomposition._find_edges(cliques, res_list)

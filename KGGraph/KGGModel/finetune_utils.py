@@ -170,6 +170,8 @@ def train(model, device, loader, optimizer, criterion):
 
 def train_reg(args, model, device, loader, optimizer):
     model.train()
+    y_true = []
+    y_scores = []
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
@@ -180,11 +182,23 @@ def train_reg(args, model, device, loader, optimizer):
         elif args.dataset in ["esol", "freesolv", "lipo"]:
             loss = torch.sum((pred - y) ** 2) / y.size(0)
 
+        y_true.append(batch.y.view(pred.shape))
+        y_scores.append(pred)
+        
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+
+    
     train_loss = loss.detach().cpu().numpy()
-    return train_loss
+
+    y_true = torch.cat(y_true, dim=0).detach().cpu().numpy().flatten()
+    y_scores = torch.cat(y_scores, dim=0).detach().cpu().numpy().flatten()
+    r2 = r2_score(y_true, y_scores)
+    mse = mean_squared_error(y_true, y_scores)
+    mae = mean_absolute_error(y_true, y_scores)
+    rmse = np.sqrt(mean_squared_error(y_true, y_scores))
+    return train_loss, mae, mse, rmse, r2
 
 
 def evaluate(args, model, device, loader, task_type, criterion):
@@ -409,10 +423,9 @@ def train_epoch_reg(
 
     for epoch in range(1, args.epochs + 1):
         print("====epoch:", epoch)
-        train_loss = train_reg(args, model, device, train_loader, optimizer)
+        train_loss, train_mae, train_mse, train_rmse, train_r2  = train_reg(args, model, device, train_loader, optimizer)
 
         print("====Evaluation")
-        train_mae, train_mse, train_rmse, train_r2 = eval_reg(model, device, train_loader)
         val_mae, val_mse, val_rmse, val_r2 = eval_reg(model, device, val_loader)
         test_mae, test_mse, test_rmse, test_r2 = eval_reg(model, device, test_loader)
 
@@ -429,14 +442,14 @@ def train_epoch_reg(
             )
             create_test_reg_round_df(args, test_mae, task_type, training_round)
             print(
-                "train_mae: %f val_mae: %f test_mae: %f"
+                "train_mae: %f val_mae: %f test_mae: %f \n"
                 % (train_loss, val_mae, test_mae),
-                "train_mse: %f val_mse: %f test_mse: %f"
+                "train_mse: %f val_mse: %f test_mse: %f \n"
                 % (train_mse, val_mse, test_mse),
-                "train_rmse: %f val_rmse: %f test_rmse: %f"
+                "train_rmse: %f val_rmse: %f test_rmse: %f \n"
                 % (train_rmse, val_rmse, test_rmse),
-                "train_r2: %f val_r2: %f test_r2: %f"
-                % (train_rmse, val_rmse, test_rmse),
+                "train_r2: %f val_r2: %f test_r2: %f \n"
+                % (train_r2, val_r2, test_r2),
             )
         else:
             create_train_reg_round_df(

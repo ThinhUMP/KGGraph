@@ -1,8 +1,9 @@
 from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.visualize import extract_embeddings
+from KGGraph.KGGModel.visualize import extract_embeddings, clean_state_dict
 from KGGraph.KGGModel.graph_model import GNN
+from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from KGGraph.KGGModel.finetune_utils import get_task_type
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, average_precision_score, roc_auc_score
@@ -155,25 +156,70 @@ def main():
     )
     print(dataset)
 
+    # # data split
+    # if args.split == "scaffold":
+    #     smiles_list = pd.read_csv(
+    #         "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
+    #         header=None,
+    #     )[0].tolist()
+    #     train_dataset, valid_dataset, test_dataset, (_, _, test_smiles) = (
+    #         scaffold_split(
+    #             dataset,
+    #             smiles_list,
+    #             null_value=0,
+    #             frac_train=0.8,
+    #             frac_valid=0.1,
+    #             frac_test=0.1,
+    #         )
+    #     )
+    #     print("scaffold")
+    # elif args.split == "random":
+    #     train_dataset, valid_dataset, test_dataset = random_split(
+    #         dataset,
+    #         null_value=0,
+    #         frac_train=0.8,
+    #         frac_valid=0.1,
+    #         frac_test=0.1,
+    #         seed=args.seed,
+    #     )
+    #     print("random")
+    # else:
+    #     raise ValueError("Invalid split option.")
+
+    # print(train_dataset[0])
+
     # data loader
     if args.dataset == "freesolv":
-        loader = DataLoader(
+        train_loader = DataLoader(
             dataset,
             batch_size=args.batch_size,
-            shuffle=False,
+            shuffle=True,
             num_workers=args.num_workers,
             drop_last=True,
         )
     else:
-        loader = DataLoader(
+        train_loader = DataLoader(
             dataset,
             batch_size=args.batch_size,
-            shuffle=False,
+            shuffle=True,
             num_workers=args.num_workers,
         )
+    # val_loader = DataLoader(
+    #     valid_dataset,
+    #     batch_size=args.batch_size,
+    #     shuffle=False,
+    #     num_workers=args.num_workers,
+    # )
+    # test_loader = DataLoader(
+    #     test_dataset,
+    #     batch_size=args.batch_size,
+    #     shuffle=False,
+    #     num_workers=args.num_workers,
+    # )
 
-    state_dict = torch.load(args.input_model_file)
-        
+    # state_dict = torch.load(args.input_model_file)
+    state_dict = clean_state_dict(torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth"))
+
     model = GNN(
         num_layer=args.num_layer,
         emb_dim=args.emb_dim,
@@ -185,7 +231,8 @@ def main():
         )
     model.load_state_dict(state_dict)
     print("Load model done")
-    X, y = extract_embeddings(args, model, device, loader)
+    X, y = extract_embeddings(args, model, device, train_loader)
+    # X_test, y_test = extract_embeddings(args, model, device, test_loader)
     print("Embeddings", X.shape)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     neigh = KNeighborsClassifier(n_neighbors=3)

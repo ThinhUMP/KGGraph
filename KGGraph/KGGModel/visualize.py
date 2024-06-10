@@ -152,13 +152,63 @@ def extract_embeddings(args, model, device, loader):
     y = np.concatenate(y_true, axis=0)
     return embeddings, y
 
+# def visualize_embeddings(args, model, device, loader, task_type):
+
+#     embeddings, _ = extract_embeddings(args,model, device, loader)
+
+#     # tsne = PCA(n_components=)
+#     # pca = PCA(n_components=50)
+#     # pca_embeddings = pca.fit_transform(embeddings)
+#     tsne = TSNE(n_components=2, random_state=42)
+#     embeddings_2d = tsne.fit_transform(embeddings)
+
+#     # Define custom colormap for inactive (purple) and active (yellow)
+#     custom_cmap = ListedColormap(["red", "green"])
+#     plt.figure(figsize=(15, 15))
+#     scatter = plt.scatter(
+#         embeddings_2d[:, 0],
+#         embeddings_2d[:, 1],
+#         c=loader.dataset.y,
+#         cmap=custom_cmap,
+#         s=50,
+#     )
+#     # plt.colorbar()
+#     # Create a custom legend
+#     handles = [
+#         plt.Line2D(
+#             [0],
+#             [0],
+#             marker="o",
+#             color="w",
+#             markerfacecolor="red",
+#             markersize=10,
+#             label="Inactive",
+#         ),
+#         plt.Line2D(
+#             [0],
+#             [0],
+#             marker="o",
+#             color="w",
+#             markerfacecolor="green",
+#             markersize=10,
+#             label="Active",
+#         ),
+#     ]
+    
+#     plt.legend(loc=2, prop={'size': 6})
+#     plt.legend(handles=handles)
+#     plt.title(f"t-SNE Visualization of {args.dataset} on the test set", font_size=20)
+#     plt.xlabel("tsne-1")
+#     plt.ylabel("tsne-2")
+#     plt.savefig(
+#         f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
+#         dpi=600,
+#     )
+#     plt.show()
+
 def visualize_embeddings(args, model, device, loader, task_type):
-
-    embeddings, _ = extract_embeddings(args,model, device, loader)
-
-    # tsne = PCA(n_components=)
-    # pca = PCA(n_components=50)
-    # pca_embeddings = pca.fit_transform(embeddings)
+    embeddings, _ = extract_embeddings(args, model, device, loader)
+    
     tsne = TSNE(n_components=2, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings)
 
@@ -172,7 +222,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
         cmap=custom_cmap,
         s=50,
     )
-    # plt.colorbar()
+
     # Create a custom legend
     handles = [
         plt.Line2D(
@@ -194,12 +244,12 @@ def visualize_embeddings(args, model, device, loader, task_type):
             label="Active",
         ),
     ]
+
+    plt.legend(handles=handles, title="Status", title_fontsize='13', loc='upper right', prop={'size': 12})
+    plt.title(f"t-SNE Visualization of {args.dataset} on the test set", fontsize=20)
+    plt.xlabel("t-SNE Dimension 1", fontsize=16)
+    plt.ylabel("t-SNE Dimension 2", fontsize=16)
     
-    plt.legend(loc=2, prop={'size': 6})
-    plt.legend(handles=handles)
-    plt.title(f"t-SNE Visualization of {args.dataset} on the test set", font_size=20)
-    plt.xlabel("tsne-1")
-    plt.ylabel("tsne-2")
     plt.savefig(
         f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
         dpi=600,

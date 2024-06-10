@@ -116,8 +116,17 @@ def create_train_reg_round_df(
     args,
     train_df,
     train_mae,
-    val_loss,
-    test_loss,
+    val_mae,
+    test_mae,
+    train_mse,
+    val_mse,
+    test_mse,
+    train_rmse,
+    val_rmse,
+    test_rmse,
+    train_r2,
+    val_r2,
+    test_r2,
     task_type,
     epoch,
     training_round,
@@ -137,9 +146,18 @@ def create_train_reg_round_df(
     """
     # Update the DataFrame with the new metrics in a single operation
     new_data = {
-        "train_loss": train_loss,
-        "val_loss": val_loss,
-        "test_loss": test_loss,
+        "train_mae": train_mae,
+        "val_mae": val_mae,
+        "test_mae": test_mae,
+        "train_mse": train_mse,
+        "val_mse":val_mse,
+        "test_mse":test_mse,
+        "train_rmse":train_rmse,
+        "val_rmse":val_rmse,
+        "test_rmse":test_rmse,
+        "train_r2":train_r2,
+        "val_r2":val_r2,
+        "test_r2":test_r2,
     }
 
     train_df.loc[epoch - 1] = new_data

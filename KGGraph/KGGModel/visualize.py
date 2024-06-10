@@ -12,6 +12,7 @@ from matplotlib.colors import ListedColormap
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGModel.graph_model import GraphModel
+from KGGraph.KGGModel.finetune_utils import get_num_task
 
 
 def plot_metrics(args, df, task_type):
@@ -131,33 +132,38 @@ def clean_state_dict(state_dict):
 
     return new_state_dict
 
+def extract_embeddings(args, model, device, loader):
+    model.to(device)
+    model.eval()
+    embeddings_list = []
+    y_true = []
+    num_taks = get_num_task(args)
+    with torch.no_grad():
+        for step, batch in enumerate(tqdm(loader, desc="Generating embeddings")):
+            batch = batch.to(device)
+            node_representation = model(batch.x, batch.edge_index, batch.edge_attr)
+            super_rep = GraphModel.super_node_rep(node_representation, batch.batch)
+            embeddings_list.append(super_rep.detach().cpu().numpy())
+
+            y = batch.y.view(-1, num_taks).to(torch.float64)
+            y_true.append(batch.y.view(-1, num_taks).detach().cpu().numpy())
+
+    embeddings = np.concatenate(embeddings_list, axis=0)
+    y = np.concatenate(y_true, axis=0)
+    return embeddings, y
 
 def visualize_embeddings(args, model, device, loader, task_type):
-    def extract_embeddings(model, device, loader):
-        model.to(device)
-        model.eval()
-        embeddings_list = []
 
-        with torch.no_grad():
-            for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-                batch = batch.to(device)
-                node_representation = model(batch.x, batch.edge_index, batch.edge_attr)
-                super_rep = GraphModel.super_node_rep(node_representation, batch.batch)
-                embeddings_list.append(super_rep.detach().cpu().numpy())
-
-        embeddings = np.concatenate(embeddings_list, axis=0)
-        return embeddings
-
-    embeddings = extract_embeddings(model, device, loader)
+    embeddings, _ = extract_embeddings(args,model, device, loader)
 
     # tsne = PCA(n_components=)
-    pca = PCA(n_components=50)
-    pca_embeddings = pca.fit_transform(embeddings)
+    # pca = PCA(n_components=50)
+    # pca_embeddings = pca.fit_transform(embeddings)
     tsne = TSNE(n_components=2, random_state=42)
-    embeddings_2d = tsne.fit_transform(pca_embeddings)
+    embeddings_2d = tsne.fit_transform(embeddings)
 
     # Define custom colormap for inactive (purple) and active (yellow)
-    custom_cmap = ListedColormap(["yellow", "green"])
+    custom_cmap = ListedColormap(["red", "green"])
     plt.figure(figsize=(15, 15))
     scatter = plt.scatter(
         embeddings_2d[:, 0],
@@ -174,7 +180,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
             [0],
             marker="o",
             color="w",
-            markerfacecolor="yellow",
+            markerfacecolor="red",
             markersize=10,
             label="Inactive",
         ),
@@ -188,9 +194,10 @@ def visualize_embeddings(args, model, device, loader, task_type):
             label="Active",
         ),
     ]
-
+    
+    plt.legend(loc=2, prop={'size': 6})
     plt.legend(handles=handles)
-    plt.title(f"t-SNE Visualization of {args.dataset} on the test set")
+    plt.title(f"t-SNE Visualization of {args.dataset} on the test set", font_size=20)
     plt.xlabel("tsne-1")
     plt.ylabel("tsne-2")
     plt.savefig(

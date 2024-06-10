@@ -90,7 +90,7 @@ def main():
         "--dataset",
         type=str,
         default="bace",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9, ecoli]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
@@ -168,7 +168,8 @@ def main():
 
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
-
+        print("====Seed ", args.seed[i - 1])
+        print("====Runseed ", args.runseed[i - 1])
         # set up seeds
         torch.manual_seed(args.runseed[i - 1])
         np.random.seed(args.runseed[i - 1])
@@ -208,15 +209,18 @@ def main():
                 "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
                 header=None,
             )[0].tolist()
-            train_dataset, valid_dataset, test_dataset, (_, _, test_smiles) = (
-                scaffold_split(
-                    dataset,
-                    smiles_list,
-                    null_value=0,
-                    frac_train=0.8,
-                    frac_valid=0.1,
-                    frac_test=0.1,
-                )
+            (
+                train_dataset,
+                valid_dataset,
+                test_dataset,
+                (_, _, test_smiles),
+            ) = scaffold_split(
+                dataset,
+                smiles_list,
+                null_value=0,
+                frac_train=0.8,
+                frac_valid=0.1,
+                frac_test=0.1,
             )
             print("scaffold")
         elif args.split == "random":

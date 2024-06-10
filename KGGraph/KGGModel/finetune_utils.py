@@ -184,12 +184,11 @@ def train_reg(args, model, device, loader, optimizer):
 
         y_true.append(batch.y.view(pred.shape))
         y_scores.append(pred)
-        
+
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    
     train_loss = loss.detach().cpu().numpy()
 
     y_true = torch.cat(y_true, dim=0).detach().cpu().numpy().flatten()
@@ -423,7 +422,9 @@ def train_epoch_reg(
 
     for epoch in range(1, args.epochs + 1):
         print("====epoch:", epoch)
-        train_loss, train_mae, train_mse, train_rmse, train_r2  = train_reg(args, model, device, train_loader, optimizer)
+        train_loss, train_mae, train_mse, train_rmse, train_r2 = train_reg(
+            args, model, device, train_loader, optimizer
+        )
 
         print("====Evaluation")
         val_mae, val_mse, val_rmse, val_r2 = eval_reg(model, device, val_loader)
@@ -441,33 +442,38 @@ def train_epoch_reg(
                 training_round,
             )
             create_test_reg_round_df(args, test_mae, task_type, training_round)
-            print(
-                "train_mae: %f val_mae: %f test_mae: %f \n"
-                % (train_loss, val_mae, test_mae),
-                "train_mse: %f val_mse: %f test_mse: %f \n"
-                % (train_mse, val_mse, test_mse),
-                "train_rmse: %f val_rmse: %f test_rmse: %f \n"
-                % (train_rmse, val_rmse, test_rmse),
-                "train_r2: %f val_r2: %f test_r2: %f \n"
-                % (train_r2, val_r2, test_r2),
-            )
         else:
             create_train_reg_round_df(
                 args,
                 train_df,
-                train_loss,
+                train_mae,
+                val_mae,
+                test_mae,
+                train_mse,
+                val_mse,
+                test_mse,
+                train_rmse,
                 val_rmse,
                 test_rmse,
+                train_r2,
+                val_r2,
+                test_r2,
                 task_type,
                 epoch,
                 training_round,
             )
 
             create_test_reg_round_df(args, test_rmse, task_type, training_round)
-            print(
-                "train_rmse: %f val_rmse: %f test_rmse: %f"
-                % (train_loss, val_rmse, test_rmse)
-            )
+
+        print(
+            "train_mae: %f val_mae: %f test_mae: %f" % (train_loss, val_mae, test_mae)
+        )
+        print("train_mse: %f val_mse: %f test_mse: %f" % (train_mse, val_mse, test_mse))
+        print(
+            "train_rmse: %f val_rmse: %f test_rmse: %f"
+            % (train_rmse, val_rmse, test_rmse)
+        )
+        print("train_r2: %f val_r2: %f test_r2: %f" % (train_r2, val_r2, test_r2))
 
         torch.save(
             model.state_dict(),

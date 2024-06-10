@@ -208,8 +208,10 @@ def main():
         num_workers=args.num_workers,
     )
 
-    state_dict = clean_state_dict(torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth"))
-        
+    state_dict = clean_state_dict(
+        torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
+    )
+
     model = GNN(
         num_layer=args.num_layer,
         emb_dim=args.emb_dim,
@@ -218,9 +220,10 @@ def main():
         gnn_type=args.gnn_type,
         x_features=dataset[0].x.size(1),
         edge_features=dataset[0].edge_attr.size(1),
-        )
+    )
     model.load_state_dict(state_dict)
     visualize_embeddings(args, model, device, test_loader, task_type)
+
 
 if __name__ == "__main__":
     main()

@@ -71,18 +71,43 @@ def plot_metrics(args, df, task_type):
         )
         plt.show()
     else:
-        if args.dataset in ["qm7", "qm8", "qm9", "ecoli"]:
-            # Plot loss
-            plt.plot(df["train_loss"], label="Train mae loss")
-            plt.plot(df["val_loss"], label="Val mae loss")
-            plt.plot(df["test_loss"], label="Test mae loss")
-            plt.title("MAE Loss")
-        else:
-            # Plot loss
-            plt.plot(df["train_loss"], label="Train rmse loss")
-            plt.plot(df["val_loss"], label="Val rmse loss")
-            plt.plot(df["test_loss"], label="Test rmse loss")
-            plt.title("RMSE Loss")
+        fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+
+        # Plot loss
+        axs[0, 0].plot(df["train_mae"], label="Train MAE")
+        axs[0, 0].plot(df["val_mae"], label="Val MAE")
+        axs[0, 0].plot(df["test_mae"], label="Test MAE")
+        axs[0, 0].set_title("MAE Loss")
+        axs[0, 0].legend()
+
+        # Plot AUC
+        axs[0, 1].plot(df["train_mse"], label="Train MSE")
+        axs[0, 1].plot(df["val_mse"], label="Val MSE")
+        axs[0, 1].plot(df["test_mse"], label="Test MSE")
+        axs[0, 1].set_title("MSE Loss")
+        axs[0, 1].legend()
+
+        # Plot F1
+        axs[1, 0].plot(df["train_rmse"], label="Train RMSE")
+        axs[1, 0].plot(df["val_rmse"], label="Val RMSE")
+        axs[1, 0].plot(df["test_rmse"], label="Test RMSE")
+        axs[1, 0].set_title("RMSE Loss")
+        axs[1, 0].legend()
+
+        # Plot AP
+        axs[1, 1].plot(df["train_r2"], label="Train R2")
+        axs[1, 1].plot(df["val_r2"], label="Val R2")
+        axs[1, 1].plot(df["test_r2"], label="Test R2")
+        axs[1, 1].set_title("R2 Loss")
+        axs[1, 1].legend()
+
+        # Setting labels for all subplots
+        for ax in axs.flat:
+            ax.set(xlabel="Epoch", ylabel="Value")
+
+        # Adjust layout and save the plot
+        plt.tight_layout()
+
         if not os.path.isdir(f"{args.save_path+task_type}/{args.dataset}/figures"):
             os.mkdir(f"{args.save_path+task_type}/{args.dataset}/figures")
         plt.savefig(
@@ -132,6 +157,7 @@ def clean_state_dict(state_dict):
 
     return new_state_dict
 
+
 def extract_embeddings(args, model, device, loader):
     model.to(device)
     model.eval()
@@ -152,9 +178,10 @@ def extract_embeddings(args, model, device, loader):
     y = np.concatenate(y_true, axis=0)
     return embeddings, y
 
+
 def visualize_embeddings(args, model, device, loader, task_type):
     embeddings, _ = extract_embeddings(args, model, device, loader)
-    
+
     pca = PCA(n_components=50)
     embeddings_pca = pca.fit_transform(embeddings)
     tsne = TSNE(n_components=2, random_state=42)
@@ -162,7 +189,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     custom_cmap = ListedColormap(["red", "green"])
 
-    with plt.style.context('fivethirtyeight'):
+    with plt.style.context("fivethirtyeight"):
         plt.figure(figsize=(15, 15))
         scatter = plt.scatter(
             embeddings_2d[:, 0],
@@ -194,8 +221,17 @@ def visualize_embeddings(args, model, device, loader, task_type):
             ),
         ]
 
-        plt.legend(handles=handles, title="Class", title_fontsize='13', loc='upper right', prop={'size': 12})
-        plt.title(f"t-SNE Visualization of {args.dataset} dataset on the test set", fontsize=20)
+        plt.legend(
+            handles=handles,
+            title="Class",
+            title_fontsize="13",
+            loc="upper right",
+            prop={"size": 12},
+        )
+        plt.title(
+            f"t-SNE Visualization of {args.dataset} dataset on the test set",
+            fontsize=20,
+        )
         plt.xlabel("t-SNE Dimension 1", fontsize=16)
         plt.ylabel("t-SNE Dimension 2", fontsize=16)
 

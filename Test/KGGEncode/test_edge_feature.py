@@ -54,7 +54,7 @@ class TestEdgeFeature(unittest.TestCase):
             decompose_type="jin",
             mask_edge=True,
             mask_edge_ratio=0.25,
-            fix_ratio=False,
+            fix_ratio=True,
         )
         self.assertTrue(
             70 > edge_attr.size(0)
@@ -71,7 +71,7 @@ class TestEdgeFeature(unittest.TestCase):
             decompose_type="brics",
             mask_edge=True,
             mask_edge_ratio=0.25,
-            fix_ratio=False,
+            fix_ratio=True,
         )
         self.assertTrue(
             57 > edge_attr.size(0)

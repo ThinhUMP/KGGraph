@@ -372,19 +372,3 @@ def load_qm9_dataset(input_path):
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
     return smiles_list, mols_list, labels.values
-
-def load_ecoli_dataset(input_path):
-    """
-
-    :param input_path:
-    :return: list of smiles, list of rdkit mol obj, np.array containing the
-    labels (regression task)
-    """
-    input_df = pd.read_csv(input_path, sep=",")
-    smiles_list = input_df["Smiles"]
-    mols_list = [get_mol(smile) for smile in smiles_list]
-    tasks = ["Value"]
-    labels = input_df[tasks]
-    assert len(smiles_list) == len(mols_list)
-    assert len(smiles_list) == len(labels)
-    return smiles_list, mols_list, labels.values

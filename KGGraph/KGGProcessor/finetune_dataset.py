@@ -153,339 +153,61 @@ class MoleculeDataset(InMemoryDataset):
         data_list = []
         print("Decompose type:", self.decompose_type)
 
+        # Classification datasets
         if self.dataset == "tox21":
             smiles_list, mols_list, labels = load_tox21_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
-        elif self.dataset == "hiv":
-            smiles_list, mols_list, labels = load_hiv_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
-        elif self.dataset == "muv":
-            smiles_list, mols_list, labels = load_muv_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
-        elif self.dataset == "bace":
-            smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data.fold = torch.tensor([folds[idx]])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "bbbp":
             smiles_list, mols_list, labels = load_bbbp_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "clintox":
             smiles_list, mols_list, labels = load_clintox_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "sider":
             smiles_list, mols_list, labels = load_sider_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "toxcast":
             smiles_list, mols_list, labels = load_toxcast_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
+        elif self.dataset == "hiv":
+            smiles_list, mols_list, labels = load_hiv_dataset(self.raw_paths[0])
+        elif self.dataset == "muv":
+            smiles_list, mols_list, labels = load_muv_dataset(self.raw_paths[0])
+        elif self.dataset == "bace":
+            smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
 
+        # Regression datasets
         elif self.dataset == "esol":
             smiles_list, mols_list, labels = load_esol_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "freesolv":
             smiles_list, mols_list, labels = load_freesolv_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "lipo":
             smiles_list, mols_list, labels = load_lipo_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "qm7":
             smiles_list, mols_list, labels = load_qm7_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "qm8":
             smiles_list, mols_list, labels = load_qm8_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         elif self.dataset == "qm9":
             smiles_list, mols_list, labels = load_qm9_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-                
-        elif self.dataset == "ecoli":
-            smiles_list, mols_list, labels = load_ecoli_dataset(self.raw_paths[0])
-            data_result_list = Parallel(n_jobs=-1)(
-                delayed(feature)(
-                    mol,
-                    self.decompose_type,
-                    self.mask_node,
-                    self.mask_edge,
-                    self.mask_node_ratio,
-                    self.mask_edge_ratio,
-                    self.fix_ratio,
-                )
-                for mol in tqdm(mols_list)
-            )
-            for idx, data in enumerate(data_result_list):
-                data.id = torch.tensor(
-                    [idx]
-                )  # id here is the index of the mol in the dataset
-                data.y = torch.tensor(labels[idx])
-                data_list.append(data)
-                data_smiles_list.append(smiles_list[idx])
-
         else:
             raise ValueError(f"Dataset {self.dataset} is not supported")
+
+        data_result_list = Parallel(n_jobs=-1)(
+            delayed(feature)(
+                mol,
+                self.decompose_type,
+                self.mask_node,
+                self.mask_edge,
+                self.mask_node_ratio,
+                self.mask_edge_ratio,
+                self.fix_ratio,
+            )
+            for mol in tqdm(mols_list)
+        )
+        for idx, data in enumerate(data_result_list):
+            data.id = torch.tensor(
+                [idx]
+            )  # id here is the index of the mol in the dataset
+            data.y = torch.tensor(labels[idx])
+            if self.dataset == "bace":
+                data.fold = torch.tensor([folds[idx]])
+            data_list.append(data)
+            data_smiles_list.append(smiles_list[idx])
 
         if self.pre_filter is not None:
             data_list = [data for data in data_list if self.pre_filter(data)]

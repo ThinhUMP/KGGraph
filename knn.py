@@ -218,7 +218,9 @@ def main():
     # )
 
     # state_dict = torch.load(args.input_model_file)
-    state_dict = clean_state_dict(torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth"))
+    state_dict = clean_state_dict(
+        torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
+    )
 
     model = GNN(
         num_layer=args.num_layer,
@@ -228,13 +230,15 @@ def main():
         gnn_type=args.gnn_type,
         x_features=dataset[0].x.size(1),
         edge_features=dataset[0].edge_attr.size(1),
-        )
+    )
     model.load_state_dict(state_dict)
     print("Load model done")
     X, y = extract_embeddings(args, model, device, train_loader)
     # X_test, y_test = extract_embeddings(args, model, device, test_loader)
     print("Embeddings", X.shape)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
     neigh = KNeighborsClassifier(n_neighbors=3)
     neigh.fit(X_train, y_train)
 

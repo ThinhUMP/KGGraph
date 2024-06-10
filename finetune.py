@@ -16,6 +16,7 @@ import torch
 import torch.nn as nn
 import argparse
 from torch import optim
+from typing import List
 import numpy as np
 import warnings
 
@@ -39,13 +40,13 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=1,
+        default=3,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=1,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -58,7 +59,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-5, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -70,7 +71,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.6, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -94,17 +95,20 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60_1layer_edge/pretrain.pth",
+        default="saved_model_mlp_ce60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
-        "--seed", type=int, default=42, help="Seed for splitting the dataset."
+        "--seed",
+        type=List[int],
+        default=[42, 6, 102],
+        help="Seed for splitting the dataset over 3 rounds.",
     )
     parser.add_argument(
         "--runseed",
-        type=int,
-        default=42,
-        help="Seed for minibatch selection, random initialization.",
+        type=List[int],
+        default=[42, 6, 102],
+        help="Seed for minibatch selection, random initialization over 3 rounds.",
     )
     parser.add_argument(
         "--split",
@@ -115,7 +119,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=16,
+        default=10,
         help="number of workers for dataset loading",
     )
     parser.add_argument(
@@ -166,10 +170,10 @@ def main():
         print("====Round ", i)
 
         # set up seeds
-        torch.manual_seed(args.runseed)
-        np.random.seed(args.runseed)
+        torch.manual_seed(args.runseed[i - 1])
+        np.random.seed(args.runseed[i - 1])
         if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(args.runseed)
+            torch.cuda.manual_seed_all(args.runseed[i - 1])
 
         # set up device
         device = (
@@ -222,7 +226,7 @@ def main():
                 frac_train=0.8,
                 frac_valid=0.1,
                 frac_test=0.1,
-                seed=args.seed,
+                seed=args.seed[i - 1],
             )
             print("random")
         else:

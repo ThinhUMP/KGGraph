@@ -115,7 +115,7 @@ def create_train_round_df(
 def create_train_reg_round_df(
     args,
     train_df,
-    train_loss,
+    train_mae,
     val_loss,
     test_loss,
     task_type,

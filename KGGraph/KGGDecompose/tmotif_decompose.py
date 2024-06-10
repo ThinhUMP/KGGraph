@@ -75,7 +75,7 @@ class TMotifDecomposition:
                     cliques.append([c[0]])
                     res_list.append(c)
         return cliques, res_list
-    
+
     @staticmethod
     def _generate_mark_pattern(mol: Chem.Mol) -> Set[int]:
         """
@@ -126,7 +126,7 @@ class TMotifDecomposition:
                 mol.GetSubstructMatches(Chem.MolFromSmarts("[C;D3](=[O,N,S])[O,N,S]"))
             )
         ]
-        
+
         for subCOO in COO:
             for subCO in CO:
                 if len(set(subCO) & set(subCOO)) == 2:
@@ -135,7 +135,7 @@ class TMotifDecomposition:
                 CO.remove(subCO)
 
         return CO, COO
-    
+
     @staticmethod
     def _merge_functional_groups(CO, COO, marks, mol):
         list_of_functional_groups = []
@@ -145,9 +145,11 @@ class TMotifDecomposition:
             list_of_functional_groups.append(value)
         for value in marks:
             list_of_functional_groups.append(value)
-        functional_groups = TMotifDecomposition._merge_cliques(list_of_functional_groups, mol)
+        functional_groups = TMotifDecomposition._merge_cliques(
+            list_of_functional_groups, mol
+        )
         return functional_groups
-    
+
     def _find_functional_group(functional_groups, cliques, mol):
         """
         Find the functional groups in the molecule.
@@ -164,9 +166,19 @@ class TMotifDecomposition:
             for bond in atom.GetBonds():
                 begin_atom = bond.GetBeginAtomIdx()
                 end_atom = bond.GetEndAtomIdx()
-                if begin_atom in value and end_atom not in value and not bond.GetBeginAtom().IsInRing() and not bond.GetEndAtom().IsInRing():
+                if (
+                    begin_atom in value
+                    and end_atom not in value
+                    and not bond.GetBeginAtom().IsInRing()
+                    and not bond.GetEndAtom().IsInRing()
+                ):
                     res.append([begin_atom, end_atom])
-                elif begin_atom not in value and end_atom in value and not bond.GetBeginAtom().IsInRing() and not bond.GetEndAtom().IsInRing():
+                elif (
+                    begin_atom not in value
+                    and end_atom in value
+                    and not bond.GetBeginAtom().IsInRing()
+                    and not bond.GetEndAtom().IsInRing()
+                ):
                     res.append([begin_atom, end_atom])
         # print(res)
         for bond in res:
@@ -281,17 +293,21 @@ class TMotifDecomposition:
         # print("break ring bonds", cliques)
         marks = TMotifDecomposition._generate_mark_pattern(mol)
         CO, COO = TMotifDecomposition._find_carbonyl(mol)
-        merged_functional_groups = TMotifDecomposition._merge_functional_groups(CO, COO, marks, mol)
+        merged_functional_groups = TMotifDecomposition._merge_functional_groups(
+            CO, COO, marks, mol
+        )
         # print("merged functional groups: ", merged_functional_groups)
-        cliques = TMotifDecomposition._find_functional_group(merged_functional_groups, cliques, mol)
+        cliques = TMotifDecomposition._find_functional_group(
+            merged_functional_groups, cliques, mol
+        )
         # print("functional group", cliques)
         cliques = TMotifDecomposition._merge_cliques(cliques, mol)
         cliques = TMotifDecomposition._refine_cliques(cliques, mol)
-        
-        
+
         edges = TMotifDecomposition._find_edges(cliques, res_list)
 
         return cliques, edges
+
 
 if __name__ == "__main__":
     smile = "CC(N)C1N(C)C2=CC=CC(C(OCC)=O)=C2C1C(C)=O"

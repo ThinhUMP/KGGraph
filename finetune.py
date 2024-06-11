@@ -46,11 +46,11 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=1,
+        default=100,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -59,7 +59,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=1e-5, help="weight decay (default: 0)"
+        "--decay", type=float, default=0, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -71,7 +71,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -89,7 +89,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="tox21",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -168,8 +168,6 @@ def main():
 
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
-        print("====Seed ", args.seed[i - 1])
-        print("====Runseed ", args.runseed[i - 1])
         # set up seeds
         torch.manual_seed(args.runseed[i - 1])
         np.random.seed(args.runseed[i - 1])

@@ -414,9 +414,18 @@ def train_epoch_reg(
     training_round,
 ):
     columns = [
-        "train_loss",
-        "val_loss",
-        "test_loss",
+        "train_mae",
+        "val_mae",
+        "test_mae",
+        "train_mse",
+        "val_mse",
+        "test_mse",
+        "train_rmse",
+        "val_rmse",
+        "test_rmse",
+        "train_r2",
+        "val_r2",
+        "test_r2",
     ]
     train_df = pd.DataFrame(columns=columns, index=range(args.epochs))
 

@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce100_1layer_edge/pretrain.pth",
+        default="./saved_model_mlp_ce100_1layer/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -178,9 +178,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce100_1layer_edge"):
-        os.mkdir("./saved_model_mlp_ce100_1layer_edge")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce100_1layer_edge"):
+    if not os.path.isdir("./saved_model_mlp_ce100_1layer"):
+        os.mkdir("./saved_model_mlp_ce100_1layer")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce100_1layer"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 
@@ -201,11 +201,11 @@ def main():
         )
 
         if epoch == 40:
-            torch.save(model.state_dict(), "./saved_model_mlp_ce40_1layer_edge/pretrain.pth")
+            torch.save(model.state_dict(), "./saved_model_mlp_ce40_1layer/pretrain.pth")
         elif epoch == 60:
-            torch.save(model.state_dict(), "./saved_model_mlp_ce60_1layer_edge/pretrain.pth")
+            torch.save(model.state_dict(), "./saved_model_mlp_ce60_1layer/pretrain.pth")
         elif epoch == 80:
-            torch.save(model.state_dict(), "./saved_model_mlp_ce80_1layer_edge/pretrain.pth")
+            torch.save(model.state_dict(), "./saved_model_mlp_ce80_1layer/pretrain.pth")
 
         if not args.output_model_file == "":
             torch.save(model.state_dict(), args.output_model_file)

@@ -32,9 +32,9 @@ class GINConv(MessagePassing):
         super(GINConv, self).__init__()
         # multi-layer perceptron
         self.mlp = torch.nn.Sequential(
-            torch.nn.Linear(emb_dim, 2 * emb_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * emb_dim, emb_dim),
+            torch.nn.Linear(emb_dim, emb_dim),
+            # torch.nn.ReLU(),
+            # torch.nn.Linear(2 * emb_dim, emb_dim),
         )
 
         # Initialize a list of edge MLPs

@@ -40,7 +40,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=3,
+        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -50,7 +50,7 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -59,7 +59,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-5, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -71,7 +71,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.8, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -90,6 +90,7 @@ def main():
         "--dataset",
         type=str,
         default="clintox",
+        default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -102,11 +103,13 @@ def main():
         "--seed",
         type=List[int],
         default=[42, 35, 102],
+        default=[42, 35, 102],
         help="Seed for splitting the dataset over 3 rounds.",
     )
     parser.add_argument(
         "--runseed",
         type=List[int],
+        default=[42, 35, 102],
         default=[42, 35, 102],
         help="Seed for minibatch selection, random initialization over 3 rounds.",
     )

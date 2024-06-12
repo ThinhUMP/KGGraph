@@ -88,16 +88,16 @@ class MotifDecomposition:
         """
         n_atoms = mol.GetNumAtoms()
         for i in range(len(cliques) - 1):
-            # if i >= len(cliques):
-            #     break
+            if i >= len(cliques):
+                break
             for j in range(i + 1, len(cliques)):
-                # if j >= len(cliques):
-                #     break
+                if j >= len(cliques):
+                    break
                 if set(cliques[i]) & set(cliques[j]):  # Intersection is not empty
                     cliques[i] = list(set(cliques[i]) | set(cliques[j]))  # Union
                     cliques[j] = []
             cliques = [c for c in cliques if c]
-        cliques = [c for c in cliques if n_atoms >= len(c) > 0]
+        cliques = [c for c in cliques if n_atoms > len(c) > 0]
         return cliques
 
     @staticmethod

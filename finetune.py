@@ -18,6 +18,7 @@ import argparse
 from torch import optim
 from typing import List
 import numpy as np
+from .pretrain import seed_everything
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -103,15 +104,7 @@ def main():
         "--seed",
         type=List[int],
         default=[42, 35, 102],
-        default=[42, 35, 102],
-        help="Seed for splitting the dataset over 3 rounds.",
-    )
-    parser.add_argument(
-        "--runseed",
-        type=List[int],
-        default=[42, 35, 102],
-        default=[42, 35, 102],
-        help="Seed for minibatch selection, random initialization over 3 rounds.",
+        help="Seed for splitting the dataset, minibatch selection, random initialization over 3 rounds.",
     )
     parser.add_argument(
         "--split",
@@ -172,10 +165,7 @@ def main():
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
         # set up seeds
-        torch.manual_seed(args.runseed[i - 1])
-        np.random.seed(args.runseed[i - 1])
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(args.runseed[i - 1])
+        seed_everything(args.seed[i-1])
 
         # set up device
         device = (

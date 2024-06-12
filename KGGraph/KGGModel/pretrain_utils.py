@@ -48,7 +48,6 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
 
     model.train()
     model_decoder.train()
-    # if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = 0, 0, 0, 0, 0, 0
 
     for step, batch in enumerate(tqdm(loader, desc="KGG Pretraining Step")):
         batch_size = len(batch)
@@ -67,29 +66,8 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
 
         optimizer_list.step()
 
-        # if_auc += bond_if_auc
-        # if_ap += bond_if_ap
-        # a_type_acc += atom_type_acc
-        # a_num_rmse += atom_num_rmse
-        # b_num_rmse += bond_num_rmse
-
         if (step + 1) % 20 == 0:
-            # if_auc = if_auc / 20
-            # if_ap = if_ap / 20
-            # type_acc = type_acc / 20
-            # a_type_acc = a_type_acc / 20
-            # a_num_rmse = a_num_rmse / 20
-            # b_num_rmse = b_num_rmse / 20
-
             print("Batch:", step, "loss:", loss.item())
-            # if_auc, if_ap, type_acc, a_type_acc, a_num_rmse, b_num_rmse = (
-            #     0,
-            #     0,
-            #     0,
-            #     0,
-            #     0,
-            #     0,
-            # )
         pretrain_loss["loss"][epoch - 1] = loss.item()
     pretrain_loss.to_csv("Data/pretrain_loss.csv")
     return pretrain_loss

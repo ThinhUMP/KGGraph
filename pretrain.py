@@ -11,7 +11,8 @@ from KGGraph.KGGModel.visualize import plot_pretrain_loss
 from KGGraph.KGGModel.pretrain_utils import train
 import os
 import pandas as pd
-
+from typing import List
+import random
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -19,6 +20,14 @@ warnings.filterwarnings("ignore")
 lg = rdkit.RDLogger.logger()
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
+def seed_everything(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def main():
     # Training settings
@@ -37,7 +46,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=60,
+        default=100,
         help="number of epochs to train (default: 100)",
     )
 
@@ -75,19 +84,25 @@ def main():
     parser.add_argument(
         "--decompose_type",
         type=str,
-        default="tmotif",
+        default="motif",
         help="decompose_type (brics, jin, motif, smotif, tmotif) (default: motif).",
     )
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce60_tmoitf/pretrain.pth",
+        default="./saved_model_mlp_ce100_1layer_edge/pretrain.pth",
         help="filename to output the pre-trained model",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Seed for splitting the dataset over 3 rounds.",
     )
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=16,
+        default=10,
         help="number of workers for dataset loading",
     )
     parser.add_argument("--hidden_size", type=int, default=512, help="hidden size")
@@ -123,8 +138,8 @@ def main():
     )
     args = parser.parse_args()
 
-    torch.manual_seed(42)
-    np.random.seed(42)
+    seed_everything(args.seed)
+    
     device = (
         torch.device("cuda:" + str(args.device))
         if torch.cuda.is_available()
@@ -163,9 +178,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce60_tmoitf"):
-        os.mkdir("./saved_model_mlp_ce60_tmoitf")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce60_tmoitf"):
+    if not os.path.isdir("./saved_model_mlp_ce100_1layer_edge"):
+        os.mkdir("./saved_model_mlp_ce100_1layer_edge")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce100_1layer_edge"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 
@@ -184,6 +199,13 @@ def main():
         pretrain_loss = train(
             args, model_list, loader, optimizer, device, pretrain_loss, epoch
         )
+
+        if epoch == 40:
+            torch.save(model.state_dict(), "./saved_model_mlp_ce40_1layer_edge/pretrain.pth")
+        elif epoch == 60:
+            torch.save(model.state_dict(), "./saved_model_mlp_ce60_1layer_edge/pretrain.pth")
+        elif epoch == 80:
+            torch.save(model.state_dict(), "./saved_model_mlp_ce80_1layer_edge/pretrain.pth")
 
         if not args.output_model_file == "":
             torch.save(model.state_dict(), args.output_model_file)

@@ -145,8 +145,6 @@ def main():
         if torch.cuda.is_available()
         else torch.device("cpu")
     )
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(42)
     print("device", device)
 
     torch.multiprocessing.set_sharing_strategy("file_system")
@@ -178,11 +176,11 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_mlp_ce100_1layer"):
-        os.mkdir("./saved_model_mlp_ce100_1layer")
-    if "pretrain.pth" in os.listdir("saved_model_mlp_ce100_1layer"):
-        print("Continue pretraining")
-        model.load_state_dict(torch.load(args.output_model_file))
+    # if not os.path.isdir("./saved_model_mlp_ce100_1layer"):
+    #     os.mkdir("./saved_model_mlp_ce100_1layer")
+    # if "pretrain.pth" in os.listdir("saved_model_mlp_ce100_1layer"):
+    #     print("Continue pretraining")
+    #     model.load_state_dict(torch.load(args.output_model_file))
 
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 
@@ -214,6 +212,8 @@ def main():
             torch.save(model.state_dict(), "./saved_model_mlp_ce80_1layer/pretrain.pth")
 
         if not args.output_model_file == "":
+            if not os.path.isdir("./saved_model_mlp_ce100_1layer"):
+                os.mkdir("./saved_model_mlp_ce100_1layer")
             torch.save(model.state_dict(), args.output_model_file)
 
     plot_pretrain_loss(pretrain_loss)

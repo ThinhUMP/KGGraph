@@ -32,9 +32,9 @@ class GINConv(MessagePassing):
         super(GINConv, self).__init__()
         # multi-layer perceptron
         self.mlp = torch.nn.Sequential(
-            torch.nn.Linear(emb_dim, emb_dim),
-            # torch.nn.ReLU(),
-            # torch.nn.Linear(2 * emb_dim, emb_dim),
+            torch.nn.Linear(emb_dim, 2 * emb_dim),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2 * emb_dim, emb_dim),
         )
 
         # Initialize a list of edge MLPs
@@ -63,6 +63,7 @@ class GINConv(MessagePassing):
         Returns:
             Tensor: The updated node representations.
         """
+        print(x.size(), edge_index.size(), edge_attr.size())
         # add self loops in the edge space
         edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
 
@@ -78,7 +79,6 @@ class GINConv(MessagePassing):
         )
         for i, mlp in enumerate(self.edge_mlps):
             edge_embeddings += mlp(edge_attr[:, i].view(-1, 1))
-
         return self.propagate(edge_index, x=x, edge_attr=edge_embeddings)
 
     def message(self, x_j, edge_attr):
@@ -104,6 +104,7 @@ class GINConv(MessagePassing):
         Returns:
             Tensor: The updated node features.
         """
+        print(aggr_out.size())
         return self.mlp(aggr_out)
 
 
@@ -172,7 +173,7 @@ class GNN(torch.nn.Module):
         else:
             raise ValueError("unmatched number of arguments.")
 
-        # Apply each MLP to its corresponding edge feature slice
+        # Apply each MLP to its corresponding x feature slice
         x_embeddings = torch.zeros(x.size(0), self.emb_dim).to(x.device)
         for i, mlp in enumerate(self.x_mlps):
             x_embeddings += mlp(x[:, i].view(-1, 1))

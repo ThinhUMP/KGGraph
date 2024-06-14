@@ -18,7 +18,7 @@ import argparse
 from torch import optim
 from typing import List
 import numpy as np
-from .pretrain import seed_everything
+from pretrain import seed_everything
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -90,7 +90,6 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
         default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )

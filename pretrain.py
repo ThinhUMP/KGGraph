@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_mlp_ce100_1layer_edge/pretrain.pth",
+        default="./saved_model_mlp_ce100/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -199,21 +199,21 @@ def main():
         )
 
         if epoch == 40:
-            if not os.path.isdir("./saved_model_mlp_ce40_1layer_edge"):
-                os.mkdir("./saved_model_mlp_ce40_1layer_edge")
-            torch.save(model.state_dict(), "./saved_model_mlp_ce40_1layer_edge/pretrain.pth")
+            if not os.path.isdir("./saved_model_mlp_ce40"):
+                os.mkdir("./saved_model_mlp_ce40")
+            torch.save(model.state_dict(), "./saved_model_mlp_ce40/pretrain.pth")
         elif epoch == 60:
-            if not os.path.isdir("./saved_model_mlp_ce60_1layer_edge"):
-                os.mkdir("./saved_model_mlp_ce60_1layer_edge")
-            torch.save(model.state_dict(), "./saved_model_mlp_ce60_1layer_edge/pretrain.pth")
+            if not os.path.isdir("./saved_model_mlp_ce60"):
+                os.mkdir("./saved_model_mlp_ce60")
+            torch.save(model.state_dict(), "./saved_model_mlp_ce60/pretrain.pth")
         elif epoch == 80:
-            if not os.path.isdir("./saved_model_mlp_ce80_1layer_edge"):
-                os.mkdir("./saved_model_mlp_ce80_1layer_edge")
-            torch.save(model.state_dict(), "./saved_model_mlp_ce80_1layer_edge/pretrain.pth")
+            if not os.path.isdir("./saved_model_mlp_ce80"):
+                os.mkdir("./saved_model_mlp_ce80")
+            torch.save(model.state_dict(), "./saved_model_mlp_ce80/pretrain.pth")
 
         if not args.output_model_file == "":
-            if not os.path.isdir("./saved_model_mlp_ce100_1layer_edge"):
-                os.mkdir("./saved_model_mlp_ce100_1layer_edge")
+            if not os.path.isdir("./saved_model_mlp_ce100"):
+                os.mkdir("./saved_model_mlp_ce100")
             torch.save(model.state_dict(), args.output_model_file)
 
     plot_pretrain_loss(pretrain_loss)

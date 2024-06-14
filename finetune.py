@@ -18,7 +18,7 @@ import argparse
 from torch import optim
 from typing import List
 import numpy as np
-from .pretrain import seed_everything
+from pretrain import seed_everything
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -91,13 +91,12 @@ def main():
         "--dataset",
         type=str,
         default="clintox",
-        default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60_1layer_edge/pretrain.pth",
+        default="saved_model_mlp_ce60_old/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

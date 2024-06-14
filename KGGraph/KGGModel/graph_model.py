@@ -63,7 +63,6 @@ class GINConv(MessagePassing):
         Returns:
             Tensor: The updated node representations.
         """
-        print(x.size(), edge_index.size(), edge_attr.size())
         # add self loops in the edge space
         edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
 
@@ -104,7 +103,6 @@ class GINConv(MessagePassing):
         Returns:
             Tensor: The updated node features.
         """
-        print(aggr_out.size())
         return self.mlp(aggr_out)
 
 

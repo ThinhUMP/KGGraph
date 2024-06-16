@@ -61,7 +61,6 @@ def main():
     )
     parser.add_argument(
         "--decay", type=float, default=0, help="weight decay (default: 0)"
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",

@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="toxcast",
+        default="qm7",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -166,10 +166,12 @@ def main():
         # set up seeds
         seed_everything(args.seed)
 
-        dropout=[0.7,0.7,0.7,0.7]
-        decay=[1e-7,1e-6,1e-5,1e-4]
+        # dropout=[0.7,0.7,0.7,0.7]
+        # dropout=[0.5,0.5,0.5,0.5]
+        # decay=[1e-7,1e-6,1e-5,1e-4]
+        dropout = [0.5,0.6,0.7,0.8]
         args.dropout_ratio = dropout[i-1]
-        args.decay = decay[i-1]
+        # args.decay = decay[i-1]
         # set up device
         device = (
             torch.device("cuda:" + str(args.device))

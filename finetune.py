@@ -41,7 +41,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=10,
+        default=4,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -114,7 +114,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=10,
+        default=16,
         help="number of workers for dataset loading",
     )
     parser.add_argument(
@@ -166,9 +166,10 @@ def main():
         # set up seeds
         seed_everything(args.seed)
 
-        dropout=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
-        # decay=[1e-7,1e-6,1e-5,1e-4]
+        dropout=[0.7,0.7,0.7,0.7]
+        decay=[1e-7,1e-6,1e-5,1e-4]
         args.dropout_ratio = dropout[i-1]
+        args.decay = decay[i-1]
         # set up device
         device = (
             torch.device("cuda:" + str(args.device))

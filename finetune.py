@@ -91,7 +91,6 @@ def main():
         "--dataset",
         type=str,
         default="qm7",
-        default="qm7",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(

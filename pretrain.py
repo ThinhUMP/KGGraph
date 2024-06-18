@@ -46,7 +46,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=60,
         help="number of epochs to train (default: 100)",
     )
 
@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_five_ce100/pretrain.pth",
+        default="./saved_model_KGGwoHybri/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -176,11 +176,11 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    # if not os.path.isdir("./saved_model_mlp_ce100_1layer"):
-    #     os.mkdir("./saved_model_mlp_ce100_1layer")
-    # if "pretrain.pth" in os.listdir("saved_model_mlp_ce100_1layer"):
-    #     print("Continue pretraining")
-    #     model.load_state_dict(torch.load(args.output_model_file))
+    if not os.path.isdir("./saved_model_KGGwoHybri"):
+        os.mkdir("./saved_model_KGGwoHybri")
+    if "pretrain.pth" in os.listdir("saved_model_KGGwoHybri"):
+        print("Continue pretraining")
+        model.load_state_dict(torch.load(args.output_model_file))
 
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 
@@ -198,23 +198,23 @@ def main():
             args, model_list, loader, optimizer, device, pretrain_loss, epoch
         )
 
-        if epoch == 40:
-            if not os.path.isdir("./saved_model_five_ce40"):
-                os.mkdir("./saved_model_five_ce40")
-            torch.save(model.state_dict(), "./saved_model_five_ce40/pretrain.pth")
-        elif epoch == 60:
-            if not os.path.isdir("./saved_model_five_ce60"):
-                os.mkdir("./saved_model_five_ce60")
-            torch.save(model.state_dict(), "./saved_model_five_ce60/pretrain.pth")
-        elif epoch == 80:
-            if not os.path.isdir("./saved_model_five_ce80"):
-                os.mkdir("./saved_model_five_ce80")
-            torch.save(model.state_dict(), "./saved_model_five_ce80/pretrain.pth")
+        # if epoch == 40:
+        #     if not os.path.isdir("./saved_model_five_ce40"):
+        #         os.mkdir("./saved_model_five_ce40")
+        #     torch.save(model.state_dict(), "./saved_model_five_ce40/pretrain.pth")
+        # elif epoch == 60:
+        #     if not os.path.isdir("./saved_model_five_ce60"):
+        #         os.mkdir("./saved_model_five_ce60")
+        #     torch.save(model.state_dict(), "./saved_model_five_ce60/pretrain.pth")
+        # elif epoch == 80:
+        #     if not os.path.isdir("./saved_model_five_ce80"):
+        #         os.mkdir("./saved_model_five_ce80")
+        #     torch.save(model.state_dict(), "./saved_model_five_ce80/pretrain.pth")
 
-        if not args.output_model_file == "":
-            if not os.path.isdir("./saved_model_five_ce100"):
-                os.mkdir("./saved_model_five_ce100")
-            torch.save(model.state_dict(), args.output_model_file)
+        # if not args.output_model_file == "":
+        #     if not os.path.isdir("./saved_model_five_ce100"):
+        #         os.mkdir("./saved_model_five_ce100")
+        #     torch.save(model.state_dict(), args.output_model_file)
 
     plot_pretrain_loss(pretrain_loss)
 

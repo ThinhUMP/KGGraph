@@ -67,7 +67,7 @@ class AtomFeature:
                     )
                 ]
                 + [allowable_features["possible_degree_list"].index(get_degree(atom))]
-                + hybri_feat
+                # + hybri_feat
             )
 
             x_node_list.append(atom_feature)

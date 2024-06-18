@@ -128,7 +128,7 @@ class GNN(torch.nn.Module):
         JK="last",
         drop_ratio=0,
         gnn_type="gin",
-        x_features=7,
+        x_features=2,
         edge_features=2,
     ):
         super(GNN, self).__init__()

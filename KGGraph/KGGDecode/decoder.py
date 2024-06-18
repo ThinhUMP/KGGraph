@@ -53,23 +53,23 @@ class Model_decoder(nn.Module):
         # )
 
         # hybridization features
-        self.atom_hybri_s_s = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 1)
-        )
-        self.atom_hybri_s_p = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 4)
-        )
-        self.atom_hybri_s_d = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 3)
-        )
-        self.atom_hybri_s_a = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 7)
-        )
-        self.atom_hybri_s_lonepair = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, 7),
-        )
+        # self.atom_hybri_s_s = nn.Sequential(
+        #     nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 1)
+        # )
+        # self.atom_hybri_s_p = nn.Sequential(
+        #     nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 4)
+        # )
+        # self.atom_hybri_s_d = nn.Sequential(
+        #     nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 3)
+        # )
+        # self.atom_hybri_s_a = nn.Sequential(
+        #     nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 7)
+        # )
+        # self.atom_hybri_s_lonepair = nn.Sequential(
+        #     nn.Linear(hidden_size, hidden_size),
+        #     nn.ReLU(),
+        #     nn.Linear(hidden_size, 7),
+        # )
 
         self.atom_num_s = nn.Sequential(
             nn.Linear(hidden_size, hidden_size // 4),
@@ -91,11 +91,11 @@ class Model_decoder(nn.Module):
         # self.bond_type_conjugate_pred_loss = nn.BCEWithLogitsLoss()
 
         # hybridization features
-        self.atom_hybri_s_pred_loss = nn.BCEWithLogitsLoss()
-        self.atom_hybri_p_pred_loss = nn.CrossEntropyLoss()
-        self.atom_hybri_d_pred_loss = nn.CrossEntropyLoss()
-        self.atom_hybri_a_pred_loss = nn.CrossEntropyLoss()
-        self.atom_hybri_lonepair_pred_loss = nn.CrossEntropyLoss()
+        # self.atom_hybri_s_pred_loss = nn.BCEWithLogitsLoss()
+        # self.atom_hybri_p_pred_loss = nn.CrossEntropyLoss()
+        # self.atom_hybri_d_pred_loss = nn.CrossEntropyLoss()
+        # self.atom_hybri_a_pred_loss = nn.CrossEntropyLoss()
+        # self.atom_hybri_lonepair_pred_loss = nn.CrossEntropyLoss()
 
         self.atom_num_pred_loss = nn.SmoothL1Loss()
         self.bond_num_pred_loss = nn.SmoothL1Loss()
@@ -114,19 +114,19 @@ class Model_decoder(nn.Module):
         #     bond_type_pi_loss,
         #     bond_type_conjugate_loss,
         # ) = (0, 0, 0)
-        (
-            atom_hybri_s_loss,
-            atom_hybri_p_loss,
-            atom_hybri_d_loss,
-            atom_hybri_a_loss,
-            atom_hybri_lonepair_loss,
-        ) = (
-            0,
-            0,
-            0,
-            0,
-            0,
-        )
+        # (
+        #     atom_hybri_s_loss,
+        #     atom_hybri_p_loss,
+        #     atom_hybri_d_loss,
+        #     atom_hybri_a_loss,
+        #     atom_hybri_lonepair_loss,
+        # ) = (
+        #     0,
+        #     0,
+        #     0,
+        #     0,
+        #     0,
+        # )
         atom_num_loss, bond_num_loss = 0, 0
 
         atom_num_target, bond_num_target = [], []
@@ -223,45 +223,45 @@ class Model_decoder(nn.Module):
                 # )
 
                 # atom hybridization
-                mol_rep = node_rep[mol_index].to(self.device)
-                atom_hybri_s_pred = self.atom_hybri_s_s(mol_rep).squeeze(-1)
-                atom_hybri_p_pred = self.atom_hybri_s_p(mol_rep)
-                atom_hybri_d_pred = self.atom_hybri_s_d(mol_rep)
-                atom_hybri_a_pred = self.atom_hybri_s_a(mol_rep)
-                atom_hybri_lonepair_pred = self.atom_hybri_s_lonepair(mol_rep)
+                # mol_rep = node_rep[mol_index].to(self.device)
+                # atom_hybri_s_pred = self.atom_hybri_s_s(mol_rep).squeeze(-1)
+                # atom_hybri_p_pred = self.atom_hybri_s_p(mol_rep)
+                # atom_hybri_d_pred = self.atom_hybri_s_d(mol_rep)
+                # atom_hybri_a_pred = self.atom_hybri_s_a(mol_rep)
+                # atom_hybri_lonepair_pred = self.atom_hybri_s_lonepair(mol_rep)
 
-                atom_hybri_s_target = mol.x_nosuper[:, 2].to(self.device)
-                atom_hybri_p_target = mol.x_nosuper[:, 3].to(self.device).long()
-                atom_hybri_d_target = mol.x_nosuper[:, 4].to(self.device).long()
-                atom_hybri_a_target = mol.x_nosuper[:, 5].to(self.device).long()
-                atom_hybri_lonepair_target = mol.x_nosuper[:, 6].to(self.device).long()
+                # atom_hybri_s_target = mol.x_nosuper[:, 2].to(self.device)
+                # atom_hybri_p_target = mol.x_nosuper[:, 3].to(self.device).long()
+                # atom_hybri_d_target = mol.x_nosuper[:, 4].to(self.device).long()
+                # atom_hybri_a_target = mol.x_nosuper[:, 5].to(self.device).long()
+                # atom_hybri_lonepair_target = mol.x_nosuper[:, 6].to(self.device).long()
 
-                atom_hybri_s_loss += self.atom_hybri_s_pred_loss(
-                    atom_hybri_s_pred, atom_hybri_s_target
-                )
-                atom_hybri_p_loss += self.atom_hybri_p_pred_loss(
-                    atom_hybri_p_pred, atom_hybri_p_target
-                )
-                atom_hybri_d_loss += self.atom_hybri_d_pred_loss(
-                    atom_hybri_d_pred, atom_hybri_d_target
-                )
-                atom_hybri_a_loss += self.atom_hybri_a_pred_loss(
-                    atom_hybri_a_pred, atom_hybri_a_target
-                )
-                atom_hybri_lonepair_loss += self.atom_hybri_lonepair_pred_loss(
-                    atom_hybri_lonepair_pred, atom_hybri_lonepair_target
-                )
+                # atom_hybri_s_loss += self.atom_hybri_s_pred_loss(
+                #     atom_hybri_s_pred, atom_hybri_s_target
+                # )
+                # atom_hybri_p_loss += self.atom_hybri_p_pred_loss(
+                #     atom_hybri_p_pred, atom_hybri_p_target
+                # )
+                # atom_hybri_d_loss += self.atom_hybri_d_pred_loss(
+                #     atom_hybri_d_pred, atom_hybri_d_target
+                # )
+                # atom_hybri_a_loss += self.atom_hybri_a_pred_loss(
+                #     atom_hybri_a_pred, atom_hybri_a_target
+                # )
+                # atom_hybri_lonepair_loss += self.atom_hybri_lonepair_pred_loss(
+                #     atom_hybri_lonepair_pred, atom_hybri_lonepair_target
+                # )
 
         loss_tur = [
             bond_if_loss / mol_num,
             # bond_type_sigma_loss / mol_num,
             # bond_type_pi_loss / mol_num,
             # bond_type_conjugate_loss / mol_num,
-            atom_hybri_s_loss / mol_num,
-            atom_hybri_p_loss / mol_num,
-            atom_hybri_d_loss / mol_num,
-            atom_hybri_a_loss / mol_num,
-            atom_hybri_lonepair_loss / mol_num,
+            # atom_hybri_s_loss / mol_num,
+            # atom_hybri_p_loss / mol_num,
+            # atom_hybri_d_loss / mol_num,
+            # atom_hybri_a_loss / mol_num,
+            # atom_hybri_lonepair_loss / mol_num,
             atom_num_loss,
             bond_num_loss,
         ]

@@ -96,7 +96,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce80/pretrain.pth",
+        default="saved_model_mlp_ce40/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -236,8 +236,8 @@ def main():
 
         print(train_dataset[0])
 
-        with open(f"Data/contamination/test_{args.dataset}.txt", "a") as f:
-                f.writelines("%s\n" % s for s in test_smiles)
+        # with open(f"Data/contamination/test_{args.dataset}.txt", "a") as f:
+        #         f.writelines("%s\n" % s for s in test_smiles)
 
         # data loader
         if args.dataset == "freesolv":

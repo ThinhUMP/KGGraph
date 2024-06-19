@@ -211,10 +211,10 @@ def main():
         #         os.mkdir("./saved_model_five_ce80")
         #     torch.save(model.state_dict(), "./saved_model_five_ce80/pretrain.pth")
 
-        # if not args.output_model_file == "":
+        if not args.output_model_file == "":
         #     if not os.path.isdir("./saved_model_five_ce100"):
         #         os.mkdir("./saved_model_five_ce100")
-        #     torch.save(model.state_dict(), args.output_model_file)
+            torch.save(model.state_dict(), args.output_model_file)
 
     plot_pretrain_loss(pretrain_loss)
 

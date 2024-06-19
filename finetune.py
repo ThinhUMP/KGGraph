@@ -73,6 +73,7 @@ def main():
     )
     parser.add_argument(
         "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -174,6 +175,8 @@ def main():
         # args.decay = decay[i-1]
         # dataset_name=["bbbp", "sider", "clintox", "tox21", "toxcast", "hiv", "muv", "esol", "freesolv", "lipo", "qm7", "qm8", "qm9"]
         # args.dataset = dataset_name[i-1]
+        # input_model = ["saved_model_mlp_ce100/pretrain.pth", "saved_model_mlp_ce80/pretrain.pth", "saved_model_mlp_ce40/pretrain.pth"]
+        # args.input_model_file = input_model[i-1]
         # set up device
         device = (
             torch.device("cuda:" + str(args.device))

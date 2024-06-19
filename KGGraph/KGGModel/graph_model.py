@@ -129,7 +129,7 @@ class GNN(torch.nn.Module):
         drop_ratio=0,
         gnn_type="gin",
         x_features=7,
-        edge_features=2,
+        edge_features=5,
     ):
         super(GNN, self).__init__()
         self.num_layer = num_layer

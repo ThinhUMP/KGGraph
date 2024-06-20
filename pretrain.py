@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_KGGwoBondtype/pretrain.pth",
+        default="./saved_model_mlp_ce_alpha60/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -176,9 +176,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_KGGwoBondtype"):
-        os.mkdir("./saved_model_KGGwoBondtype")
-    if "pretrain.pth" in os.listdir("saved_model_KGGwoBondtype"):
+    if not os.path.isdir("./saved_model_mlp_ce_alpha60"):
+        os.mkdir("./saved_model_mlp_ce_alpha60")
+    if "pretrain.pth" in os.listdir("saved_model_mlp_ce_alpha60"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 

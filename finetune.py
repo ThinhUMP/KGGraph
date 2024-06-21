@@ -308,47 +308,51 @@ def main():
             criterion = nn.BCEWithLogitsLoss(reduction="none")
         else:
             pass
+        
+        for step, batch in test_loader:
+            if -1 not in batch.y:
+                print("Check")
+                break
+    #     # training based on task type
+    #     if task_type == "classification":
+    #         train_epoch_cls(
+    #             args,
+    #             model,
+    #             device,
+    #             train_loader,
+    #             val_loader,
+    #             test_loader,
+    #             optimizer,
+    #             criterion,
+    #             task_type,
+    #             training_round=i,
+    #         )
 
-        # training based on task type
-        if task_type == "classification":
-            train_epoch_cls(
-                args,
-                model,
-                device,
-                train_loader,
-                val_loader,
-                test_loader,
-                optimizer,
-                criterion,
-                task_type,
-                training_round=i,
-            )
+    #     elif task_type == "regression":
+    #         train_epoch_reg(
+    #             args,
+    #             model,
+    #             device,
+    #             train_loader,
+    #             val_loader,
+    #             test_loader,
+    #             optimizer,
+    #             task_type,
+    #             training_round=i,
+    #         )
 
-        elif task_type == "regression":
-            train_epoch_reg(
-                args,
-                model,
-                device,
-                train_loader,
-                val_loader,
-                test_loader,
-                optimizer,
-                task_type,
-                training_round=i,
-            )
+    # # craw metrics
+    # average_test_metrics(args, task_type)
 
-    # craw metrics
-    average_test_metrics(args, task_type)
-
-    # plot training metrics
-    df_train_path = os.path.join(
-        args.save_path,
-        task_type,
-        args.dataset,
-        f"train_metrics_round_1.csv",
-    )
-    df_train = pd.read_csv(df_train_path)
-    plot_metrics(args, df_train, task_type)
+    # # plot training metrics
+    # df_train_path = os.path.join(
+    #     args.save_path,
+    #     task_type,
+    #     args.dataset,
+    #     f"train_metrics_round_1.csv",
+    # )
+    # df_train = pd.read_csv(df_train_path)
+    # plot_metrics(args, df_train, task_type)
 
 
 if __name__ == "__main__":

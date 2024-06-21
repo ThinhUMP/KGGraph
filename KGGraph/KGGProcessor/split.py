@@ -137,13 +137,14 @@ def scaffold_split(
 
 def random_split(
     dataset,
+    smiles_list,
     task_idx=None,
     null_value=0,
     frac_train=0.8,
     frac_valid=0.1,
     frac_test=0.1,
     seed=42,
-    smiles_list=None,
+    return_smiles=False,
 ):
     """
     Randomly splits a dataset into training, validation, and test sets. The function
@@ -208,7 +209,7 @@ def random_split(
     valid_dataset = dataset[torch.tensor(valid_idx)]
     test_dataset = dataset[torch.tensor(test_idx)]
 
-    if not smiles_list:
+    if not return_smiles:
         return train_dataset, valid_dataset, test_dataset
     else:
         train_smiles = [smiles_list[i] for i in train_idx]

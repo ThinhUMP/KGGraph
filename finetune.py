@@ -41,7 +41,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=3,
+        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -60,7 +60,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=2e-4, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-4, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",

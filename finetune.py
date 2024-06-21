@@ -41,7 +41,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=1,
+        default=3,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -90,19 +90,19 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_KGGwoHyBo/pretrain.pth",
+        default="saved_model_mlp_ce60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
+        default=[42, 35, 102],
         help="Seed for splitting the dataset, minibatch selection, random initialization.",
     )
     parser.add_argument(
@@ -164,7 +164,7 @@ def main():
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
         # set up seeds
-        seed_everything(args.seed)
+        seed_everything(args.seed[i-1])
 
         # dropout=[0.5,0.5,0.5,0.5]
         # decay=[1e-7,1e-6,1e-5,1e-4]

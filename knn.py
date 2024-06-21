@@ -11,6 +11,15 @@ from sklearn.neighbors import KNeighborsClassifier
 import torch
 import argparse
 import numpy as np
+from pretrain import seed_everything
+from KGGraph.KGGProcessor.loader import (
+    load_bace_dataset,
+    load_bbbp_dataset,
+    load_esol_dataset,
+    load_freesolv_dataset,
+    load_lipo_dataset,
+    load_qm7_dataset,
+)
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -68,13 +77,10 @@ def main():
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
-        "--seed", type=int, default=42, help="Seed for splitting the dataset."
-    )
-    parser.add_argument(
-        "--runseed",
+        "--seed",
         type=int,
         default=42,
-        help="Seed for minibatch selection, random initialization.",
+        help="Seed for splitting the dataset, minibatch selection, random initialization.",
     )
     parser.add_argument(
         "--split",
@@ -127,10 +133,7 @@ def main():
     args = parser.parse_args()
 
     # set up seeds
-    torch.manual_seed(args.runseed)
-    np.random.seed(args.runseed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(args.runseed)
+    seed_everything(args.seed)
 
     # set up device
     device = (
@@ -138,7 +141,6 @@ def main():
         if torch.cuda.is_available()
         else torch.device("cpu")
     )
-    print("device", device)
 
     # set up task type
     task_type = get_task_type(args)
@@ -154,44 +156,44 @@ def main():
         mask_edge_ratio=args.mask_edge_ratio,
         fix_ratio=args.fix_ratio,
     )
-    print(dataset)
+    print(args.dataset)
 
-    # # data split
-    # if args.split == "scaffold":
-    #     smiles_list = pd.read_csv(
-    #         "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
-    #         header=None,
-    #     )[0].tolist()
-    #     train_dataset, valid_dataset, test_dataset, (_, _, test_smiles) = (
-    #         scaffold_split(
-    #             dataset,
-    #             smiles_list,
-    #             null_value=0,
-    #             frac_train=0.8,
-    #             frac_valid=0.1,
-    #             frac_test=0.1,
-    #         )
-    #     )
-    #     print("scaffold")
-    # elif args.split == "random":
-    #     train_dataset, valid_dataset, test_dataset = random_split(
-    #         dataset,
-    #         null_value=0,
-    #         frac_train=0.8,
-    #         frac_valid=0.1,
-    #         frac_test=0.1,
-    #         seed=args.seed,
-    #     )
-    #     print("random")
-    # else:
-    #     raise ValueError("Invalid split option.")
+    # data split
+    if args.split == "scaffold":
+        smiles_list = pd.read_csv(
+            "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
+            header=None,
+        )[0].tolist()
+        train_dataset, valid_dataset, test_dataset, (_, _, test_smiles) = (
+            scaffold_split(
+                dataset,
+                smiles_list,
+                null_value=0,
+                frac_train=0.8,
+                frac_valid=0.1,
+                frac_test=0.1,
+            )
+        )
+        print("scaffold")
+    elif args.split == "random":
+        train_dataset, valid_dataset, test_dataset = random_split(
+            dataset,
+            null_value=0,
+            frac_train=0.8,
+            frac_valid=0.1,
+            frac_test=0.1,
+            seed=args.seed,
+        )
+        print("random")
+    else:
+        raise ValueError("Invalid split option.")
 
-    # print(train_dataset[0])
+    print(train_dataset[0])
 
     # data loader
     if args.dataset == "freesolv":
         train_loader = DataLoader(
-            dataset,
+            train_dataset,
             batch_size=args.batch_size,
             shuffle=True,
             num_workers=args.num_workers,
@@ -199,23 +201,24 @@ def main():
         )
     else:
         train_loader = DataLoader(
-            dataset,
+            train_dataset,
             batch_size=args.batch_size,
             shuffle=True,
             num_workers=args.num_workers,
         )
-    # val_loader = DataLoader(
-    #     valid_dataset,
-    #     batch_size=args.batch_size,
-    #     shuffle=False,
-    #     num_workers=args.num_workers,
-    # )
-    # test_loader = DataLoader(
-    #     test_dataset,
-    #     batch_size=args.batch_size,
-    #     shuffle=False,
-    #     num_workers=args.num_workers,
-    # )
+        
+    val_loader = DataLoader(
+        valid_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+    )
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+    )
 
     # state_dict = torch.load(args.input_model_file)
     state_dict = clean_state_dict(
@@ -233,12 +236,10 @@ def main():
     )
     model.load_state_dict(state_dict)
     print("Load model done")
-    X, y = extract_embeddings(args, model, device, train_loader)
-    # X_test, y_test = extract_embeddings(args, model, device, test_loader)
-    print("Embeddings", X.shape)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    X_train, y_train = extract_embeddings(args, model, device, train_loader)
+    X_test, y_test = extract_embeddings(args, model, device, test_loader)
+    print("Done extracting embeddings")
+    
     neigh = KNeighborsClassifier(n_neighbors=3)
     neigh.fit(X_train, y_train)
 
@@ -246,9 +247,12 @@ def main():
     rocauc = roc_auc_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
     ap = average_precision_score(y_test, y_pred)
-    print("rocauc", rocauc)
-    print("f1", f1)
-    print("ap", ap)
+    print("rocauc of kgg fgs", rocauc)
+    print("f1 of kgg fgs", f1)
+    print("ap of kgg fgs", ap)
+    
+# def compare_fgs():
+    
 
 
 if __name__ == "__main__":

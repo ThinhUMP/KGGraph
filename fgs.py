@@ -59,7 +59,7 @@ def prepare_fingerprints(df):
             maccs_fps.append(maccs)
             ecfp4_fps.append(ecfp4)
             rdk7_fps.append(rdk7)
-            labels.append(row['y'])
+            labels.append(row['p_np'])
     return maccs_fps, ecfp4_fps, rdk7_fps, labels
 
 def train_and_evaluate_knn(X_train, X_valid, y_train, y_valid, n_neighbors=5):
@@ -83,7 +83,9 @@ def split_data(df, method='scaffold', frac_train=0.8, frac_valid=0.1, frac_test=
 
 df= pd.read_csv("Data/classification/bbbp/raw/bbbp.csv")
 df = df[['smiles', 'p_np']]
+df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
 df.dropna(inplace=True)
+
 # Lựa chọn phương pháp chia dữ liệu: 'scaffold' hoặc 'random'
 method = 'scaffold'  # Thay thế bằng 'random' nếu muốn chia ngẫu nhiên
 

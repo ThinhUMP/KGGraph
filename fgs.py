@@ -11,15 +11,15 @@ import warnings
 warnings.filterwarnings("ignore")
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-def generate_scaffold(smiles, include_chirality=False):
+def generate_scaffold(smiles, include_chirality=True):
     mol = Chem.MolFromSmiles(smiles)
     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
     scaffold_smiles = Chem.MolToSmiles(scaffold, isomericSmiles=include_chirality)
     return scaffold_smiles
 
-def scaffold_split(df, frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=None):
+def scaffold_split(df, frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=42):
     scaffolds = defaultdict(list)
-    for i, smiles in enumerate(df['smiles']):
+    for i, smiles in enumerate(df['mol']):
         scaffold = generate_scaffold(smiles)
         scaffolds[scaffold].append(i)
 
@@ -53,16 +53,16 @@ def prepare_fingerprints(df):
     rdk7_fps = []
     labels = []
     for idx, row in df.iterrows():
-        fingerprints = smiles_to_fingerprints(row['smiles'])
+        fingerprints = smiles_to_fingerprints(row['mol'])
         if fingerprints is not None:
             maccs, ecfp4, rdk7 = fingerprints
             maccs_fps.append(maccs)
             ecfp4_fps.append(ecfp4)
             rdk7_fps.append(rdk7)
-            labels.append(row['p_np'])
+            labels.append(row['Class'])
     return maccs_fps, ecfp4_fps, rdk7_fps, labels
 
-def train_and_evaluate_knn(X_train, X_valid, y_train, y_valid, n_neighbors=5):
+def train_and_evaluate_knn(X_train, X_valid, y_train, y_valid, n_neighbors=3):
     knn = KNeighborsClassifier(n_neighbors=n_neighbors)
     knn.fit(X_train, y_train)
     y_pred = knn.predict(X_valid)
@@ -81,11 +81,13 @@ def split_data(df, method='scaffold', frac_train=0.8, frac_valid=0.1, frac_test=
 
 # Đọc dữ liệu
 
-df= pd.read_csv("Data/classification/bbbp/raw/bbbp.csv")
-df = df[['smiles', 'p_np']]
-df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
-df.dropna(inplace=True)
+df= pd.read_csv("Data/classification/bace/raw/bace.csv")
+# df = df[['smiles', 'p_np']]
+# df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
 
+# df.dropna(inplace=True)
+# print(df.shape)
+# print(df['p_np'].unique())
 # Lựa chọn phương pháp chia dữ liệu: 'scaffold' hoặc 'random'
 method = 'scaffold'  # Thay thế bằng 'random' nếu muốn chia ngẫu nhiên
 
@@ -98,9 +100,9 @@ maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints
 maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(test_df)
 
 # Huấn luyện và đánh giá mô hình k-NN với từng bộ dấu vân tay
-rocauc_maccs = train_and_evaluate_knn(maccs_fps_train, maccs_fps_valid, y_train, y_valid)
-rocauc_ecfp4 = train_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_valid, y_train, y_valid)
-rocauc_rdk7 = train_and_evaluate_knn(rdk7_fps_train, rdk7_fps_valid, y_train, y_valid)
+rocauc_maccs = train_and_evaluate_knn(maccs_fps_train, maccs_fps_valid, y_train, y_test)
+rocauc_ecfp4 = train_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_valid, y_train, y_test)
+rocauc_rdk7 = train_and_evaluate_knn(rdk7_fps_train, rdk7_fps_valid, y_train, y_test)
 
 print(f"ROC-AUC with MACCS fingerprints: {rocauc_maccs:.4f}")
 print(f"ROC-AUC with ECFP4 fingerprints: {rocauc_ecfp4:.4f}")

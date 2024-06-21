@@ -41,7 +41,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=3,
+        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(

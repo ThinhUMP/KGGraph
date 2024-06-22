@@ -309,10 +309,11 @@ def main():
         else:
             pass
         
-        for step, batch in test_loader:
-            if -1 not in batch.y:
+        for step, batch in enumerate(test_loader):
+            if 1 not in batch.y:
                 print("Check")
-                break
+            else:
+                print("Done")
     #     # training based on task type
     #     if task_type == "classification":
     #         train_epoch_cls(

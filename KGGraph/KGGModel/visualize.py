@@ -189,54 +189,54 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     custom_cmap = ListedColormap(["red", "green"])
 
-    with plt.style.context("fivethirtyeight"):
-        plt.figure(figsize=(15, 15))
-        scatter = plt.scatter(
-            embeddings_2d[:, 0],
-            embeddings_2d[:, 1],
-            c=loader.dataset.y,
-            cmap=custom_cmap,
-            s=50,
-        )
+    # with plt.style.context("fivethirtyeight"):
+    plt.figure(figsize=(15, 15))
+    scatter = plt.scatter(
+        embeddings_2d[:, 0],
+        embeddings_2d[:, 1],
+        c=loader.dataset.y,
+        cmap=custom_cmap,
+        s=50,
+    )
 
-        # Create a custom legend
-        handles = [
-            plt.Line2D(
-                [0],
-                [0],
-                marker="o",
-                color="w",
-                markerfacecolor="red",
-                markersize=10,
-                label="Inactive",
-            ),
-            plt.Line2D(
-                [0],
-                [0],
-                marker="o",
-                color="w",
-                markerfacecolor="green",
-                markersize=10,
-                label="Active",
-            ),
-        ]
+    # Create a custom legend
+    handles = [
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="red",
+            markersize=10,
+            label="Inactive",
+        ),
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="green",
+            markersize=10,
+            label="Active",
+        ),
+    ]
 
-        plt.legend(
-            handles=handles,
-            title="Class",
-            title_fontsize="13",
-            loc="upper right",
-            prop={"size": 12},
-        )
-        plt.title(
-            f"t-SNE Visualization of {args.dataset} dataset on the test set",
-            fontsize=20,
-        )
-        plt.xlabel("t-SNE Dimension 1", fontsize=16)
-        plt.ylabel("t-SNE Dimension 2", fontsize=16)
+    plt.legend(
+        handles=handles,
+        title="Class",
+        title_fontsize="13",
+        loc="upper right",
+        prop={"size": 12},
+    )
+    plt.title(
+        f"t-SNE Visualization of {args.dataset} dataset on the test set",
+        fontsize=20,
+    )
+    plt.xlabel("t-SNE Dimension 1", fontsize=16)
+    plt.ylabel("t-SNE Dimension 2", fontsize=16)
 
-        plt.savefig(
-            f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
-            dpi=600,
-        )
-        plt.show()
+    plt.savefig(
+        f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
+        dpi=600,
+    )
+    plt.show()

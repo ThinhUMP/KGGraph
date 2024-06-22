@@ -11,7 +11,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
-def generate_scaffold(smiles, include_chirality=True):
+def generate_scaffold(smiles, include_chirality=False):
     mol = Chem.MolFromSmiles(smiles)
     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
     scaffold_smiles = Chem.MolToSmiles(scaffold, isomericSmiles=include_chirality)
@@ -32,13 +32,18 @@ def scaffold_split(
     all_scaffolds = defaultdict(list)
     for i, smiles in enumerate(smiles_list):
         scaffold = generate_scaffold(smiles, include_chirality=True)
-        all_scaffolds[scaffold].append(i)
+        # all_scaffolds[scaffold].append(i)
+        if scaffold not in all_scaffolds:
+            all_scaffolds[scaffold] = [i]
+        else:
+            all_scaffolds[scaffold].append(i)
 
     # sort from largest to smallest sets
+    all_scaffolds = {key: sorted(value) for key, value in all_scaffolds.items()}
     all_scaffold_sets = [
         scaffold_set
-        for scaffold_set in sorted(
-            all_scaffolds.values(), key=lambda x: len(x), reverse=True
+        for (scaffold, scaffold_set) in sorted(
+            all_scaffolds.items(), key=lambda x: (len(x[1]), x[1][0]), reverse=True
         )
     ]
 
@@ -90,7 +95,7 @@ def prepare_fingerprints(df):
             maccs_fps.append(maccs)
             ecfp4_fps.append(ecfp4)
             rdk7_fps.append(rdk7)
-            labels.append(row['p_np'])
+            labels.append(row['u0_atom'])
     return maccs_fps, ecfp4_fps, rdk7_fps, labels
 
 def train_and_evaluate_knn(X_train, X_test, y_train, y_test, n_neighbors=3):
@@ -124,10 +129,10 @@ def split_data(df, method='scaffold', frac_train=0.8, frac_valid=0.1, frac_test=
 
 # Đọc dữ liệu
 
-df= pd.read_csv("Data/classification/bbbp/raw/bbbp.csv")
-df = df[['smiles', 'p_np']]
-df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
-df = df[df["mol"].notnull()]
+df= pd.read_csv("Data/regression/qm7/raw/qm7.csv")
+# df = df[['smiles', 'p_np']]
+# df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
+# df = df[df["mol"].notnull()]
 df.dropna(inplace=True)
 print(df.shape)
 # print(df['p_np'].unique())
@@ -142,28 +147,28 @@ maccs_fps_train, ecfp4_fps_train, rdk7_fps_train, y_train = prepare_fingerprints
 maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints(valid_df)
 maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(test_df)
 
-def check_class_balance(y_train, y_test):
-    unique_train = np.unique(y_train)
-    unique_test = np.unique(y_test)
-    print(unique_train, unique_test)
-    return set(unique_train) == set(unique_test)
+# def check_class_balance(y_train, y_test):
+#     unique_train = np.unique(y_train)
+#     unique_test = np.unique(y_test)
+#     print(unique_train, unique_test)
+#     return set(unique_train) == set(unique_test)
 
-if not check_class_balance(y_train, y_test):
-    raise ValueError("Class imbalance detected. Ensure both classes are present in training and test sets.")
+# if not check_class_balance(y_train, y_test):
+#     raise ValueError("Class imbalance detected. Ensure both classes are present in training and test sets.")
 
 # Huấn luyện và đánh giá mô hình k-NN với từng bộ dấu vân tay
-rocauc_maccs = train_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
-rocauc_ecfp4 = train_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
-rocauc_rdk7 = train_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
+# rocauc_maccs = train_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
+# rocauc_ecfp4 = train_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
+# rocauc_rdk7 = train_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
 
-print(f"ROC-AUC with MACCS fingerprints: {rocauc_maccs:.4f}")
-print(f"ROC-AUC with ECFP4 fingerprints: {rocauc_ecfp4:.4f}")
-print(f"ROC-AUC with RDK7 fingerprints: {rocauc_rdk7:.4f}")
+# print(f"ROC-AUC with MACCS fingerprints: {rocauc_maccs:.4f}")
+# print(f"ROC-AUC with ECFP4 fingerprints: {rocauc_ecfp4:.4f}")
+# print(f"ROC-AUC with RDK7 fingerprints: {rocauc_rdk7:.4f}")
 
-# rmse_maccs, mae_maccs = trainreg_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
-# rmse_ecfp4, mae_ecfp4 = trainreg_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
-# rmse_rdk7, mae_rdk7 = trainreg_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
+rmse_maccs, mae_maccs = trainreg_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
+rmse_ecfp4, mae_ecfp4 = trainreg_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
+rmse_rdk7, mae_rdk7 = trainreg_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
 
-# print(f"ROC-AUC with MACCS fingerprints: {rmse_maccs, mae_maccs}")
-# print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
-# print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
+print(f"ROC-AUC with MACCS fingerprints: {rmse_maccs, mae_maccs}")
+print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
+print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")

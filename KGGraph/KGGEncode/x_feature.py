@@ -17,7 +17,7 @@ from KGGraph.KGGDecompose.jin_decompose import TreeDecomposition
 from KGGraph.KGGDecompose.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGDecompose.tmotif_decompose import TMotifDecomposition
-from KGGraph.KGGChem.hybridization import HybridizationFeaturize
+from KGGraph.KGGChem.hybridization import HybridizationOnehot
 from KGGraph.KGGChem.atom_features import (
     get_degree,
     get_hybridization,
@@ -45,20 +45,20 @@ class AtomFeature:
         Get feature molecules from the list of molecules and return a list of feature molecules.
         """
         x_node_list = []
-
+        
         for atom in mol.GetAtoms():
-            (
-                total_sigma_bonds,
-                num_lone_pairs,
-                hybri_feat,
-            ) = HybridizationFeaturize.feature(atom)
-            if (
-                hybri_feat == [0, 0, 0, 0, 0]
-                and get_hybridization(atom) != "UNSPECIFIED"
-            ):
-                print(
-                    f"Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(mol)}"
-                )
+        #     (
+        #         total_sigma_bonds,
+        #         num_lone_pairs,
+        #         hybri_feat,
+        #     ) = HybridizationFeaturize.feature(atom)
+        #     if (
+        #         hybri_feat == [0, 0, 0, 0, 0]
+        #         and get_hybridization(atom) != "UNSPECIFIED"
+        #     ):
+        #         print(
+        #             f"Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(mol)}"
+        #         )
 
             atom_feature = (
                 [
@@ -67,7 +67,7 @@ class AtomFeature:
                     )
                 ]
                 + [allowable_features["possible_degree_list"].index(get_degree(atom))]
-                + hybri_feat
+                + HybridizationOnehot(atom)
             )
 
             x_node_list.append(atom_feature)
@@ -201,7 +201,7 @@ def main():
         x_node, x, num_part = x_feature(
             mol,
             decompose_type="motif",
-            mask_node=True,
+            mask_node=False,
             mask_node_ratio=0.25,
             fix_ratio=False,
         )

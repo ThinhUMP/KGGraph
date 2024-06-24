@@ -169,7 +169,6 @@ def get_hybridization(atom: Chem.Atom) -> str:
     # we return a string representing the hybridization type.
     return atom.GetHybridization().name
 
-
 def get_cip_code(atom: Chem.Atom) -> Union[None, str]:
     """Get the CIP code of the atom, if available."""
     if atom.HasProp("_CIPCode"):

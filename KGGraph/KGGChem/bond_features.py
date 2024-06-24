@@ -11,6 +11,11 @@ sys.path.append(root_dir)
 with open(root_dir + "/Data/feature/bond_dict.json", "r") as f:
     bond_dict = json.load(f)
 
+BondType = {"SINGLE": [1,0,0,0,0], 
+"DOUBLE": [0,1,0,0,0], 
+"TRIPLE": [0,0,1,0,0], 
+"AROMATIC": [0,0,0,1,0],
+}
 
 # Bond type
 def get_bond_type(bond: Chem.Bond) -> str:
@@ -68,6 +73,16 @@ def bond_type_feature(bond) -> List[int]:
     # Return the bond type feature or a default 'other' type feature vector
     return bond_dict.get(bond_type, [0, 0, 0])
 
+def bond_type_feature_onehot(bond) -> List[int]:
+    """Determine the feature representation of a bond in a molecular structure. The function
+    categorizes the bond into specific types, such as aromatic or conjugated, and returns
+    a corresponding feature vector from a predefined dictionary."""
+
+    # Get the bond type as a string representation
+    bond_type = get_bond_type(bond)
+
+    # Return the bond type feature or a default 'other' type feature vector
+    return BondType.get(bond_type, [0, 0, 0, 0, 1])
 
 # Auxiliary functions and dictionary must be defined:
 # get_bond_type(bond): Should return a string representation of the bond type.

@@ -7,6 +7,17 @@ from rdkit.Chem import MACCSkeys, AllChem, RDKFingerprint
 from sklearn.metrics import roc_auc_score, mean_absolute_error, mean_squared_error
 from collections import defaultdict
 import numpy as np
+import os
+import matplotlib.pyplot as plt
+import torch
+from tqdm import tqdm
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
+import sys
+import pathlib
+import numpy as np
+from matplotlib.colors import ListedColormap
+
 import warnings
 warnings.filterwarnings("ignore")
 from rdkit import RDLogger
@@ -26,7 +37,7 @@ def scaffold_split(
 ):
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
 
-    smiles_list = df['smiles'].tolist()
+    smiles_list = df['mol'].tolist()
 
     # create dict of the form {scaffold_i: [idx1, idx....]}
     all_scaffolds = defaultdict(list)
@@ -89,13 +100,13 @@ def prepare_fingerprints(df):
     rdk7_fps = []
     labels = []
     for idx, row in df.iterrows():
-        fingerprints = smiles_to_fingerprints(row['smiles'])
+        fingerprints = smiles_to_fingerprints(row['mol'])
         if fingerprints is not None:
             maccs, ecfp4, rdk7 = fingerprints
             maccs_fps.append(maccs)
             ecfp4_fps.append(ecfp4)
             rdk7_fps.append(rdk7)
-            labels.append(row['u0_atom'])
+            labels.append(row['Class'])
     return maccs_fps, ecfp4_fps, rdk7_fps, labels
 
 def train_and_evaluate_knn(X_train, X_test, y_train, y_test, n_neighbors=3):
@@ -129,7 +140,7 @@ def split_data(df, method='scaffold', frac_train=0.8, frac_valid=0.1, frac_test=
 
 # Đọc dữ liệu
 
-df= pd.read_csv("Data/regression/qm7/raw/qm7.csv")
+df= pd.read_csv("Data/classification/bace/raw/bace.csv")
 # df = df[['smiles', 'p_np']]
 # df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
 # df = df[df["mol"].notnull()]
@@ -143,9 +154,9 @@ method = 'scaffold'  # Thay thế bằng 'random' nếu muốn chia ngẫu nhiê
 train_df, valid_df, test_df = split_data(df, method=method)
 
 # Chuẩn bị dấu vân tay cho tập huấn luyện
-maccs_fps_train, ecfp4_fps_train, rdk7_fps_train, y_train = prepare_fingerprints(train_df)
-maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints(valid_df)
-maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(test_df)
+# maccs_fps_train, ecfp4_fps_train, rdk7_fps_train, y_train = prepare_fingerprints(train_df)
+# maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints(valid_df)
+# maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(test_df)
 
 # def check_class_balance(y_train, y_test):
 #     unique_train = np.unique(y_train)
@@ -165,10 +176,75 @@ maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(tes
 # print(f"ROC-AUC with ECFP4 fingerprints: {rocauc_ecfp4:.4f}")
 # print(f"ROC-AUC with RDK7 fingerprints: {rocauc_rdk7:.4f}")
 
-rmse_maccs, mae_maccs = trainreg_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
-rmse_ecfp4, mae_ecfp4 = trainreg_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
-rmse_rdk7, mae_rdk7 = trainreg_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
+# rmse_maccs, mae_maccs = trainreg_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
+# rmse_ecfp4, mae_ecfp4 = trainreg_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
+# rmse_rdk7, mae_rdk7 = trainreg_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
 
-print(f"ROC-AUC with MACCS fingerprints: {rmse_maccs, mae_maccs}")
-print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
-print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
+# print(f"ROC-AUC with MACCS fingerprints: {rmse_maccs, mae_maccs}")
+# print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
+# print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
+
+def visualize_embeddings(df):
+    maccs_fps, ecfp4_fps, rdk7_fps, y = prepare_fingerprints(df)
+    
+    # Combine all fingerprints into one array (Optional, if needed)
+    fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
+    
+    custom_cmap = ListedColormap(['#7DB0A8', '#FEE68E'])
+    
+    for fp_name, fps in fingerprints.items():
+        pca = PCA(n_components=50)
+        embeddings_pca = pca.fit_transform(fps)
+        tsne = TSNE(n_components=2, random_state=42)
+        embeddings_2d = tsne.fit_transform(torch.tensor(embeddings_pca))
+        
+        plt.figure(figsize=(12, 10))
+        plt.scatter(
+            embeddings_2d[:, 0],
+            embeddings_2d[:, 1],
+            c=y,
+            cmap=custom_cmap,
+            s=50
+        )
+        
+        # Create a custom legend
+        handles = [
+            plt.Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                markerfacecolor="#7DB0A8",
+                markersize=10,
+                label="Inactive",
+            ),
+            plt.Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                markerfacecolor="#FEE68E",
+                markersize=10,
+                label="Active",
+            ),
+        ]
+        
+        plt.legend(
+            handles=handles,
+            title="Class",
+            title_fontsize="13",
+            loc="upper right",
+            prop={"size": 12},
+        )
+        
+        plt.title(f"t-SNE Visualization of {fp_name} Fingerprint", fontsize=20)
+        plt.xlabel("t-SNE Dimension 1", fontsize=16)
+        plt.ylabel("t-SNE Dimension 2", fontsize=16)
+        
+        plt.tight_layout()
+        # plt.savefig(f"Data/fig/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
+        plt.show()
+visualize_embeddings(test_df)
+print("Done!")
+
+

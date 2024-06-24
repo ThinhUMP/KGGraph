@@ -185,8 +185,9 @@ def visualize_embeddings(args, model, device, loader, task_type):
     # embeddings_pca = pca.fit_transform(embeddings)
     tsne = TSNE(n_components=2, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings)
+    print(type(embeddings_2d))
 
-    custom_cmap = ListedColormap(["red", "green"])
+    custom_cmap = ListedColormap(['#7DB0A8', '#FEE68E'])
 
     # with plt.style.context("fivethirtyeight"):
     plt.figure(figsize=(15, 15))

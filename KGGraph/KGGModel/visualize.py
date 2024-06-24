@@ -121,8 +121,7 @@ def plot_pretrain_loss(pretrain_loss):
     plt.plot(pretrain_loss["loss"], label="Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.title("Pretraining Loss")
-    plt.savefig(f"Data/pretraining.png", dpi=600)
+    plt.savefig(f"Data/pretraining.png", dpi=600, bbox_inches='tight', transparent=False)
     plt.show()
 
 
@@ -237,6 +236,6 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     plt.savefig(
         f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
-        dpi=600,
+        dpi=600, bbox_inches='tight', transparent=False
     )
     plt.show()

@@ -72,7 +72,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.6, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -90,13 +90,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="qm9",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60/pretrain.pth",
+        default="saved_model_mlp_ce100/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -309,51 +309,51 @@ def main():
         else:
             pass
         
-        for step, batch in enumerate(test_loader):
-            if 1 not in batch.y:
-                print("Check")
-            else:
-                print("Done")
-    #     # training based on task type
-    #     if task_type == "classification":
-    #         train_epoch_cls(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             criterion,
-    #             task_type,
-    #             training_round=i,
-    #         )
+        # for step, batch in enumerate(test_loader):
+        #     if 1 not in batch.y:
+        #         print("Check")
+        #     else:
+        #         print("Done")
+        # training based on task type
+        if task_type == "classification":
+            train_epoch_cls(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                criterion,
+                task_type,
+                training_round=i,
+            )
 
-    #     elif task_type == "regression":
-    #         train_epoch_reg(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             task_type,
-    #             training_round=i,
-    #         )
+        elif task_type == "regression":
+            train_epoch_reg(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                task_type,
+                training_round=i,
+            )
 
-    # # craw metrics
-    # average_test_metrics(args, task_type)
+    # craw metrics
+    average_test_metrics(args, task_type)
 
-    # # plot training metrics
-    # df_train_path = os.path.join(
-    #     args.save_path,
-    #     task_type,
-    #     args.dataset,
-    #     f"train_metrics_round_1.csv",
-    # )
-    # df_train = pd.read_csv(df_train_path)
-    # plot_metrics(args, df_train, task_type)
+    # plot training metrics
+    df_train_path = os.path.join(
+        args.save_path,
+        task_type,
+        args.dataset,
+        f"train_metrics_round_1.csv",
+    )
+    df_train = pd.read_csv(df_train_path)
+    plot_metrics(args, df_train, task_type)
 
 
 if __name__ == "__main__":

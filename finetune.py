@@ -96,7 +96,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce100/pretrain.pth",
+        default="saved_model_mlp_ce60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -309,10 +309,6 @@ def main():
         else:
             pass
         
-        # for step, batch in test_loader:
-        #     if -1 not in batch.y:
-        #         print("Check")
-        #         break
         # training based on task type
         if task_type == "classification":
             train_epoch_cls(

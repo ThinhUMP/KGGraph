@@ -21,6 +21,7 @@ from sklearn.metrics import (
     f1_score,
     average_precision_score,
     r2_score,
+    matthews_corrcoef,
 )
 import pandas as pd
 
@@ -141,12 +142,16 @@ def train(model, device, loader, optimizer, criterion):
     roc_list = []
     ap_list = []
     f1_list = []
+    matthews_list = []
     for i in range(y_true.shape[1]):
         # AUC is only defined when there is at least one positive data.
         if np.sum(y_true[:, i] == 1) > 0 and np.sum(y_true[:, i] == -1) > 0:
             is_valid = y_true[:, i] ** 2 > 0
             roc_list.append(
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
+            )
+            matthews_list.append(
+                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             ap_list.append(
                 average_precision_score(
@@ -162,10 +167,11 @@ def train(model, device, loader, optimizer, criterion):
         print("Missing ratio: %f" % (1 - float(len(roc_list)) / y_true.shape[1]))
 
     train_roc = sum(roc_list) / len(roc_list)
+    train_matthews = sum(matthews_list) / len(matthews_list)
     train_ap = sum(ap_list) / len(ap_list)
     train_f1 = sum(f1_list) / len(f1_list)
 
-    return loss, train_roc, train_ap, train_f1
+    return loss, train_roc, train_matthews, train_ap, train_f1
 
 
 def train_reg(args, model, device, loader, optimizer):
@@ -251,6 +257,7 @@ def evaluate(args, model, device, loader, task_type, criterion):
     loss = torch.sum(loss_mat) / torch.sum(is_valid)
 
     roc_list = []
+    matthews_list = []
     ap_list = []
     f1_list = []
     for i in range(y_true.shape[1]):
@@ -259,6 +266,9 @@ def evaluate(args, model, device, loader, task_type, criterion):
             is_valid = y_true[:, i] ** 2 > 0
             roc_list.append(
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
+            )
+            matthews_list.append(
+                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             ap_list.append(
                 average_precision_score(
@@ -274,10 +284,11 @@ def evaluate(args, model, device, loader, task_type, criterion):
         print("Missing ratio: %f" % (1 - float(len(roc_list)) / y_true.shape[1]))
 
     eval_roc = sum(roc_list) / len(roc_list)
+    eval_matthews = sum(matthews_list) / len(matthews_list)
     eval_ap = sum(ap_list) / len(ap_list)
     eval_f1 = sum(f1_list) / len(f1_list)
 
-    return eval_roc, eval_ap, eval_f1, loss, roc_list, ap_list, f1_list
+    return eval_roc, eval_matthews, eval_ap, eval_f1, loss, roc_list, matthews_list, ap_list, f1_list
 
 
 def eval_reg(model, device, loader):
@@ -336,14 +347,17 @@ def train_epoch_cls(
     columns = [
         "train_loss",
         "train_auc",
+        "train_matthews",
         "train_ap",
         "train_f1",
         "val_loss",
         "val_auc",
+        "val_matthews",
         "val_ap",
         "val_f1",
         "test_loss",
         "test_auc",
+        "test_matthews",
         "test_ap",
         "test_f1",
     ]
@@ -352,16 +366,16 @@ def train_epoch_cls(
     for epoch in range(1, args.epochs + 1):
         print("====epoch:", epoch)
 
-        train_loss, train_auc, train_ap, train_f1 = train(
+        train_loss, train_auc, train_matthews, train_ap, train_f1 = train(
             model, device, train_loader, optimizer, criterion
         )
 
         print("====Evaluation")
 
-        val_auc, val_ap, val_f1, val_loss, _, _, _ = evaluate(
+        val_auc, val_matthews, val_ap, val_f1, val_loss, _, _, _, _ = evaluate(
             args, model, device, val_loader, task_type, criterion
         )
-        test_auc, test_ap, test_f1, test_loss, roc_list, ap_list, f1_list = evaluate(
+        test_auc, test_matthews, test_ap, test_f1, test_loss, roc_list, matthews_list, ap_list, f1_list = evaluate(
             args, model, device, test_loader, task_type, criterion
         )
 
@@ -370,14 +384,17 @@ def train_epoch_cls(
             train_df,
             float(train_loss),
             train_auc,
+            train_matthews,
             train_ap,
             train_f1,
             float(val_loss),
             val_auc,
+            val_matthews,
             val_ap,
             val_f1,
             float(test_loss),
             test_auc,
+            test_matthews,
             test_ap,
             test_f1,
             task_type,
@@ -386,7 +403,7 @@ def train_epoch_cls(
         )
 
         create_test_round_df(
-            args, roc_list, ap_list, f1_list, task_type, training_round
+            args, roc_list, matthews_list, ap_list, f1_list, task_type, training_round
         )
         torch.save(
             model.state_dict(),
@@ -398,6 +415,7 @@ def train_epoch_cls(
             % (train_loss, val_loss, test_loss)
         )
         print("train_auc: %f val_auc: %f test_auc: %f" % (train_auc, val_auc, test_auc))
+        print("train_matthews: %f val_matthews: %f test_matthews: %f" % (train_auc, val_auc, test_auc))
         print("train_ap: %f val_ap: %f test_ap: %f" % (train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" % (train_f1, val_f1, test_f1))
 

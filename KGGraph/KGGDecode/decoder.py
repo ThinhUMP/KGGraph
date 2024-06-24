@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.autograd import Variable
-
+import torch.nn.functional as F
 
 def create_var(tensor, device, requires_grad=None):
     """Create a PyTorch Variable tensor on the specified device."""
@@ -13,11 +13,19 @@ def create_var(tensor, device, requires_grad=None):
 
 
 def ce_loss(y_logits, y_true):
-    # Convert logits to probabilities using softmax
+   # Convert logits to probabilities using softmax
     y_prob = F.softmax(y_logits, dim=1)
 
+    # Avoid log(0) by clipping probabilities
+    epsilon = 1e-10
+    y_prob = torch.clamp(y_prob, epsilon, 1. - epsilon)
+
+    # Ensure no log(0) by using numerical stability techniques
+    log_probs = torch.log(y_prob + epsilon)
+
     # Calculate cross-entropy loss using one-hot encoded true labels
-    loss = -torch.sum(y_true * torch.log(y_prob)) / y_true.size(0)
+    loss = -torch.sum(y_true * log_probs) / y_true.size(0)
+
     return loss
 
 class Model_decoder(nn.Module):

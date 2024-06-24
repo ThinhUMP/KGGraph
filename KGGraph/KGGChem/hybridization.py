@@ -8,13 +8,13 @@ from .atom_features import (
 # five features are in the order of (numbers of orbital s, numbers of orbital p,
 # number of orbital d, total neighbors including hydrogens, number of lone pairs)
 HYBRIDIZATION = {
-    "UNSPECIFIED": [1]+[0, 0, 0, 0, 0, 0, 1],
-    "S": [2]+[1, 0, 0, 0, 0, 0, 0],
-    "SP": [3]+[0, 1, 0, 0, 0, 0, 0],
-    "SP2": [4]+[0, 0, 1, 0, 0, 0, 0],
-    "SP3": [5]+[0, 0, 0, 1, 0, 0, 0],
-    "SP3D": [6]+[0, 0, 0, 0, 1, 0, 0],
-    "SP3D2": [7]+[0, 0, 0, 0, 0, 1, 0],
+    "UNSPECIFIED": [0]+[0, 0, 0, 0, 0, 0, 1],
+    "S": [1]+[1, 0, 0, 0, 0, 0, 0],
+    "SP": [2]+[0, 1, 0, 0, 0, 0, 0],
+    "SP2": [3]+[0, 0, 1, 0, 0, 0, 0],
+    "SP3": [4]+[0, 0, 0, 1, 0, 0, 0],
+    "SP3D": [5]+[0, 0, 0, 0, 1, 0, 0],
+    "SP3D2": [6]+[0, 0, 0, 0, 0, 1, 0],
 }
 
 max_bond_hybridization = {
@@ -108,4 +108,4 @@ class HybridizationFeaturize:
         return total_sigma_bonds, num_lone_pairs, hybri_feat
     
 def HybridizationOnehot(atom):
-    return HYBRIDIZATION.get(get_hybridization(atom), [0, 0, 0, 0, 0, 0, 1])
+    return HYBRIDIZATION.get(get_hybridization(atom), [0]+[0, 0, 0, 0, 0, 0, 1])

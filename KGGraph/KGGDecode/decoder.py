@@ -153,7 +153,7 @@ class Model_decoder(nn.Module):
                     -1
                 )
 
-                bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device)
+                bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device).to(torch.long)
 
                 bond_type_loss += self.bond_type_pred_loss(
                     bond_type_pred, bond_type_target
@@ -163,9 +163,9 @@ class Model_decoder(nn.Module):
                 mol_rep = node_rep[mol_index].to(self.device)
                 atom_hybri_pred = self.atom_hybri_s(mol_rep).squeeze(-1)
 
-                atom_hybri_target = mol.x_nosuper[:, 2].to(self.device)
+                atom_hybri_target = mol.x_nosuper[:, 2].to(self.device).to(torch.long)
 
-                atom_hybri_loss += self.atom_type_pred_loss(
+                atom_hybri_loss += self.atom_hybri_pred_loss(
                     atom_hybri_pred, atom_hybri_target
                 )
 

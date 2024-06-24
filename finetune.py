@@ -51,7 +51,7 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -60,7 +60,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=1e-7, help="weight decay (default: 0)"
+        "--decay", type=float, default=2e-4, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="sider",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -102,7 +102,7 @@ def main():
     parser.add_argument(
         "--seed",
         type=int,
-        default=[42, 35, 102],
+        default=42,
         help="Seed for splitting the dataset, minibatch selection, random initialization.",
     )
     parser.add_argument(
@@ -164,7 +164,7 @@ def main():
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
         # set up seeds
-        seed_everything(args.seed[i-1])
+        seed_everything(args.seed)
 
         # dropout=[0.5,0.5,0.5,0.5]
         # decay=[1e-7,1e-6,1e-5,1e-4]
@@ -309,11 +309,10 @@ def main():
         else:
             pass
         
-        # for step, batch in enumerate(test_loader):
-        #     if 1 not in batch.y:
+        # for step, batch in test_loader:
+        #     if -1 not in batch.y:
         #         print("Check")
-        #     else:
-        #         print("Done")
+        #         break
         # training based on task type
         if task_type == "classification":
             train_epoch_cls(

@@ -12,22 +12,6 @@ def create_var(tensor, device, requires_grad=None):
         return Variable(tensor, requires_grad=requires_grad).to(device)
 
 
-def ce_loss(y_logits, y_true):
-   # Convert logits to probabilities using softmax
-    y_prob = F.softmax(y_logits, dim=1)
-
-    # Avoid log(0) by clipping probabilities
-    epsilon = 1e-10
-    y_prob = torch.clamp(y_prob, epsilon, 1. - epsilon)
-
-    # Ensure no log(0) by using numerical stability techniques
-    log_probs = torch.log(y_prob + epsilon)
-
-    # Calculate cross-entropy loss using one-hot encoded true labels
-    loss = -torch.sum(y_true * log_probs) / y_true.size(0)
-
-    return loss
-
 class Model_decoder(nn.Module):
     def __init__(self, hidden_size, device, dropout=0.2):
         super(Model_decoder, self).__init__()
@@ -76,7 +60,8 @@ class Model_decoder(nn.Module):
         )
 
         self.bond_pred_loss = nn.BCEWithLogitsLoss()
-
+        self.bond_type_pred_loss = nn.CrossEntropyLoss()
+        self.atom_hybri_pred_loss = nn.CrossEntropyLoss()
         self.atom_num_pred_loss = nn.SmoothL1Loss()
         self.bond_num_pred_loss = nn.SmoothL1Loss()
 
@@ -168,9 +153,9 @@ class Model_decoder(nn.Module):
                     -1
                 )
 
-                bond_type_target = mol.edge_attr_nosuper[:, 2:].to(self.device)
+                bond_type_target = mol.edge_attr_nosuper[:, 0].to(self.device)
 
-                bond_type_loss += ce_loss(
+                bond_type_loss += self.bond_type_pred_loss(
                     bond_type_pred, bond_type_target
                 )
 
@@ -178,9 +163,9 @@ class Model_decoder(nn.Module):
                 mol_rep = node_rep[mol_index].to(self.device)
                 atom_hybri_pred = self.atom_hybri_s(mol_rep).squeeze(-1)
 
-                atom_hybri_target = mol.x_nosuper[:, 2:].to(self.device)
+                atom_hybri_target = mol.x_nosuper[:, 2].to(self.device)
 
-                atom_hybri_loss += ce_loss(
+                atom_hybri_loss += self.atom_type_pred_loss(
                     atom_hybri_pred, atom_hybri_target
                 )
 

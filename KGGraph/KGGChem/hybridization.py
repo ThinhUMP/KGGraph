@@ -8,13 +8,13 @@ from .atom_features import (
 # five features are in the order of (numbers of orbital s, numbers of orbital p,
 # number of orbital d, total neighbors including hydrogens, number of lone pairs)
 HYBRIDIZATION = {
-    "UNSPECIFIED": [0, 0, 0, 0, 0, 0, 1],
-    "S": [1, 0, 0, 0, 0, 0, 0],
-    "SP": [0, 1, 0, 0, 0, 0, 0],
-    "SP2": [0, 0, 1, 0, 0, 0, 0],
-    "SP3": [0, 0, 0, 1, 0, 0, 0],
-    "SP3D": [0, 0, 0, 0, 1, 0, 0],
-    "SP3D2": [0, 0, 0, 0, 0, 1, 0],
+    "UNSPECIFIED": [1]+[0, 0, 0, 0, 0, 0, 1],
+    "S": [2]+[1, 0, 0, 0, 0, 0, 0],
+    "SP": [3]+[0, 1, 0, 0, 0, 0, 0],
+    "SP2": [4]+[0, 0, 1, 0, 0, 0, 0],
+    "SP3": [5]+[0, 0, 0, 1, 0, 0, 0],
+    "SP3D": [6]+[0, 0, 0, 0, 1, 0, 0],
+    "SP3D2": [7]+[0, 0, 0, 0, 0, 1, 0],
 }
 
 max_bond_hybridization = {

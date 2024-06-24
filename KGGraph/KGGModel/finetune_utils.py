@@ -151,7 +151,7 @@ def train(model, device, loader, optimizer, criterion):
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             matthews_list.append(
-                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
+                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i])
             )
             ap_list.append(
                 average_precision_score(
@@ -268,7 +268,7 @@ def evaluate(args, model, device, loader, task_type, criterion):
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             matthews_list.append(
-                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
+                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i])
             )
             ap_list.append(
                 average_precision_score(
@@ -415,7 +415,7 @@ def train_epoch_cls(
             % (train_loss, val_loss, test_loss)
         )
         print("train_auc: %f val_auc: %f test_auc: %f" % (train_auc, val_auc, test_auc))
-        print("train_matthews: %f val_matthews: %f test_matthews: %f" % (train_auc, val_auc, test_auc))
+        print("train_matthews: %f val_matthews: %f test_matthews: %f" % (train_matthews, val_matthews, test_matthews))
         print("train_ap: %f val_ap: %f test_ap: %f" % (train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" % (train_f1, val_f1, test_f1))
 

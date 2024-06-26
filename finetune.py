@@ -92,7 +92,7 @@ def main():
         "--dataset",
         type=str,
         default="clintox",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9, ecoli]",
     )
     parser.add_argument(
         "--input_model_file",
@@ -282,82 +282,73 @@ def main():
             x_features=dataset[0].x.size(1),
             edge_features=dataset[0].edge_attr.size(1),
         )
-        # if not args.input_model_file == "":
-        #     model.from_pretrained(args.input_model_file)
-        # state_dict = torch.load(args.input_model_file)
-        state_dict = torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
+        if not args.input_model_file == "":
+            model.from_pretrained(args.input_model_file)
+        state_dict = torch.load(args.input_model_file)
 
-        model.load_state_dict(state_dict)
-        model.to(device)
+        # set up optimizer
+        # different learning rate for different part of GNN
+        model_param_group = []
+        if args.GNN_different_lr:
+            print("GNN update")
+            model_param_group.append(
+                {"params": model.gnn.parameters(), "lr": args.lr_feat}
+            )
+        else:
+            print("No GNN update")
+        model_param_group.append(
+            {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
+        )
+        # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
+        optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
+        print(optimizer)
 
+        # set up criterion
+        if task_type == "classification":
+            criterion = nn.BCEWithLogitsLoss(reduction="none")
+        else:
+            pass
         
-        criterion = nn.BCEWithLogitsLoss(reduction="none")
-        eval_roc, eval_matthews, eval_ap, eval_f1, loss, roc_list, matthews_list, ap_list, f1_list = evaluate(args, model, device, test_loader, task_type, criterion)
-        print(eval_matthews)
+        # training based on task type
+        if task_type == "classification":
+            train_epoch_cls(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                criterion,
+                task_type,
+                training_round=i,
+            )
 
-    #     # set up optimizer
-    #     # different learning rate for different part of GNN
-    #     model_param_group = []
-    #     if args.GNN_different_lr:
-    #         print("GNN update")
-    #         model_param_group.append(
-    #             {"params": model.gnn.parameters(), "lr": args.lr_feat}
-    #         )
-    #     else:
-    #         print("No GNN update")
-    #     model_param_group.append(
-    #         {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
-    #     )
-    #     # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
-    #     optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
-    #     print(optimizer)
+        elif task_type == "regression":
+            train_epoch_reg(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                task_type,
+                training_round=i,
+            )
 
-    #     # set up criterion
-    #     if task_type == "classification":
-    #         criterion = nn.BCEWithLogitsLoss(reduction="none")
-    #     else:
-    #         pass
-        
-    #     # training based on task type
-    #     if task_type == "classification":
-    #         train_epoch_cls(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             criterion,
-    #             task_type,
-    #             training_round=i,
-    #         )
+    # craw metrics
+    average_test_metrics(args, task_type)
 
-    #     elif task_type == "regression":
-    #         train_epoch_reg(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             task_type,
-    #             training_round=i,
-    #         )
-
-    # # craw metrics
-    # average_test_metrics(args, task_type)
-
-    # # plot training metrics
-    # df_train_path = os.path.join(
-    #     args.save_path,
-    #     task_type,
-    #     args.dataset,
-    #     f"train_metrics_round_1.csv",
-    # )
-    # df_train = pd.read_csv(df_train_path)
-    # plot_metrics(args, df_train, task_type)
+    # plot training metrics
+    df_train_path = os.path.join(
+        args.save_path,
+        task_type,
+        args.dataset,
+        f"train_metrics_round_1.csv",
+    )
+    df_train = pd.read_csv(df_train_path)
+    plot_metrics(args, df_train, task_type)
 
 
 

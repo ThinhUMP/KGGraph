@@ -84,10 +84,7 @@ def get_num_task(args):
     }
 
     # Get the number of tasks based on the dataset
-    num_tasks = num_tasks_dict.get(args.dataset)
-
-    if num_tasks is None:
-        raise ValueError("Invalid dataset name.")
+    num_tasks = num_tasks_dict.get(args.dataset, 1)
 
     return num_tasks
 

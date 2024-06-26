@@ -97,7 +97,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60/pretrain.pth",
+        default='',
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -284,8 +284,8 @@ def main():
         )
         if not args.input_model_file == "":
             model.from_pretrained(args.input_model_file)
-        state_dict = torch.load(args.input_model_file)
-
+        model.to(device)
+        
         # set up optimizer
         # different learning rate for different part of GNN
         model_param_group = []
@@ -306,8 +306,6 @@ def main():
         # set up criterion
         if task_type == "classification":
             criterion = nn.BCEWithLogitsLoss(reduction="none")
-        else:
-            pass
         
         # training based on task type
         if task_type == "classification":

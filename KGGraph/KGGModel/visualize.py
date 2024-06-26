@@ -182,15 +182,15 @@ def extract_embeddings(args, model, device, loader):
 def visualize_embeddings(args, model, device, loader, task_type):
     embeddings, _ = extract_embeddings(args, model, device, loader)
 
-    # pca = PCA(n_components=50)
-    # embeddings_pca = pca.fit_transform(embeddings)
+    pca = PCA(n_components=50)
+    embeddings_pca = pca.fit_transform(embeddings)
     tsne = TSNE(n_components=2, random_state=42)
-    embeddings_2d = tsne.fit_transform(embeddings)
+    embeddings_2d = tsne.fit_transform(embeddings_pca)
 
     custom_cmap = ListedColormap(["red", "green"])
 
     # with plt.style.context("fivethirtyeight"):
-    plt.figure(figsize=(15, 15))
+    plt.figure(figsize=(6, 6))
     scatter = plt.scatter(
         embeddings_2d[:, 0],
         embeddings_2d[:, 1],
@@ -206,8 +206,8 @@ def visualize_embeddings(args, model, device, loader, task_type):
             [0],
             marker="o",
             color="w",
-            markerfacecolor="red",
-            markersize=10,
+            markerfacecolor="lightblue",
+            markersize=8,
             label="Inactive",
         ),
         plt.Line2D(
@@ -215,8 +215,8 @@ def visualize_embeddings(args, model, device, loader, task_type):
             [0],
             marker="o",
             color="w",
-            markerfacecolor="green",
-            markersize=10,
+            markerfacecolor="lightgreen",
+            markersize=8,
             label="Active",
         ),
     ]
@@ -228,15 +228,15 @@ def visualize_embeddings(args, model, device, loader, task_type):
         loc="upper right",
         prop={"size": 12},
     )
-    plt.title(
-        f"t-SNE Visualization of {args.dataset} dataset on the test set",
-        fontsize=20,
-    )
-    plt.xlabel("t-SNE Dimension 1", fontsize=16)
-    plt.ylabel("t-SNE Dimension 2", fontsize=16)
+    # plt.title(
+    #     f"t-SNE Visualization of {args.dataset} dataset on the test set",
+    #     fontsize=20,
+    # )
+    plt.xlabel("t-SNE 1", fontsize=10)
+    plt.ylabel("t-SNE 2", fontsize=10)
 
     plt.savefig(
-        f"{args.save_path+task_type}/{args.dataset+'/figures'}/training.png",
-        dpi=600,
+        f"{args.save_path+task_type}/{args.dataset+'/figures'}/tsne.png",
+        dpi=600, bbox_inches="tight", transparent=False,
     )
     plt.show()

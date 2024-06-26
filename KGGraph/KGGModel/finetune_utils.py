@@ -80,7 +80,6 @@ def get_num_task(args):
         "qm7": 1,
         "qm8": 12,
         "qm9": 12,
-        "ecoli": 1,
     }
 
     # Get the number of tasks based on the dataset
@@ -148,7 +147,9 @@ def train(model, device, loader, optimizer, criterion):
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             matthews_list.append(
-                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i])
+                matthews_corrcoef(
+                    (y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i]
+                )
             )
             ap_list.append(
                 average_precision_score(
@@ -171,7 +172,7 @@ def train(model, device, loader, optimizer, criterion):
     return loss, train_roc, train_matthews, train_ap, train_f1
 
 
-def train_reg(args, model, device, loader, optimizer):
+def train_reg(args, model, device, loader, optimizer, criterion):
     model.train()
     y_true = []
     y_scores = []
@@ -180,11 +181,12 @@ def train_reg(args, model, device, loader, optimizer):
         batch = batch.to(device)
         pred = model(batch)
         y = batch.y.view(pred.shape).to(torch.float64)
-        if args.dataset in ["qm7", "qm8", "qm9", "ecoli"]:
+        if args.dataset in ["qm7", "qm8", "qm9"]:
             loss = torch.sum(torch.abs(pred - y)) / y.size(0)
         elif args.dataset in ["esol", "freesolv", "lipo"]:
             loss = torch.sum((pred - y) ** 2) / y.size(0)
-
+        else:
+            loss = criterion(pred, y)
         y_true.append(batch.y.view(pred.shape))
         y_scores.append(pred)
 
@@ -265,7 +267,9 @@ def evaluate(args, model, device, loader, task_type, criterion):
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             matthews_list.append(
-                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i])
+                matthews_corrcoef(
+                    (y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i]
+                )
             )
             ap_list.append(
                 average_precision_score(
@@ -285,7 +289,17 @@ def evaluate(args, model, device, loader, task_type, criterion):
     eval_ap = sum(ap_list) / len(ap_list)
     eval_f1 = sum(f1_list) / len(f1_list)
 
-    return eval_roc, eval_matthews, eval_ap, eval_f1, loss, roc_list, matthews_list, ap_list, f1_list
+    return (
+        eval_roc,
+        eval_matthews,
+        eval_ap,
+        eval_f1,
+        loss,
+        roc_list,
+        matthews_list,
+        ap_list,
+        f1_list,
+    )
 
 
 def eval_reg(model, device, loader):
@@ -372,9 +386,17 @@ def train_epoch_cls(
         val_auc, val_matthews, val_ap, val_f1, val_loss, _, _, _, _ = evaluate(
             args, model, device, val_loader, task_type, criterion
         )
-        test_auc, test_matthews, test_ap, test_f1, test_loss, roc_list, matthews_list, ap_list, f1_list = evaluate(
-            args, model, device, test_loader, task_type, criterion
-        )
+        (
+            test_auc,
+            test_matthews,
+            test_ap,
+            test_f1,
+            test_loss,
+            roc_list,
+            matthews_list,
+            ap_list,
+            f1_list,
+        ) = evaluate(args, model, device, test_loader, task_type, criterion)
 
         create_train_round_df(
             args,
@@ -412,7 +434,10 @@ def train_epoch_cls(
             % (train_loss, val_loss, test_loss)
         )
         print("train_auc: %f val_auc: %f test_auc: %f" % (train_auc, val_auc, test_auc))
-        print("train_matthews: %f val_matthews: %f test_matthews: %f" % (train_matthews, val_matthews, test_matthews))
+        print(
+            "train_matthews: %f val_matthews: %f test_matthews: %f"
+            % (train_matthews, val_matthews, test_matthews)
+        )
         print("train_ap: %f val_ap: %f test_ap: %f" % (train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" % (train_f1, val_f1, test_f1))
 
@@ -425,6 +450,7 @@ def train_epoch_reg(
     val_loader,
     test_loader,
     optimizer,
+    criterion,
     task_type,
     training_round,
 ):
@@ -447,56 +473,33 @@ def train_epoch_reg(
     for epoch in range(1, args.epochs + 1):
         print("====epoch:", epoch)
         train_loss, train_mae, train_mse, train_rmse, train_r2 = train_reg(
-            args, model, device, train_loader, optimizer
+            args, model, device, train_loader, optimizer, criterion
         )
 
         print("====Evaluation")
         val_mae, val_mse, val_rmse, val_r2 = eval_reg(model, device, val_loader)
         test_mae, test_mse, test_rmse, test_r2 = eval_reg(model, device, test_loader)
 
-        if args.dataset in ["qm7", "qm8", "qm9", "ecoli"]:
-            create_train_reg_round_df(
-                args,
-                train_df,
-                train_mae,
-                val_mae,
-                test_mae,
-                train_mse,
-                val_mse,
-                test_mse,
-                train_rmse,
-                val_rmse,
-                test_rmse,
-                train_r2,
-                val_r2,
-                test_r2,
-                task_type,
-                epoch,
-                training_round,
-            )
-            create_test_reg_round_df(args, test_mae, task_type, training_round)
-        else:
-            create_train_reg_round_df(
-                args,
-                train_df,
-                train_mae,
-                val_mae,
-                test_mae,
-                train_mse,
-                val_mse,
-                test_mse,
-                train_rmse,
-                val_rmse,
-                test_rmse,
-                train_r2,
-                val_r2,
-                test_r2,
-                task_type,
-                epoch,
-                training_round,
-            )
-
-            create_test_reg_round_df(args, test_rmse, task_type, training_round)
+        create_train_reg_round_df(
+            args,
+            train_df,
+            train_mae,
+            val_mae,
+            test_mae,
+            train_mse,
+            val_mse,
+            test_mse,
+            train_rmse,
+            val_rmse,
+            test_rmse,
+            train_r2,
+            val_r2,
+            test_r2,
+            task_type,
+            epoch,
+            training_round,
+        )
+        create_test_reg_round_df(args, test_mae, test_rmse, task_type, training_round)
 
         print(
             "train_mae: %f val_mae: %f test_mae: %f" % (train_loss, val_mae, test_mae)

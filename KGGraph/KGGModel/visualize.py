@@ -121,7 +121,9 @@ def plot_pretrain_loss(pretrain_loss):
     plt.plot(pretrain_loss["loss"], label="Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.savefig(f"Data/pretraining.png", dpi=600, bbox_inches='tight', transparent=False)
+    plt.savefig(
+        f"Data/pretraining.png", dpi=600, bbox_inches="tight", transparent=False
+    )
     plt.show()
 
 
@@ -193,9 +195,9 @@ def visualize_embeddings(args, model, device, loader, task_type):
         embeddings_2d[:, 1],
         c=loader.dataset.y,
         cmap=custom_cmap,
-        s=100,  # Increase the size of the points
-        edgecolor='w',  # Add white edge color for better visibility
-        linewidth=0.5  # Set the linewidth for the edges
+        s=100,
+        edgecolor="w",
+        linewidth=0.5,
     )
 
     # Create a custom legend
@@ -224,10 +226,10 @@ def visualize_embeddings(args, model, device, loader, task_type):
         handles=handles,
         title="Class",
         title_fontsize="13",
-        loc='upper left',
+        loc="upper left",
         # bbox_to_anchor=(0.5, -0.05),
         prop={"size": 12},
-        ncol=2
+        ncol=2,
     )
 
     plt.title(f"{'kgg'}".upper(), fontsize=16)
@@ -240,9 +242,11 @@ def visualize_embeddings(args, model, device, loader, task_type):
     plt.tight_layout()
     plt.savefig(
         f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_kgg_tsne.png",
-        dpi=600, bbox_inches='tight', transparent=False
+        dpi=600,
+        bbox_inches="tight",
+        transparent=False,
     )
-    
+
     plt.show()
 
 
@@ -258,15 +262,15 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
         embeddings_2d[:, 0],
         embeddings_2d[:, 1],
         c=loader.dataset.y,  # Continuous values
-        cmap='plasma',  # Colormap for continuous values
-        s=100,  # Increase the size of the points
-        edgecolor='w',  # Add white edge color for better visibility
-        linewidth=0.5  # Set the linewidth for the edges
+        cmap="plasma",  # Colormap for continuous values
+        s=100,
+        edgecolor="w",
+        linewidth=0.5,
     )
 
     # Add a colorbar
     cbar = plt.colorbar(scatter)
-    cbar.set_label('lumo', fontsize=16)
+    cbar.set_label("lumo", fontsize=16)
 
     plt.title(f"{args.dataset}".upper(), fontsize=16)
     plt.xlabel("t-SNE-0", fontsize=16)
@@ -278,7 +282,9 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     plt.tight_layout()
     plt.savefig(
         f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_lumo_tsne.png",
-        dpi=600, bbox_inches='tight', transparent=False
+        dpi=600,
+        bbox_inches="tight",
+        transparent=False,
     )
-    
+
     plt.show()

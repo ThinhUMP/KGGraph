@@ -64,20 +64,15 @@ def copy_edit_mol(mol: Chem.Mol) -> Chem.Mol:
         a2 = bond.GetEndAtom().GetIdx()
         bt = bond.GetBondType()
         new_mol.AddBond(a1, a2, bt)
-        # if bt == Chem.rdchem.BondType.AROMATIC and not aromatic:
-        #    bt = Chem.rdchem.BondType.SINGLE
     return new_mol
 
 
 def get_clique_mol(mol: Chem.Mol, atoms: List[int]) -> Chem.Mol:
     """Generate a molecule fragment based on a list of atom indices."""
     smiles = Chem.MolFragmentToSmiles(mol, atoms, kekuleSmiles=True)
-    # smiles = Chem.MolFragmentToSmiles(mol, atoms, kekuleSmiles=False)
-    # Chem.Kekulize(smiles, clearAromaticFlags=True)
     new_mol = Chem.MolFromSmiles(smiles, sanitize=False)
     new_mol = copy_edit_mol(new_mol).GetMol()
     new_mol = sanitize(new_mol)
-    # if tmp_mol is not None: new_mol = tmp_mol
     return new_mol
 
 

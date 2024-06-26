@@ -14,8 +14,6 @@ def idxfunc(a):
 def get_mol(smiles: str) -> Optional[Chem.Mol]:
     """Generate a molecule object from a SMILES string."""
     mol = Chem.MolFromSmiles(smiles)
-    # if mol is not None:
-    #     Chem.Kekulize(mol, clearAromaticFlags=False)
     return mol
 
 

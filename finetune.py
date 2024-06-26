@@ -9,16 +9,14 @@ from KGGraph.KGGModel.finetune_utils import (
     train_epoch_reg,
     get_num_task,
     get_task_type,
-    evaluate,
 )
-from KGGraph.KGGModel.visualize import plot_metrics, clean_state_dict
+from KGGraph.KGGModel.visualize import plot_metrics
 from KGGraph.KGGModel.crawl_metrics import average_test_metrics
 import torch
 import torch.nn as nn
 import argparse
 from torch import optim
 from typing import List
-import numpy as np
 from pretrain import seed_everything
 import warnings
 
@@ -81,7 +79,6 @@ def main():
         default="last",
         help="how the node features across layers are combined. last, sum, max or concat",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin", help="gnn_type (gin)")
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -92,18 +89,18 @@ def main():
         "--dataset",
         type=str,
         default="ecoli",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9, ecoli]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default='./saved_model_mlp_ce60/pretrain.pth',
+        default="",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
         "--seed",
         type=List[int],
-        default=[42],
+        default=[42, 35, 106],
         help="Seed for splitting the dataset, minibatch selection, random initialization.",
     )
     parser.add_argument(
@@ -129,6 +126,12 @@ def main():
         type=bool,
         default=True,
         help="if the learning rate of GNN backbone is different from the learning rate of prediction layers",
+    )
+    parser.add_argument(
+        "--get_test_smiles",
+        type=bool,
+        default=False,
+        help="Get test smiles for contamination",
     )
     parser.add_argument(
         "--mask_node",
@@ -166,17 +169,7 @@ def main():
         print("====Round ", i)
         # set up seeds
         seed_everything(args.seed[i-1])
-
-        # dropout=[0.5,0.5,0.5,0.5]
-        # decay=[1e-7,1e-6,1e-5,1e-4]
-        # dropout=[0.5,0.6,0.7,0.8]
-        # args.dropout_ratio = dropout[i-1]
-        # args.decay = decay[i-1]
-        # args.decay = decay[i-1]
-        # dataset_name=["bbbp", "sider", "clintox", "tox21", "toxcast", "hiv", "muv", "esol", "freesolv", "lipo", "qm7", "qm8", "qm9"]
-        # args.dataset = dataset_name[i-1]
-        # input_model = ["saved_model_mlp_ce100/pretrain.pth", "saved_model_mlp_ce80/pretrain.pth", "saved_model_mlp_ce40/pretrain.pth"]
-        # args.input_model_file = input_model[i-1]
+        
         # set up device
         device = (
             torch.device("cuda:" + str(args.device))
@@ -240,8 +233,11 @@ def main():
 
         print(train_dataset[0])
 
-        # with open(f"Data/contamination/test_{args.dataset}.txt", "a") as f:
-        #         f.writelines("%s\n" % s for s in test_smiles)
+        if args.get_test_smiles:
+            if not os.path.isdir(f"Data/contamination"):
+                os.mkdir(f"Data/contamination")
+            with open(f"Data/contamination/test_{args.dataset}.txt", "w") as f:
+                    f.writelines("%s\n" % smile for smile in test_smiles)
 
         # data loader
         if args.dataset == "freesolv":
@@ -279,7 +275,6 @@ def main():
             num_tasks,
             JK=args.JK,
             drop_ratio=args.dropout_ratio,
-            gnn_type=args.gnn_type,
             x_features=dataset[0].x.size(1),
             edge_features=dataset[0].edge_attr.size(1),
         )
@@ -287,7 +282,6 @@ def main():
             model.from_pretrained(args.input_model_file)
         model.to(device)
         
-        # set up optimizer
         # different learning rate for different part of GNN
         model_param_group = []
         if args.GNN_different_lr:
@@ -300,6 +294,8 @@ def main():
         model_param_group.append(
             {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
         )
+        
+        # set up optimizer
         # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
         optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
         print(optimizer)
@@ -307,7 +303,9 @@ def main():
         # set up criterion
         if task_type == "classification":
             criterion = nn.BCEWithLogitsLoss(reduction="none")
-        
+        else:
+            criterion = nn.L1Loss() # MAE for regression
+            
         # training based on task type
         if task_type == "classification":
             train_epoch_cls(
@@ -332,6 +330,7 @@ def main():
                 val_loader,
                 test_loader,
                 optimizer,
+                criterion,
                 task_type,
                 training_round=i,
             )

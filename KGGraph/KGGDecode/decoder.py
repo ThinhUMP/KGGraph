@@ -4,14 +4,6 @@ import numpy as np
 from torch.autograd import Variable
 
 
-def create_var(tensor, device, requires_grad=None):
-    """Create a PyTorch Variable tensor on the specified device."""
-    if requires_grad is None:
-        return Variable(tensor).to(device)
-    else:
-        return Variable(tensor, requires_grad=requires_grad).to(device)
-
-
 class Model_decoder(nn.Module):
     def __init__(self, hidden_size, device, dropout=0.2):
         super(Model_decoder, self).__init__()
@@ -271,9 +263,6 @@ class Model_decoder(nn.Module):
     def forward(self, mol_batch, node_rep, super_node_rep):
         loss_tur = self.topo_pred(mol_batch, node_rep, super_node_rep)
         loss = 0
-        # loss_weight = create_var(torch.rand(11),self.device, requires_grad=True)
-        # loss_wei = torch.softmax(loss_weight, dim=-1)
         for index in range(len(loss_tur)):
             loss += loss_tur[index]
-            # loss += loss_tur[index] * loss_wei[index]
         return loss

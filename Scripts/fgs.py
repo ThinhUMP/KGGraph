@@ -23,13 +23,6 @@ from rdkit import RDLogger
 
 RDLogger.DisableLog("rdApp.*")
 
-# def generate_scaffold(smiles, include_chirality=False):
-#     mol = Chem.MolFromSmiles(smiles)
-#     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
-#     scaffold_smiles = Chem.MolToSmiles(scaffold, isomericSmiles=include_chirality)
-#     return scaffold_smiles
-
-
 def smiles_to_fingerprints(smiles):
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
@@ -94,6 +87,9 @@ def split_data(
             temp_df, test_size=(frac_test / (frac_valid + frac_test)), random_state=seed
         )
         print("random")
+        print(f"train set: {len(train_df)}")
+        print(f"valid set: {len(valid_df)}")
+        print(f"test set: {len(test_df)}")
         return train_df, valid_df, test_df
 
     else:
@@ -108,19 +104,19 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
+        default="bbbp",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--smile_column",
         type=str,
-        default="mol",
+        default="smiles",
         help="Column containing SMILES strings",
     )
     parser.add_argument(
         "--target_column",
         type=str,
-        default="Class",
+        default="p_np",
         help="Column containing y values",
     )
     parser.add_argument(
@@ -143,7 +139,7 @@ def main():
     # Read data
     df = pd.read_csv(f"Data/{task_type}/{args.dataset}/raw/{args.dataset}.csv")
     df = df[[args.smile_column, args.target_column]]
-    df[args.smile_column] = df[args.smile_column].apply(Chem.MolFromSmiles)
+    df['Mol'] = df[args.smile_column].apply(Chem.MolFromSmiles)
     df.dropna(inplace=True)
 
     # Data split
@@ -159,7 +155,7 @@ def main():
         valid_df, args.smile_column, args.target_column,
     )
     maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(
-        test_df
+        test_df, args.smile_column, args.target_column,
     )
 
     # Training and evaluating
@@ -188,11 +184,11 @@ def main():
             rdk7_fps_train, rdk7_fps_test, y_train, y_test
         )
 
-        print(f"ROC-AUC with MACCS fingerprints: {rmse_maccs, mae_maccs}")
-        print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
-        print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
+        print(f"(RMSE, MAE) with MACCS fingerprints: {rmse_maccs, mae_maccs}")
+        print(f"(RMSE, MAE) with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
+        print(f"(RMSE, MAE) with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
 
-    visualize_fgs(test_df)
+    visualize_fgs(args, maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test, task_type)
     print("Done!")
 
 

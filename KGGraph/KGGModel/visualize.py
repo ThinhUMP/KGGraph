@@ -285,8 +285,7 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     plt.show()
 
 
-def visualize_fgs(maccs_fps, ecfp4_fps, rdk7_fps, y):
-   
+def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
     # Combine all fingerprints into one array (Optional, if needed)
     fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
     
@@ -349,5 +348,7 @@ def visualize_fgs(maccs_fps, ecfp4_fps, rdk7_fps, y):
         plt.xticks([])
         plt.yticks([])
         plt.tight_layout()
-        plt.savefig(f"Data/classification/bace/figures/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
+        if os.path.isdir(f"Data/{task_type}/{args.dataset}/figures") == False:
+            os.mkdir(f"Data/{task_type}/{args.dataset}/figures")
+        plt.savefig(f"Data/{task_type}/{args.dataset}/figures/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
         plt.show()

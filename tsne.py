@@ -2,7 +2,7 @@ from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.visualize import clean_state_dict, visualize_embeddings
+from KGGraph.KGGModel.visualize import clean_state_dict, visualize_embeddings, visualize_embeddings_reg
 from KGGraph.KGGModel.graph_model import GNN
 from KGGraph.KGGModel.finetune_utils import get_task_type
 import torch
@@ -222,7 +222,10 @@ def main():
         edge_features=dataset[0].edge_attr.size(1),
     )
     model.load_state_dict(state_dict)
-    visualize_embeddings(args, model, device, test_loader, task_type)
+    if task_type == 'classification':
+        visualize_embeddings(args, model, device, test_loader, task_type)
+    else:
+        visualize_embeddings_reg(args, model, device, test_loader, task_type)
 
 
 if __name__ == "__main__":

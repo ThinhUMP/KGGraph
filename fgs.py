@@ -193,20 +193,24 @@ def visualize_embeddings(df):
     custom_cmap = ListedColormap(['red', 'green'])
     
     for fp_name, fps in fingerprints.items():
-        pca = PCA(n_components=50)
-        embeddings_pca = pca.fit_transform(fps)
+        # pca = PCA(n_components=50)
+        # embeddings_pca = pca.fit_transform(fps)
         tsne = TSNE(n_components=2, random_state=42)
-        embeddings_2d = tsne.fit_transform(torch.tensor(embeddings_pca))
+        embeddings_2d = tsne.fit_transform(torch.tensor(fps))
         
-        plt.figure(figsize=(12, 10))
-        plt.scatter(
+        custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
+
+        plt.figure(figsize=(7, 7))
+        scatter = plt.scatter(
             embeddings_2d[:, 0],
             embeddings_2d[:, 1],
             c=y,
             cmap=custom_cmap,
-            s=50
+            s=100,  # Increase the size of the points
+            edgecolor='w',  # Add white edge color for better visibility
+            linewidth=0.5  # Set the linewidth for the edges
         )
-        
+
         # Create a custom legend
         handles = [
             plt.Line2D(
@@ -214,35 +218,40 @@ def visualize_embeddings(df):
                 [0],
                 marker="o",
                 color="w",
-                markerfacecolor="red",
+                markerfacecolor="#EBBC4E",
                 markersize=10,
-                label="Inactive",
+                label="0",
             ),
             plt.Line2D(
                 [0],
                 [0],
                 marker="o",
                 color="w",
-                markerfacecolor="green",
+                markerfacecolor="#7DB0A8",
                 markersize=10,
-                label="Active",
+                label="1",
             ),
         ]
-        
+
         plt.legend(
             handles=handles,
             title="Class",
             title_fontsize="13",
-            loc="upper right",
+            loc='upper left',
+            # bbox_to_anchor=(0.5, -0.05),
             prop={"size": 12},
+            ncol=2
         )
-        
-        plt.title(f"t-SNE Visualization of {fp_name} Fingerprint", fontsize=20)
-        plt.xlabel("t-SNE Dimension 1", fontsize=16)
-        plt.ylabel("t-SNE Dimension 2", fontsize=16)
-        
+
+        plt.title(f"{fp_name}".upper(), fontsize=16)
+        plt.xlabel("t-SNE-0", fontsize=16)
+        plt.ylabel("t-SNE-1", fontsize=16)
+
+        # Hide x and y axis values
+        plt.xticks([])
+        plt.yticks([])
         plt.tight_layout()
-        # plt.savefig(f"Data/fig/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
+        plt.savefig(f"Data/classification/bace/figures/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
         plt.show()
 visualize_embeddings(test_df)
 print("Done!")

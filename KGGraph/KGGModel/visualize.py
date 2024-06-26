@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import torch
 from tqdm import tqdm
 from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
 import sys
 import pathlib
 import numpy as np
@@ -12,8 +11,6 @@ from matplotlib.colors import ListedColormap
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGModel.graph_model import GraphModel
-from KGGraph.KGGModel.finetune_utils import get_num_task
-from Scripts.fgs import prepare_fingerprints
 
 def plot_metrics(args, df, task_type):
     """
@@ -288,9 +285,8 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     plt.show()
 
 
-def visualize_fgs(df):
-    maccs_fps, ecfp4_fps, rdk7_fps, y = prepare_fingerprints(df)
-    
+def visualize_fgs(maccs_fps, ecfp4_fps, rdk7_fps, y):
+   
     # Combine all fingerprints into one array (Optional, if needed)
     fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
     

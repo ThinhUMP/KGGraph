@@ -88,13 +88,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="ecoli",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="",
+        default="pretrain_model_ce60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

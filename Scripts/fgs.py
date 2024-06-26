@@ -108,7 +108,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bbbp",
+        default="bace",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -124,6 +124,12 @@ def main():
         help="Column containing y values",
     )
     parser.add_argument(
+        "--split",
+        type=str,
+        default="random",
+        help="random or scaffold",
+    )
+    parser.add_argument(
         "--seed",
         type=int,
         default=42,
@@ -132,7 +138,7 @@ def main():
     args = parser.parse_args()
 
     # get task type
-    task_type = get_task_type(args.dataset)
+    task_type = get_task_type(args)
 
     # Read data
     df = pd.read_csv(f"Data/{task_type}/{args.dataset}/raw/{args.dataset}.csv")
@@ -147,10 +153,10 @@ def main():
 
     # Prepare fingerprints
     maccs_fps_train, ecfp4_fps_train, rdk7_fps_train, y_train = prepare_fingerprints(
-        train_df
+        train_df, args.smile_column, args.target_column,
     )
     maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints(
-        valid_df
+        valid_df, args.smile_column, args.target_column,
     )
     maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(
         test_df
@@ -188,3 +194,7 @@ def main():
 
     visualize_fgs(test_df)
     print("Done!")
+
+
+if __name__ =='__main__':
+    main()

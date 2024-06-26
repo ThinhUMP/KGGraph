@@ -62,7 +62,6 @@ def main():
         default="last",
         help="how the node features across layers are combined. last, sum, max or concat",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin", help="gnn_type (gin)")
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -245,7 +244,6 @@ def main():
         emb_dim=args.emb_dim,
         JK=args.JK,
         drop_ratio=args.dropout_ratio,
-        gnn_type=args.gnn_type,
         x_features=dataset[0].x.size(1),
         edge_features=dataset[0].edge_attr.size(1),
     )

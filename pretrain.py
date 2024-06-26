@@ -82,7 +82,6 @@ def main():
         default="./Data/zinc/all.txt",
         help="root directory of dataset. For now, only classification.",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin")
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -175,7 +174,6 @@ def main():
         args.emb_dim,
         JK=args.JK,
         drop_ratio=args.dropout_ratio,
-        gnn_type=args.gnn_type,
     ).to(device)
 
     if not os.path.isdir("./pretrain_model"):

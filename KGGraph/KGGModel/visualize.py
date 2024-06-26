@@ -121,8 +121,7 @@ def plot_pretrain_loss(pretrain_loss):
     plt.plot(pretrain_loss["loss"], label="Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.title("Pretraining Loss")
-    plt.savefig(f"Data/pretraining.png", dpi=600)
+    plt.savefig(f"Data/pretraining.png", dpi=600, bbox_inches='tight', transparent=False)
     plt.show()
 
 
@@ -163,7 +162,6 @@ def extract_embeddings(args, model, device, loader):
     model.eval()
     embeddings_list = []
     y_true = []
-    num_taks = get_num_task(args)
     with torch.no_grad():
         for step, batch in enumerate(tqdm(loader, desc="Generating embeddings")):
             batch = batch.to(device)
@@ -171,8 +169,8 @@ def extract_embeddings(args, model, device, loader):
             super_rep = GraphModel.super_node_rep(node_representation, batch.batch)
             embeddings_list.append(super_rep.detach().cpu().numpy())
 
-            y = batch.y.view(-1, num_taks).to(torch.float64)
-            y_true.append(batch.y.view(-1, num_taks).detach().cpu().numpy())
+            y = batch.y.view(-1, 1).to(torch.float64)
+            y_true.append(batch.y.view(-1, 1).detach().cpu().numpy())
 
     embeddings = np.concatenate(embeddings_list, axis=0)
     y = np.concatenate(y_true, axis=0)
@@ -187,16 +185,17 @@ def visualize_embeddings(args, model, device, loader, task_type):
     tsne = TSNE(n_components=2, random_state=42)
     embeddings_2d = tsne.fit_transform(embeddings_pca)
 
-    custom_cmap = ListedColormap(["red", "green"])
+    custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
 
-    # with plt.style.context("fivethirtyeight"):
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(7, 7))
     scatter = plt.scatter(
         embeddings_2d[:, 0],
         embeddings_2d[:, 1],
         c=loader.dataset.y,
         cmap=custom_cmap,
-        s=50,
+        s=100,  # Increase the size of the points
+        edgecolor='w',  # Add white edge color for better visibility
+        linewidth=0.5  # Set the linewidth for the edges
     )
 
     # Create a custom legend
@@ -206,18 +205,18 @@ def visualize_embeddings(args, model, device, loader, task_type):
             [0],
             marker="o",
             color="w",
-            markerfacecolor="lightblue",
-            markersize=8,
-            label="Inactive",
+            markerfacecolor="#EBBC4E",
+            markersize=10,
+            label="0",
         ),
         plt.Line2D(
             [0],
             [0],
             marker="o",
             color="w",
-            markerfacecolor="lightgreen",
-            markersize=8,
-            label="Active",
+            markerfacecolor="#7DB0A8",
+            markersize=10,
+            label="1",
         ),
     ]
 
@@ -225,18 +224,61 @@ def visualize_embeddings(args, model, device, loader, task_type):
         handles=handles,
         title="Class",
         title_fontsize="13",
-        loc="upper right",
+        loc='upper left',
+        # bbox_to_anchor=(0.5, -0.05),
         prop={"size": 12},
+        ncol=2
     )
-    # plt.title(
-    #     f"t-SNE Visualization of {args.dataset} dataset on the test set",
-    #     fontsize=20,
-    # )
-    plt.xlabel("t-SNE 1", fontsize=10)
-    plt.ylabel("t-SNE 2", fontsize=10)
 
+    plt.title(f"{'kgg'}".upper(), fontsize=16)
+    plt.xlabel("t-SNE-0", fontsize=16)
+    plt.ylabel("t-SNE-1", fontsize=16)
+
+    # Hide x and y axis values
+    plt.xticks([])
+    plt.yticks([])
+    plt.tight_layout()
     plt.savefig(
-        f"{args.save_path+task_type}/{args.dataset+'/figures'}/tsne.png",
-        dpi=600, bbox_inches="tight", transparent=False,
+        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_kgg_tsne.png",
+        dpi=600, bbox_inches='tight', transparent=False
     )
+    
+    plt.show()
+
+
+def visualize_embeddings_reg(args, model, device, loader, task_type):
+    embeddings, _ = extract_embeddings(args, model, device, loader)
+
+    tsne = TSNE(n_components=2, random_state=42)
+    embeddings_2d = tsne.fit_transform(embeddings)
+
+    # Use a colormap for continuous values
+    plt.figure(figsize=(7, 7))
+    scatter = plt.scatter(
+        embeddings_2d[:, 0],
+        embeddings_2d[:, 1],
+        c=loader.dataset.y,  # Continuous values
+        cmap='plasma',  # Colormap for continuous values
+        s=100,  # Increase the size of the points
+        edgecolor='w',  # Add white edge color for better visibility
+        linewidth=0.5  # Set the linewidth for the edges
+    )
+
+    # Add a colorbar
+    cbar = plt.colorbar(scatter)
+    cbar.set_label('lumo', fontsize=16)
+
+    plt.title(f"{args.dataset}".upper(), fontsize=16)
+    plt.xlabel("t-SNE-0", fontsize=16)
+    plt.ylabel("t-SNE-1", fontsize=16)
+
+    # Hide x and y axis values
+    plt.xticks([])
+    plt.yticks([])
+    plt.tight_layout()
+    plt.savefig(
+        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_lumo_tsne.png",
+        dpi=600, bbox_inches='tight', transparent=False
+    )
+    
     plt.show()

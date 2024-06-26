@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 
-def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_round):
+def create_test_round_df(args, roc_list, matthews_list, ap_list, f1_list, task_type, training_round):
     """
     Creates and saves a test metrics DataFrame for various datasets.
 
@@ -25,7 +25,7 @@ def create_test_round_df(args, roc_list, ap_list, f1_list, task_type, training_r
 
     # Create a DataFrame and save it to CSV in one step
     test_metric_df = pd.DataFrame(
-        {"AUC": [np.mean(roc_list)], "AP": [np.mean(ap_list)], "F1": [np.mean(f1_list)]}
+        {"AUC": [np.mean(roc_list)], "Matthews": [np.mean(matthews_list)], "AP": [np.mean(ap_list)], "F1": [np.mean(f1_list)]}
     )
     test_metric_df.to_csv(file_path, index=False)
 
@@ -60,14 +60,17 @@ def create_train_round_df(
     train_df,
     train_loss,
     train_auc,
+    train_matthews,
     train_ap,
     train_f1,
     val_loss,
     val_auc,
+    val_matthews,
     val_ap,
     val_f1,
     test_loss,
     test_auc,
+    test_matthews,
     test_ap,
     test_f1,
     task_type,
@@ -91,14 +94,17 @@ def create_train_round_df(
     new_data = {
         "train_loss": train_loss,
         "train_auc": train_auc,
+        "train_matthews": train_matthews,
         "train_ap": train_ap,
         "train_f1": train_f1,
         "val_loss": val_loss,
         "val_auc": val_auc,
+        "val_matthews": val_matthews,
         "val_ap": val_ap,
         "val_f1": val_f1,
         "test_loss": test_loss,
         "test_auc": test_auc,
+        "test_matthews": test_matthews,
         "test_ap": test_ap,
         "test_f1": test_f1,
     }

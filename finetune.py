@@ -3,14 +3,15 @@ import pandas as pd
 import os
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.graph_model import GraphModel
+from KGGraph.KGGModel.graph_model import GraphModel, GNN
 from KGGraph.KGGModel.finetune_utils import (
     train_epoch_cls,
     train_epoch_reg,
     get_num_task,
     get_task_type,
+    evaluate,
 )
-from KGGraph.KGGModel.visualize import plot_metrics
+from KGGraph.KGGModel.visualize import plot_metrics, clean_state_dict
 from KGGraph.KGGModel.crawl_metrics import average_test_metrics
 import torch
 import torch.nn as nn
@@ -60,7 +61,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=1e-7, help="weight decay (default: 0)"
+        "--decay", type=float, default=0, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -72,7 +73,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.6, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -90,7 +91,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="qm9",
+        default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -102,7 +103,7 @@ def main():
     parser.add_argument(
         "--seed",
         type=int,
-        default=[42, 35, 102],
+        default=42,
         help="Seed for splitting the dataset, minibatch selection, random initialization.",
     )
     parser.add_argument(
@@ -164,7 +165,7 @@ def main():
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
         # set up seeds
-        seed_everything(args.seed[i-1])
+        seed_everything(args.seed)
 
         # dropout=[0.5,0.5,0.5,0.5]
         # decay=[1e-7,1e-6,1e-5,1e-4]
@@ -281,39 +282,42 @@ def main():
             x_features=dataset[0].x.size(1),
             edge_features=dataset[0].edge_attr.size(1),
         )
-        if not args.input_model_file == "":
-            model.from_pretrained(args.input_model_file)
+        # if not args.input_model_file == "":
+        #     model.from_pretrained(args.input_model_file)
+        # state_dict = torch.load(args.input_model_file)
+        state_dict = torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
 
+        model.load_state_dict(state_dict)
         model.to(device)
 
-        # set up optimizer
-        # different learning rate for different part of GNN
-        model_param_group = []
-        if args.GNN_different_lr:
-            print("GNN update")
-            model_param_group.append(
-                {"params": model.gnn.parameters(), "lr": args.lr_feat}
-            )
-        else:
-            print("No GNN update")
-        model_param_group.append(
-            {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
-        )
-        # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
-        optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
-        print(optimizer)
-
-        # set up criterion
-        if task_type == "classification":
-            criterion = nn.BCEWithLogitsLoss(reduction="none")
-        else:
-            pass
         
-        for step, batch in enumerate(test_loader):
-            if 1 not in batch.y:
-                print("Check")
-            else:
-                print("Done")
+        criterion = nn.BCEWithLogitsLoss(reduction="none")
+        eval_roc, eval_matthews, eval_ap, eval_f1, loss, roc_list, matthews_list, ap_list, f1_list = evaluate(args, model, device, test_loader, task_type, criterion)
+        print(eval_matthews)
+
+    #     # set up optimizer
+    #     # different learning rate for different part of GNN
+    #     model_param_group = []
+    #     if args.GNN_different_lr:
+    #         print("GNN update")
+    #         model_param_group.append(
+    #             {"params": model.gnn.parameters(), "lr": args.lr_feat}
+    #         )
+    #     else:
+    #         print("No GNN update")
+    #     model_param_group.append(
+    #         {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
+    #     )
+    #     # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
+    #     optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
+    #     print(optimizer)
+
+    #     # set up criterion
+    #     if task_type == "classification":
+    #         criterion = nn.BCEWithLogitsLoss(reduction="none")
+    #     else:
+    #         pass
+        
     #     # training based on task type
     #     if task_type == "classification":
     #         train_epoch_cls(
@@ -354,6 +358,7 @@ def main():
     # )
     # df_train = pd.read_csv(df_train_path)
     # plot_metrics(args, df_train, task_type)
+
 
 
 if __name__ == "__main__":

@@ -1,3 +1,9 @@
+import sys
+import pathlib
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[1])
+sys.path.append(root_dir)
+
 from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from torch_geometric.data import DataLoader
@@ -5,21 +11,20 @@ from KGGraph.KGGModel.visualize import extract_embeddings, clean_state_dict
 from KGGraph.KGGModel.graph_model import GNN
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from KGGraph.KGGModel.finetune_utils import get_task_type
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score, average_precision_score, roc_auc_score, r2_score, mean_absolute_error, mean_squared_error
+from sklearn.metrics import (
+    f1_score,
+    average_precision_score,
+    roc_auc_score,
+    r2_score,
+    mean_absolute_error,
+    mean_squared_error,
+    matthews_corrcoef,
+)
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 import torch
 import argparse
 import numpy as np
 from pretrain import seed_everything
-from KGGraph.KGGProcessor.loader import (
-    load_bace_dataset,
-    load_bbbp_dataset,
-    load_esol_dataset,
-    load_freesolv_dataset,
-    load_lipo_dataset,
-    load_qm7_dataset,
-)
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -28,7 +33,7 @@ warnings.filterwarnings("ignore")
 def main():
     # set up parameters
     parser = argparse.ArgumentParser(
-        description="PyTorch implementation of training of graph neural networks"
+        description="PyTorch implementation of kNN evaluation of embeddings"
     )
     parser.add_argument(
         "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
@@ -160,33 +165,39 @@ def main():
 
     # data split
     smiles_list = pd.read_csv(
-            "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
-            header=None,
-        )[0].tolist()
+        "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
+        header=None,
+    )[0].tolist()
     if args.split == "scaffold":
-        train_dataset, valid_dataset, test_dataset, (train_smiles, valid_smiles, test_smiles) = (
-            scaffold_split(
-                dataset,
-                smiles_list,
-                null_value=0,
-                frac_train=0.8,
-                frac_valid=0.1,
-                frac_test=0.1,
-            )
+        (
+            train_dataset,
+            valid_dataset,
+            test_dataset,
+            (train_smiles, valid_smiles, test_smiles),
+        ) = scaffold_split(
+            dataset,
+            smiles_list,
+            null_value=0,
+            frac_train=0.8,
+            frac_valid=0.1,
+            frac_test=0.1,
         )
         print("scaffold")
     elif args.split == "random":
-        train_dataset, valid_dataset, test_dataset, (train_smiles, valid_smiles, test_smiles)  = (
-            random_split(
-                dataset,
-                smiles_list,
-                null_value=0,
-                frac_train=0.8,
-                frac_valid=0.1,
-                frac_test=0.1,
-                seed=args.seed,
-                return_smiles=True,
-            )
+        (
+            train_dataset,
+            valid_dataset,
+            test_dataset,
+            (train_smiles, valid_smiles, test_smiles),
+        ) = random_split(
+            dataset,
+            smiles_list,
+            null_value=0,
+            frac_train=0.8,
+            frac_valid=0.1,
+            frac_test=0.1,
+            seed=args.seed,
+            return_smiles=True,
         )
         print("random")
     else:
@@ -210,7 +221,7 @@ def main():
             shuffle=True,
             num_workers=args.num_workers,
         )
-        
+
     val_loader = DataLoader(
         valid_dataset,
         batch_size=args.batch_size,
@@ -243,8 +254,8 @@ def main():
     X_train, y_train = extract_embeddings(args, model, device, train_loader)
     X_test, y_test = extract_embeddings(args, model, device, test_loader)
     print("Done extracting embeddings")
-    
-    if task_type == 'classification':
+
+    if task_type == "classification":
         neigh = KNeighborsClassifier(n_neighbors=3)
         neigh.fit(X_train, y_train)
 
@@ -255,6 +266,10 @@ def main():
         print("rocauc of kgg fgs", rocauc)
         print("f1 of kgg fgs", f1)
         print("ap of kgg fgs", ap)
+        print(
+            "Matthews correlation coefficient of kgg fgs",
+            matthews_corrcoef(y_test, y_pred),
+        )
         print("-------------------")
     else:
         neigh = KNeighborsRegressor(n_neighbors=3)
@@ -270,8 +285,6 @@ def main():
         print("mse of kgg fgs", mse)
         print("rmse of kgg fgs", rmse)
         print("-------------------")
-# def compare_fgs():
-    
 
 
 if __name__ == "__main__":

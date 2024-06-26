@@ -13,7 +13,7 @@ root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 from KGGraph.KGGModel.graph_model import GraphModel
 from KGGraph.KGGModel.finetune_utils import get_num_task
-
+from Scripts.fgs import prepare_fingerprints
 
 def plot_metrics(args, df, task_type):
     """
@@ -182,10 +182,8 @@ def extract_embeddings(args, model, device, loader):
 def visualize_embeddings(args, model, device, loader, task_type):
     embeddings, _ = extract_embeddings(args, model, device, loader)
 
-    pca = PCA(n_components=50)
-    embeddings_pca = pca.fit_transform(embeddings)
     tsne = TSNE(n_components=2, random_state=42)
-    embeddings_2d = tsne.fit_transform(embeddings_pca)
+    embeddings_2d = tsne.fit_transform(embeddings)
 
     custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
 
@@ -288,3 +286,72 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     )
 
     plt.show()
+
+
+def visualize_fgs(df):
+    maccs_fps, ecfp4_fps, rdk7_fps, y = prepare_fingerprints(df)
+    
+    # Combine all fingerprints into one array (Optional, if needed)
+    fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
+    
+    custom_cmap = ListedColormap(['red', 'green'])
+    
+    for fp_name, fps in fingerprints.items():
+        tsne = TSNE(n_components=2, random_state=42)
+        embeddings_2d = tsne.fit_transform(torch.tensor(fps))
+        
+        custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
+
+        plt.figure(figsize=(7, 7))
+        scatter = plt.scatter(
+            embeddings_2d[:, 0],
+            embeddings_2d[:, 1],
+            c=y,
+            cmap=custom_cmap,
+            s=100,
+            edgecolor='w',
+            linewidth=0.5
+        )
+
+        # Create a custom legend
+        handles = [
+            plt.Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                markerfacecolor="#EBBC4E",
+                markersize=10,
+                label="0",
+            ),
+            plt.Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                markerfacecolor="#7DB0A8",
+                markersize=10,
+                label="1",
+            ),
+        ]
+
+        plt.legend(
+            handles=handles,
+            title="Class",
+            title_fontsize="13",
+            loc='upper left',
+            # bbox_to_anchor=(0.5, -0.05),
+            prop={"size": 12},
+            ncol=2
+        )
+
+        plt.title(f"{fp_name}".upper(), fontsize=16)
+        plt.xlabel("t-SNE-0", fontsize=16)
+        plt.ylabel("t-SNE-1", fontsize=16)
+
+        # Hide x and y axis values
+        plt.xticks([])
+        plt.yticks([])
+        plt.tight_layout()
+        plt.savefig(f"Data/classification/bace/figures/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
+        plt.show()

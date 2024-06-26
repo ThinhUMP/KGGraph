@@ -168,8 +168,8 @@ def main():
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
         # set up seeds
-        seed_everything(args.seed[i-1])
-        
+        seed_everything(args.seed[i - 1])
+
         # set up device
         device = (
             torch.device("cuda:" + str(args.device))
@@ -201,7 +201,7 @@ def main():
         smiles_list = pd.read_csv(
             "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
             header=None,
-            )[0].tolist()
+        )[0].tolist()
         if args.split == "scaffold":
             (
                 train_dataset,
@@ -237,7 +237,7 @@ def main():
             if not os.path.isdir(f"Data/contamination"):
                 os.mkdir(f"Data/contamination")
             with open(f"Data/contamination/test_{args.dataset}.txt", "w") as f:
-                    f.writelines("%s\n" % smile for smile in test_smiles)
+                f.writelines("%s\n" % smile for smile in test_smiles)
 
         # data loader
         if args.dataset == "freesolv":
@@ -281,7 +281,7 @@ def main():
         if not args.input_model_file == "":
             model.from_pretrained(args.input_model_file)
         model.to(device)
-        
+
         # different learning rate for different part of GNN
         model_param_group = []
         if args.GNN_different_lr:
@@ -294,7 +294,7 @@ def main():
         model_param_group.append(
             {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
         )
-        
+
         # set up optimizer
         # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
         optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
@@ -304,8 +304,8 @@ def main():
         if task_type == "classification":
             criterion = nn.BCEWithLogitsLoss(reduction="none")
         else:
-            criterion = nn.L1Loss() # MAE for regression
-            
+            criterion = nn.L1Loss()  # MAE for regression
+
         # training based on task type
         if task_type == "classification":
             train_epoch_cls(
@@ -347,7 +347,6 @@ def main():
     )
     df_train = pd.read_csv(df_train_path)
     plot_metrics(args, df_train, task_type)
-
 
 
 if __name__ == "__main__":

@@ -1,13 +1,23 @@
+import sys
+import pathlib
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[1])
+sys.path.append(root_dir)
+
 from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.visualize import clean_state_dict, visualize_embeddings, visualize_embeddings_reg
+from KGGraph.KGGModel.visualize import (
+    clean_state_dict,
+    visualize_embeddings,
+    visualize_embeddings_reg,
+)
 from KGGraph.KGGModel.graph_model import GNN
 from KGGraph.KGGModel.finetune_utils import get_task_type
 import torch
 import argparse
-import numpy as np
+from pretrain import seed_everything
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -16,7 +26,7 @@ warnings.filterwarnings("ignore")
 def main():
     # set up parameters
     parser = argparse.ArgumentParser(
-        description="PyTorch implementation of training of graph neural networks"
+        description="PyTorch implementation of t-SNE visualization of embeddings"
     )
     parser.add_argument(
         "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
@@ -118,10 +128,7 @@ def main():
     args = parser.parse_args()
 
     # set up seeds
-    torch.manual_seed(args.runseed)
-    np.random.seed(args.runseed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(args.runseed)
+    seed_everything(args.seed)
 
     # set up device
     device = (
@@ -167,6 +174,7 @@ def main():
     elif args.split == "random":
         train_dataset, valid_dataset, test_dataset = random_split(
             dataset,
+            smiles_list,
             null_value=0,
             frac_train=0.8,
             frac_valid=0.1,
@@ -222,7 +230,7 @@ def main():
         edge_features=dataset[0].edge_attr.size(1),
     )
     model.load_state_dict(state_dict)
-    if task_type == 'classification':
+    if task_type == "classification":
         visualize_embeddings(args, model, device, test_loader, task_type)
     else:
         visualize_embeddings_reg(args, model, device, test_loader, task_type)

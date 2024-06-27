@@ -515,3 +515,19 @@ def train_epoch_reg(
             model.state_dict(),
             f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth",
         )
+        
+        
+def predict_reg(model, loader, device, df):
+    model.eval()
+    y_scores = []
+
+    for _, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+
+        with torch.no_grad():
+            pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+
+        y_scores.append(pred)
+    y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
+    df["y_pred"] = y_scores
+    return df

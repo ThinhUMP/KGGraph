@@ -103,7 +103,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=10,
+        default=20,
         help="number of workers for dataset loading",
     )
     parser.add_argument("--hidden_size", type=int, default=512, help="hidden size")

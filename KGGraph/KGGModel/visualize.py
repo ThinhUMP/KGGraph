@@ -183,7 +183,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     # pca = PCA(n_components=50)
     # embeddings_pca = pca.fit_transform(embeddings)
-    tsne = TSNE(n_components=2, random_state=42)
+    tsne = TSNE(n_components=2, random_state=4)
     embeddings_2d = tsne.fit_transform(embeddings)
 
     custom_cmap = ListedColormap(["red", "green"])

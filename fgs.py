@@ -190,7 +190,7 @@ def visualize_embeddings(df):
     # Combine all fingerprints into one array (Optional, if needed)
     fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
     
-    custom_cmap = ListedColormap(['#7DB0A8', '#FEE68E'])
+    custom_cmap = ListedColormap(['red', 'green'])
     
     for fp_name, fps in fingerprints.items():
         pca = PCA(n_components=50)
@@ -214,7 +214,7 @@ def visualize_embeddings(df):
                 [0],
                 marker="o",
                 color="w",
-                markerfacecolor="#7DB0A8",
+                markerfacecolor="red",
                 markersize=10,
                 label="Inactive",
             ),
@@ -223,7 +223,7 @@ def visualize_embeddings(df):
                 [0],
                 marker="o",
                 color="w",
-                markerfacecolor="#FEE68E",
+                markerfacecolor="green",
                 markersize=10,
                 label="Active",
             ),

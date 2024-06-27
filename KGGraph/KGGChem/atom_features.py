@@ -9,8 +9,6 @@ from rdkit.Chem import Lipinski
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
 
-# from mendeleev import element
-
 with open(root_dir + "/Data/feature/group_block_onehot.json", "r") as f:
     group_block_onehot = json.load(f)
 
@@ -117,31 +115,6 @@ def get_symbol(atom: Chem.Atom) -> str:
 def get_atomic_number(atom: Chem.Atom) -> int:
     """Get the atomic number of the atom."""
     return atom.GetAtomicNum()
-
-
-# def get_period(atom: Chem.Atom) -> int:
-#     """Get the period of the atom."""
-# atom_mendeleev = element(get_symbol(atom))
-# period = atom_mendeleev.period
-# if period is None:
-#     period = 0
-#     return period
-
-# def get_group(atom: Chem.Atom) -> int:
-#     """Get the group of the atom."""
-# atom_mendeleev = element(atom.GetSymbol())
-# groupid = atom_mendeleev.group_id
-# if groupid is None:
-#     groupid = 0
-#     return groupid
-
-# def get_atomicweight(atom: Chem.Atom) -> float:
-#     """Get the atomic weight of the atom."""
-# atom_mendeleev = element(atom.GetSymbol())
-# mass = atom_mendeleev.mass
-# if mass is None:
-#     mass = 0.0
-#     return mass
 
 
 def get_num_valence_e(atom: Chem.Atom) -> int:

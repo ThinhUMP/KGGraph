@@ -114,8 +114,6 @@ class GNN(torch.nn.Module):
         JK (str): last, concat, max or sum.
         max_pool_layer (int): the layer from which we use max pool rather than add pool for neighbor aggregation
         drop_ratio (float): dropout rate
-        gnn_type: gin, gcn, graphsage, gat
-
     Output:
         node representations
 
@@ -127,7 +125,6 @@ class GNN(torch.nn.Module):
         emb_dim,
         JK="last",
         drop_ratio=0,
-        gnn_type="gin",
         x_features=7,
         edge_features=5,
     ):
@@ -220,7 +217,6 @@ class GraphModel(torch.nn.Module):
         num_tasks (int): The number of tasks for multi-task learning, typically corresponding to the number of output features.
         JK (str): Choice of how to aggregate node representations across layers. Options are 'last', 'concat', 'max', or 'sum'.
         drop_ratio (float): The dropout rate applied after GNN layers.
-        gnn_type (str): The type of GNN layer to use. Options include 'gin', 'gcn', 'graphsage', and 'gat'.
     """
 
     def __init__(
@@ -230,7 +226,6 @@ class GraphModel(torch.nn.Module):
         num_tasks,
         JK,
         drop_ratio,
-        gnn_type,
         x_features,
         edge_features,
     ):
@@ -243,7 +238,6 @@ class GraphModel(torch.nn.Module):
             num_tasks (int): The number of tasks for multi-task learning.
             JK (str): The aggregation method for node representations.
             drop_ratio (float): The dropout rate after GNN layers.
-            gnn_type (str): The type of GNN layer to use.
         """
         super(GraphModel, self).__init__()
         self.num_layer = num_layer
@@ -260,7 +254,6 @@ class GraphModel(torch.nn.Module):
             emb_dim,
             JK,
             drop_ratio,
-            gnn_type=gnn_type,
             x_features=x_features,
             edge_features=edge_features,
         )

@@ -67,9 +67,3 @@ def bond_type_feature(bond) -> List[int]:
 
     # Return the bond type feature or a default 'other' type feature vector
     return bond_dict.get(bond_type, [0, 0, 0])
-
-
-# Auxiliary functions and dictionary must be defined:
-# get_bond_type(bond): Should return a string representation of the bond type.
-# is_conjugated(bond): Should return a boolean indicating if the bond is conjugated.
-# bond_dict: A dictionary mapping bond type strings to feature lists.

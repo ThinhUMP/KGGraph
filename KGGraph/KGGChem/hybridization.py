@@ -5,8 +5,7 @@ from .atom_features import (
     get_hybridization,
 )
 
-# five features are in the order of (numbers of orbital s, numbers of orbital p,
-# number of orbital d, total neighbors including hydrogens, number of lone pairs)
+# five features are in the order of (numbers of orbital s, numbers of orbital p, number of orbital d, total neighbors including hydrogens, number of lone pairs)
 HYBRIDIZATION = {
     (1, 0): [1, 0, 0, 1, 0],  # AX1E0 => s => Ex: Na in NaI
     (0, 0): [1, 0, 0, 0, 0],  # AX0E0 => s => Ex: Zn2+

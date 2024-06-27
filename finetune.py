@@ -9,16 +9,14 @@ from KGGraph.KGGModel.finetune_utils import (
     train_epoch_reg,
     get_num_task,
     get_task_type,
-    evaluate,
 )
-from KGGraph.KGGModel.visualize import plot_metrics, clean_state_dict
+from KGGraph.KGGModel.visualize import plot_metrics
 from KGGraph.KGGModel.crawl_metrics import average_test_metrics
 import torch
 import torch.nn as nn
 import argparse
 from torch import optim
 from typing import List
-import numpy as np
 from pretrain import seed_everything
 import warnings
 
@@ -48,7 +46,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=300,
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
@@ -73,7 +71,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.6, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.1, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -81,7 +79,6 @@ def main():
         default="last",
         help="how the node features across layers are combined. last, sum, max or concat",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin", help="gnn_type (gin)")
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -91,25 +88,25 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
+        default="ecoli",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="saved_model_mlp_ce60/pretrain.pth",
+        default="pretrain_model_ce60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
         "--seed",
-        type=int,
-        default=42,
+        type=List[int],
+        default=[42, 35, 106],
         help="Seed for splitting the dataset, minibatch selection, random initialization.",
     )
     parser.add_argument(
         "--split",
         type=str,
-        default="scaffold",
+        default="random",
         help="random or scaffold or random_scaffold",
     )
     parser.add_argument(
@@ -129,6 +126,12 @@ def main():
         type=bool,
         default=True,
         help="if the learning rate of GNN backbone is different from the learning rate of prediction layers",
+    )
+    parser.add_argument(
+        "--get_test_smiles",
+        type=bool,
+        default=False,
+        help="Get test smiles for contamination",
     )
     parser.add_argument(
         "--mask_node",
@@ -165,18 +168,8 @@ def main():
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
         # set up seeds
-        seed_everything(args.seed)
+        seed_everything(args.seed[i - 1])
 
-        # dropout=[0.5,0.5,0.5,0.5]
-        # decay=[1e-7,1e-6,1e-5,1e-4]
-        # dropout=[0.5,0.6,0.7,0.8]
-        # args.dropout_ratio = dropout[i-1]
-        # args.decay = decay[i-1]
-        # args.decay = decay[i-1]
-        # dataset_name=["bbbp", "sider", "clintox", "tox21", "toxcast", "hiv", "muv", "esol", "freesolv", "lipo", "qm7", "qm8", "qm9"]
-        # args.dataset = dataset_name[i-1]
-        # input_model = ["saved_model_mlp_ce100/pretrain.pth", "saved_model_mlp_ce80/pretrain.pth", "saved_model_mlp_ce40/pretrain.pth"]
-        # args.input_model_file = input_model[i-1]
         # set up device
         device = (
             torch.device("cuda:" + str(args.device))
@@ -205,11 +198,11 @@ def main():
         print(dataset)
 
         # data split
+        smiles_list = pd.read_csv(
+            "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
+            header=None,
+        )[0].tolist()
         if args.split == "scaffold":
-            smiles_list = pd.read_csv(
-                "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
-                header=None,
-            )[0].tolist()
             (
                 train_dataset,
                 valid_dataset,
@@ -227,6 +220,7 @@ def main():
         elif args.split == "random":
             train_dataset, valid_dataset, test_dataset = random_split(
                 dataset,
+                smiles_list,
                 null_value=0,
                 frac_train=0.8,
                 frac_valid=0.1,
@@ -239,8 +233,11 @@ def main():
 
         print(train_dataset[0])
 
-        # with open(f"Data/contamination/test_{args.dataset}.txt", "a") as f:
-        #         f.writelines("%s\n" % s for s in test_smiles)
+        if args.get_test_smiles:
+            if not os.path.isdir(f"Data/contamination"):
+                os.mkdir(f"Data/contamination")
+            with open(f"Data/contamination/test_{args.dataset}.txt", "w") as f:
+                f.writelines("%s\n" % smile for smile in test_smiles)
 
         # data loader
         if args.dataset == "freesolv":
@@ -278,87 +275,78 @@ def main():
             num_tasks,
             JK=args.JK,
             drop_ratio=args.dropout_ratio,
-            gnn_type=args.gnn_type,
             x_features=dataset[0].x.size(1),
             edge_features=dataset[0].edge_attr.size(1),
         )
-        # if not args.input_model_file == "":
-        #     model.from_pretrained(args.input_model_file)
-        # state_dict = torch.load(args.input_model_file)
-        state_dict = torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
-
-        model.load_state_dict(state_dict)
+        if not args.input_model_file == "":
+            model.from_pretrained(args.input_model_file)
         model.to(device)
 
-        
-        criterion = nn.BCEWithLogitsLoss(reduction="none")
-        eval_roc, eval_matthews, eval_ap, eval_f1, loss, roc_list, matthews_list, ap_list, f1_list = evaluate(args, model, device, test_loader, task_type, criterion)
-        print(eval_matthews)
+        # different learning rate for different part of GNN
+        model_param_group = []
+        if args.GNN_different_lr:
+            print("GNN update")
+            model_param_group.append(
+                {"params": model.gnn.parameters(), "lr": args.lr_feat}
+            )
+        else:
+            print("No GNN update")
+        model_param_group.append(
+            {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
+        )
 
-    #     # set up optimizer
-    #     # different learning rate for different part of GNN
-    #     model_param_group = []
-    #     if args.GNN_different_lr:
-    #         print("GNN update")
-    #         model_param_group.append(
-    #             {"params": model.gnn.parameters(), "lr": args.lr_feat}
-    #         )
-    #     else:
-    #         print("No GNN update")
-    #     model_param_group.append(
-    #         {"params": model.graph_pred_linear.parameters(), "lr": args.lr_pred}
-    #     )
-    #     # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
-    #     optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
-    #     print(optimizer)
+        # set up optimizer
+        # optimizer = optim.SGD(model_param_group, weight_decay=args.decay)
+        optimizer = optim.Adam(model_param_group, weight_decay=args.decay)
+        print(optimizer)
 
-    #     # set up criterion
-    #     if task_type == "classification":
-    #         criterion = nn.BCEWithLogitsLoss(reduction="none")
-    #     else:
-    #         pass
-        
-    #     # training based on task type
-    #     if task_type == "classification":
-    #         train_epoch_cls(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             criterion,
-    #             task_type,
-    #             training_round=i,
-    #         )
+        # set up criterion
+        if task_type == "classification":
+            criterion = nn.BCEWithLogitsLoss(reduction="none")
+        else:
+            criterion = nn.L1Loss()  # MAE for regression
 
-    #     elif task_type == "regression":
-    #         train_epoch_reg(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             task_type,
-    #             training_round=i,
-    #         )
+        # training based on task type
+        if task_type == "classification":
+            train_epoch_cls(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                criterion,
+                task_type,
+                training_round=i,
+            )
 
-    # # craw metrics
-    # average_test_metrics(args, task_type)
+        elif task_type == "regression":
+            train_epoch_reg(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                criterion,
+                task_type,
+                training_round=i,
+            )
 
-    # # plot training metrics
-    # df_train_path = os.path.join(
-    #     args.save_path,
-    #     task_type,
-    #     args.dataset,
-    #     f"train_metrics_round_1.csv",
-    # )
-    # df_train = pd.read_csv(df_train_path)
-    # plot_metrics(args, df_train, task_type)
+    # craw metrics
+    average_test_metrics(args, task_type)
 
+    # plot training metrics
+    df_train_path = os.path.join(
+        args.save_path,
+        task_type,
+        args.dataset,
+        f"train_metrics_round_1.csv",
+    )
+    df_train = pd.read_csv(df_train_path)
+    plot_metrics(args, df_train, task_type)
 
 
 if __name__ == "__main__":

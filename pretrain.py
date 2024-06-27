@@ -20,6 +20,7 @@ warnings.filterwarnings("ignore")
 lg = rdkit.RDLogger.logger()
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
+
 def seed_everything(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -28,6 +29,7 @@ def seed_everything(seed):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
 
 def main():
     # Training settings
@@ -46,7 +48,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=60,
+        default=100,
         help="number of epochs to train (default: 100)",
     )
 
@@ -80,7 +82,6 @@ def main():
         default="./Data/zinc/all.txt",
         help="root directory of dataset. For now, only classification.",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin")
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -90,7 +91,7 @@ def main():
     parser.add_argument(
         "--output_model_file",
         type=str,
-        default="./saved_model_ce60/pretrain.pth",
+        default="./pretrain_model/pretrain.pth",
         help="filename to output the pre-trained model",
     )
     parser.add_argument(
@@ -102,7 +103,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=10,
+        default=20,
         help="number of workers for dataset loading",
     )
     parser.add_argument("--hidden_size", type=int, default=512, help="hidden size")
@@ -139,7 +140,7 @@ def main():
     args = parser.parse_args()
 
     seed_everything(args.seed)
-    
+
     device = (
         torch.device("cuda:" + str(args.device))
         if torch.cuda.is_available()
@@ -173,12 +174,11 @@ def main():
         args.emb_dim,
         JK=args.JK,
         drop_ratio=args.dropout_ratio,
-        gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model_ce60"):
-        os.mkdir("./saved_model_ce60")
-    if "pretrain.pth" in os.listdir("saved_model_ce60"):
+    if not os.path.isdir("./pretrain_model"):
+        os.mkdir("./pretrain_model")
+    if "pretrain.pth" in os.listdir("pretrain_model"):
         print("Continue pretraining")
         model.load_state_dict(torch.load(args.output_model_file))
 
@@ -198,23 +198,25 @@ def main():
             args, model_list, loader, optimizer, device, pretrain_loss, epoch
         )
 
-        # if epoch == 40:
-        #     if not os.path.isdir("./saved_model_five_ce40"):
-        #         os.mkdir("./saved_model_five_ce40")
-        #     torch.save(model.state_dict(), "./saved_model_five_ce40/pretrain.pth")
-        # elif epoch == 60:
-        #     if not os.path.isdir("./saved_model_five_ce60"):
-        #         os.mkdir("./saved_model_five_ce60")
-        #     torch.save(model.state_dict(), "./saved_model_five_ce60/pretrain.pth")
-        # elif epoch == 80:
-        #     if not os.path.isdir("./saved_model_five_ce80"):
-        #         os.mkdir("./saved_model_five_ce80")
-        #     torch.save(model.state_dict(), "./saved_model_five_ce80/pretrain.pth")
-
         if not args.output_model_file == "":
-        #     if not os.path.isdir("./saved_model_five_ce100"):
-        #         os.mkdir("./saved_model_five_ce100")
             torch.save(model.state_dict(), args.output_model_file)
+
+        if epoch == 40:
+            if not os.path.isdir("./pretrain_model_40"):
+                os.mkdir("./pretrain_model_40")
+            torch.save(model.state_dict(), "./pretrain_model_40/pretrain.pth")
+        elif epoch == 60:
+            if not os.path.isdir("./pretrain_model_60"):
+                os.mkdir("./pretrain_model_60")
+            torch.save(model.state_dict(), "./pretrain_model_60/pretrain.pth")
+        elif epoch == 80:
+            if not os.path.isdir("./pretrain_model_80"):
+                os.mkdir("./pretrain_model_80")
+            torch.save(model.state_dict(), "./pretrain_model_80/pretrain.pth")
+        elif epoch == 100:
+            if not os.path.isdir("./pretrain_model_100"):
+                os.mkdir("./pretrain_model_100")
+            torch.save(model.state_dict(), "./pretrain_model_100/pretrain.pth")
 
     plot_pretrain_loss(pretrain_loss)
 

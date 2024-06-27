@@ -28,6 +28,7 @@ from KGGraph.KGGProcessor.loader import (
     load_qm7_dataset,
     load_qm8_dataset,
     load_qm9_dataset,
+    load_ecoli_dataset,
 )
 from KGGraph.KGGEncode.x_feature import x_feature
 from KGGraph.KGGEncode.edge_feature import edge_feature
@@ -183,6 +184,8 @@ class MoleculeDataset(InMemoryDataset):
             smiles_list, mols_list, labels = load_qm8_dataset(self.raw_paths[0])
         elif self.dataset == "qm9":
             smiles_list, mols_list, labels = load_qm9_dataset(self.raw_paths[0])
+        elif self.dataset == "ecoli":
+            smiles_list, mols_list, labels = load_ecoli_dataset(self.raw_paths[0])
         else:
             raise ValueError(f"Dataset {self.dataset} is not supported")
 

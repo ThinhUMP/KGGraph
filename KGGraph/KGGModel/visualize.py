@@ -221,7 +221,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
         handles=handles,
         title="Class",
         title_fontsize="13",
-        loc="upper left",
+        loc="upper right",
         # bbox_to_anchor=(0.5, -0.05),
         prop={"size": 12},
         ncol=2,
@@ -289,13 +289,14 @@ def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
     # Combine all fingerprints into one array (Optional, if needed)
     fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
     
-    custom_cmap = ListedColormap(['red', 'green'])
-    
     for fp_name, fps in fingerprints.items():
         tsne = TSNE(n_components=2, random_state=42)
         embeddings_2d = tsne.fit_transform(torch.tensor(fps))
-        
-        custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
+
+        if task_type=='classification':
+            custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
+        else:
+            custom_cmap = 'plasma'
 
         plt.figure(figsize=(7, 7))
         scatter = plt.scatter(
@@ -308,37 +309,43 @@ def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
             linewidth=0.5
         )
 
-        # Create a custom legend
-        handles = [
-            plt.Line2D(
-                [0],
-                [0],
-                marker="o",
-                color="w",
-                markerfacecolor="#EBBC4E",
-                markersize=10,
-                label="0",
-            ),
-            plt.Line2D(
-                [0],
-                [0],
-                marker="o",
-                color="w",
-                markerfacecolor="#7DB0A8",
-                markersize=10,
-                label="1",
-            ),
-        ]
 
-        plt.legend(
-            handles=handles,
-            title="Class",
-            title_fontsize="13",
-            loc='upper left',
-            # bbox_to_anchor=(0.5, -0.05),
-            prop={"size": 12},
-            ncol=2
-        )
+        if task_type =='classification':
+            
+            # Create a custom legend
+            handles = [
+                plt.Line2D(
+                    [0],
+                    [0],
+                    marker="o",
+                    color="w",
+                    markerfacecolor="#EBBC4E",
+                    markersize=10,
+                    label="0",
+                ),
+                plt.Line2D(
+                    [0],
+                    [0],
+                    marker="o",
+                    color="w",
+                    markerfacecolor="#7DB0A8",
+                    markersize=10,
+                    label="1",
+                ),
+            ]
+            plt.legend(
+                handles=handles,
+                title="Class",
+                title_fontsize="13",
+                loc='upper right',
+                # bbox_to_anchor=(0.5, -0.05),
+                prop={"size": 12},
+                ncol=2
+            )
+        # Add a colorbar
+        else:
+            cbar = plt.colorbar(scatter)
+            cbar.set_label("lumo", fontsize=16)
 
         plt.title(f"{fp_name}".upper(), fontsize=16)
         plt.xlabel("t-SNE-0", fontsize=16)

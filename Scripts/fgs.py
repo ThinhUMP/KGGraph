@@ -14,6 +14,8 @@ import numpy as np
 from KGGraph.KGGModel.visualize import visualize_fgs
 from KGGraph.KGGProcessor.split import scaffold_split_df
 from KGGraph.KGGModel.finetune_utils import get_task_type
+from tqdm import tqdm
+from joblib import Parallel, delayed
 import argparse
 
 import warnings
@@ -33,12 +35,12 @@ def smiles_to_fingerprints(smiles):
     return maccs, ecfp4, rdk7
 
 
-def prepare_fingerprints(df, smile_column, target_column):
+def prepare_fingerprints(df, smile_column, target_column, n_job=10):
     maccs_fps = []
     ecfp4_fps = []
     rdk7_fps = []
     labels = []
-    for idx, row in df.iterrows():
+    for idx, row in tqdm(df.iterrows(), desc='Prepare fgs'):
         fingerprints = smiles_to_fingerprints(row[smile_column])
         if fingerprints is not None:
             maccs, ecfp4, rdk7 = fingerprints
@@ -116,13 +118,13 @@ def main():
     parser.add_argument(
         "--target_column",
         type=str,
-        default="p_np",
+        default="lumo",
         help="Column containing y values",
     )
     parser.add_argument(
         "--split",
         type=str,
-        default="random",
+        default="scaffold",
         help="random or scaffold",
     )
     parser.add_argument(
@@ -190,6 +192,7 @@ def main():
 
     visualize_fgs(args, maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test, task_type)
     print("Done!")
+    
 
 
 if __name__ =='__main__':

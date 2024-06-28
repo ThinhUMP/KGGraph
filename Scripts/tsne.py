@@ -228,6 +228,7 @@ def main():
         edge_features=dataset[0].edge_attr.size(1),
     )
     model.load_state_dict(state_dict)
+
     if task_type == "classification":
         visualize_embeddings(args, model, device, test_loader, task_type)
     else:

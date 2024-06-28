@@ -526,8 +526,10 @@ def predict_reg(model, loader, device, df):
 
         with torch.no_grad():
             pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
-
+            print(pred)
         y_scores.append(pred)
+        
     y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
     df["y_pred"] = y_scores
+    df.to_csv("Data/ecoli_pred.csv", index=False)
     return df

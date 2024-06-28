@@ -28,7 +28,7 @@ def main():
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=32,
+        default=1,
         help="input batch size for training (default: 32)",
     )
     parser.add_argument(
@@ -60,12 +60,6 @@ def main():
         type=str,
         default="ecoli",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
-    )
-    parser.add_argument(
-        "--path_df_pred",
-        type=str,
-        default="Data/prediction/ecoli.csv",
-        help="path to read the prediction dataframe",
     )
     parser.add_argument(
         "--seed", type=int, default=42, help="Seed for splitting the dataset."
@@ -141,10 +135,10 @@ def main():
     task_type = get_task_type(args)
 
     # set up dataset
-    df_pred = pd.read_csv(args.path_df_pred)
+    df_pred = pd.read_csv(f"Data/{task_type}/{args.dataset}/raw/{args.dataset}.csv")
     
     dataset = MoleculeDataset(
-        args.path_df_pred,
+        "Data/" + task_type + "/" + args.dataset,
         dataset=args.dataset,
         decompose_type=args.decompose_type,
         mask_node=args.mask_node,
@@ -154,7 +148,7 @@ def main():
         fix_ratio=args.fix_ratio,
     )
     print(dataset)
-
+    print(dataset[0])
     # data loader
     predict_loader = DataLoader(
         dataset,
@@ -163,6 +157,7 @@ def main():
         num_workers=args.num_workers,
         drop_last=True,
     )
+
 
     # Load model
     state_dict = torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
@@ -178,7 +173,8 @@ def main():
         )
     
     model.load_state_dict(state_dict)
-    
+    model.to(device)
+
     # Predict
     if task_type == "classification":
         pass

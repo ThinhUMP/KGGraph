@@ -10,6 +10,7 @@ from torch_geometric.data import DataLoader
 from KGGraph.KGGModel.graph_model import GraphModel
 from KGGraph.KGGModel.finetune_utils import get_task_type, predict_reg
 from KGGraph.KGGModel.visualize import draw_pred_reg
+from KGGraph.KGGProcessor.split import scaffold_split, random_split
 import torch
 import argparse
 from pretrain import seed_everything

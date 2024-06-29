@@ -166,6 +166,7 @@ def load_clintox_dataset(input_path):
 
     # Handle labels: convert 0 to -1, then ensure there are no NaN values
     tasks = ["FDA_APPROVED", "CT_TOX"]
+    # tasks = ["CT_TOX"]
     labels = input_df[tasks].replace(0, -1)
     # there are no nans
 

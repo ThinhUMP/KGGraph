@@ -207,7 +207,7 @@ def main():
                 train_dataset,
                 valid_dataset,
                 test_dataset,
-                (_, _, test_smiles),
+                (train_smiles, _, test_smiles),
             ) = scaffold_split(
                 dataset,
                 smiles_list,
@@ -218,7 +218,7 @@ def main():
             )
             print("scaffold")
         elif args.split == "random":
-            train_dataset, valid_dataset, test_dataset = random_split(
+            (train_dataset, valid_dataset, test_dataset, (train_smiles, _, test_smiles),) = random_split(
                 dataset,
                 smiles_list,
                 null_value=0,
@@ -233,12 +233,14 @@ def main():
 
         print(train_dataset[0])
 
-        if args.get_test_smiles:
-            if not os.path.isdir(f"Data/contamination"):
-                os.mkdir(f"Data/contamination")
-            with open(f"Data/contamination/test_{args.dataset}.txt", "w") as f:
-                f.writelines("%s\n" % smile for smile in test_smiles)
-
+        # if args.get_test_smiles:
+        #     if not os.path.isdir(f"Data/contamination"):
+        #         os.mkdir(f"Data/contamination")
+        #     with open(f"Data/contamination/test_{args.dataset}.txt", "w") as f:
+        #         f.writelines("%s\n" % smile for smile in test_smiles)
+        df_test_ecoli = pd.DataFrame(index=range(0,4085), columns=['ID','Canomicalsmiles'])
+        df_test_ecoli['Canomicalsmiles'] = test_smiles
+        df_test_ecoli['ID'] = range(0, 4785)
         # data loader
         if args.dataset == "freesolv":
             train_loader = DataLoader(
@@ -306,47 +308,47 @@ def main():
         else:
             criterion = nn.L1Loss()  # MAE for regression
 
-        # training based on task type
-        if task_type == "classification":
-            train_epoch_cls(
-                args,
-                model,
-                device,
-                train_loader,
-                val_loader,
-                test_loader,
-                optimizer,
-                criterion,
-                task_type,
-                training_round=i,
-            )
+    #     # training based on task type
+    #     if task_type == "classification":
+    #         train_epoch_cls(
+    #             args,
+    #             model,
+    #             device,
+    #             train_loader,
+    #             val_loader,
+    #             test_loader,
+    #             optimizer,
+    #             criterion,
+    #             task_type,
+    #             training_round=i,
+    #         )
 
-        elif task_type == "regression":
-            train_epoch_reg(
-                args,
-                model,
-                device,
-                train_loader,
-                val_loader,
-                test_loader,
-                optimizer,
-                criterion,
-                task_type,
-                training_round=i,
-            )
+    #     elif task_type == "regression":
+    #         train_epoch_reg(
+    #             args,
+    #             model,
+    #             device,
+    #             train_loader,
+    #             val_loader,
+    #             test_loader,
+    #             optimizer,
+    #             criterion,
+    #             task_type,
+    #             training_round=i,
+    #         )
 
-    # craw metrics
-    average_test_metrics(args, task_type)
+    # # craw metrics
+    # average_test_metrics(args, task_type)
 
-    # plot training metrics
-    df_train_path = os.path.join(
-        args.save_path,
-        task_type,
-        args.dataset,
-        f"train_metrics_round_1.csv",
-    )
-    df_train = pd.read_csv(df_train_path)
-    plot_metrics(args, df_train, task_type)
+    # # plot training metrics
+    # df_train_path = os.path.join(
+    #     args.save_path,
+    #     task_type,
+    #     args.dataset,
+    #     f"train_metrics_round_1.csv",
+    # )
+    # df_train = pd.read_csv(df_train_path)
+    # plot_metrics(args, df_train, task_type)
 
 
 if __name__ == "__main__":

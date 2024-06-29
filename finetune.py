@@ -218,7 +218,12 @@ def main():
             )
             print("scaffold")
         elif args.split == "random":
-            (train_dataset, valid_dataset, test_dataset, (train_smiles, _, test_smiles),) = random_split(
+            (
+                train_dataset,
+                valid_dataset,
+                test_dataset,
+                (train_smiles, _, test_smiles),
+            ) = random_split(
                 dataset,
                 smiles_list,
                 null_value=0,
@@ -238,9 +243,11 @@ def main():
         #         os.mkdir(f"Data/contamination")
         #     with open(f"Data/contamination/test_{args.dataset}.txt", "w") as f:
         #         f.writelines("%s\n" % smile for smile in test_smiles)
-        df_test_ecoli = pd.DataFrame(index=range(0,4085), columns=['ID','Canomicalsmiles'])
-        df_test_ecoli['Canomicalsmiles'] = test_smiles
-        df_test_ecoli['ID'] = range(0, 4785)
+        df_test_ecoli = pd.DataFrame(
+            index=range(0, 4085), columns=["ID", "Canomicalsmiles"]
+        )
+        df_test_ecoli["Canomicalsmiles"] = test_smiles
+        df_test_ecoli["ID"] = range(0, 4785)
         # data loader
         if args.dataset == "freesolv":
             train_loader = DataLoader(

@@ -144,7 +144,7 @@ def random_split(
     frac_valid=0.1,
     frac_test=0.1,
     seed=42,
-    return_smiles=False,
+    return_smiles=True,
 ):
     """
     Randomly splits a dataset into training, validation, and test sets. The function

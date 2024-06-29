@@ -386,7 +386,7 @@ def load_ecoli_dataset(input_path):
     smiles_list = input_df["Smiles"]
     mols_list = [get_mol(smile) for smile in smiles_list]
     tasks = [
-        "MIC",
+        "Value",
     ]
     labels = input_df[tasks]
     assert len(smiles_list) == len(mols_list)

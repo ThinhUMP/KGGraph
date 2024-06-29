@@ -9,6 +9,7 @@ import pandas as pd
 from torch_geometric.data import DataLoader
 from KGGraph.KGGModel.graph_model import GraphModel
 from KGGraph.KGGModel.finetune_utils import get_task_type, predict_reg
+from KGGraph.KGGModel.visualize import draw_pred_reg
 import torch
 import argparse
 from pretrain import seed_everything
@@ -148,14 +149,79 @@ def main():
         fix_ratio=args.fix_ratio,
     )
     print(dataset)
-    print(dataset[0])
+    # print(dataset[0])
+    # # data loader
+    # predict_loader = DataLoader(
+    #     dataset,
+    #     batch_size=args.batch_size,
+    #     shuffle=False,
+    #     num_workers=args.num_workers,
+    #     drop_last=True,
+    # )
+    
+    # data split
+    smiles_list = pd.read_csv(
+        "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
+        header=None,
+    )[0].tolist()
+    if args.split == "scaffold":
+        (
+            train_dataset,
+            valid_dataset,
+            test_dataset,
+            (_, _, test_smiles),
+        ) = scaffold_split(
+            dataset,
+            smiles_list,
+            null_value=0,
+            frac_train=0.8,
+            frac_valid=0.1,
+            frac_test=0.1,
+        )
+        print("scaffold")
+    elif args.split == "random":
+        train_dataset, valid_dataset, test_dataset = random_split(
+            dataset,
+            smiles_list,
+            null_value=0,
+            frac_train=0.8,
+            frac_valid=0.1,
+            frac_test=0.1,
+            seed=args.seed[i - 1],
+        )
+        print("random")
+    else:
+        raise ValueError("Invalid split option.")
+
+    print(train_dataset[0])
+
     # data loader
-    predict_loader = DataLoader(
-        dataset,
+    if args.dataset == "freesolv":
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
+            num_workers=args.num_workers,
+            drop_last=True,
+        )
+    else:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
+            num_workers=args.num_workers,
+        )
+    val_loader = DataLoader(
+        valid_dataset,
         batch_size=args.batch_size,
         shuffle=False,
         num_workers=args.num_workers,
-        drop_last=True,
+    )
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
     )
 
 
@@ -179,8 +245,9 @@ def main():
     if task_type == "classification":
         pass
     else:
-        df_pred = predict_reg(model, predict_loader, device, df_pred)
-        print(df_pred)
+        # df_pred = predict_reg(model, predict_loader, device, df_pred)
+        draw_pred_reg(model, test_loader, device)
+        # print(df_pred)
 
 if __name__ == "__main__":
     main()

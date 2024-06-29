@@ -359,3 +359,39 @@ def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
             os.mkdir(f"Data/{task_type}/{args.dataset}/figures")
         plt.savefig(f"Data/{task_type}/{args.dataset}/figures/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
         plt.show()
+        
+        
+def draw_pred_reg(model, device, loader):
+    model.eval()
+    y_true = []
+    y_scores = []
+
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+
+        with torch.no_grad():
+            pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+
+        y_true.append(batch.y.view(pred.shape))
+        y_scores.append(pred)
+
+    y_true = torch.cat(y_true, dim=0).cpu().numpy().flatten()
+    y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
+    plot_targets(y_scores, y_true)
+
+def plot_targets(pred, ground_truth):
+    """Plot true vs predicted value in a scatter plot
+
+    Args:
+        pred (array): predicted values
+        ground_truth (array): ground truth values
+    """
+    f, ax = plt.subplots(figsize=(6, 6))
+    ax.scatter(pred, ground_truth, s=0.5)
+    plt.xlim(-2, 7)
+    plt.ylim(-2, 7)
+    ax.axline((1, 1), slope=1)
+    plt.xlabel("Predicted Value")
+    plt.ylabel("Ground truth")
+    plt.title("Ground truth vs prediction")
+    plt.show()

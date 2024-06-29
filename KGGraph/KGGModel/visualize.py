@@ -361,7 +361,7 @@ def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
         plt.show()
         
         
-def draw_pred_reg(model, device, loader):
+def draw_pred_reg(args, model, device, loader, task_type):
     model.eval()
     y_true = []
     y_scores = []
@@ -377,9 +377,9 @@ def draw_pred_reg(model, device, loader):
 
     y_true = torch.cat(y_true, dim=0).cpu().numpy().flatten()
     y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
-    plot_targets(y_scores, y_true)
+    plot_targets(args, y_scores, y_true, task_type)
 
-def plot_targets(pred, ground_truth):
+def plot_targets(args, pred, ground_truth, task_type):
     """Plot true vs predicted value in a scatter plot
 
     Args:
@@ -387,11 +387,12 @@ def plot_targets(pred, ground_truth):
         ground_truth (array): ground truth values
     """
     f, ax = plt.subplots(figsize=(6, 6))
-    ax.scatter(pred, ground_truth, s=0.5)
-    plt.xlim(-2, 7)
-    plt.ylim(-2, 7)
+    ax.scatter(pred, ground_truth, s=5)
+    plt.xlim(-5, 30)
+    plt.ylim(-5, 30)
     ax.axline((1, 1), slope=1)
-    plt.xlabel("Predicted Value")
-    plt.ylabel("Ground truth")
-    plt.title("Ground truth vs prediction")
+    plt.xlabel("Giá trị dự đoán")
+    plt.ylabel("Giá trị thực tế")
+    # plt.title("Ground truth vs prediction")
+    plt.savefig(f"Data/{task_type}/{args.dataset}/figures/{args.dataset}_pred.png", dpi=600, transparent=False, bbox_inches='tight')
     plt.show()

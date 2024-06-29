@@ -30,7 +30,7 @@ def main():
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=1,
+        default=32,
         help="input batch size for training (default: 32)",
     )
     parser.add_argument(
@@ -247,7 +247,7 @@ def main():
         pass
     else:
         # df_pred = predict_reg(model, predict_loader, device, df_pred)
-        draw_pred_reg(model, test_loader, device)
+        draw_pred_reg(args, model, device, test_loader, task_type)
         # print(df_pred)
 
 if __name__ == "__main__":

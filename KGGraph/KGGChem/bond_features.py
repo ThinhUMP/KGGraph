@@ -52,8 +52,9 @@ def is_bond_in_ring(bond: Chem.Bond) -> bool:
 
 
 def bond_type_feature(bond) -> List[int]:
-    """Determine the feature representation of a bond in a molecular structure. The function
-    categorizes the bond into specific types, such as aromatic or conjugated, and returns
+    """Determine the feature representation of a bond in a molecular structure.
+    The function categorizes the bond into specific types,
+    such as aromatic or conjugated, and returns
     a corresponding feature vector from a predefined dictionary."""
 
     # Get the bond type as a string representation

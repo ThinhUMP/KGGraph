@@ -6,11 +6,6 @@ import random
 from copy import deepcopy
 import numpy as np
 from rdkit import Chem
-
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
 from KGGraph.KGGChem.atom_utils import get_smiles
 from KGGraph.KGGDecompose.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.jin_decompose import TreeDecomposition
@@ -23,8 +18,12 @@ from KGGraph.KGGChem.atom_features import (
     get_hybridization,
     get_symbol,
     get_atomic_number,
-    get_formal_charge,
 )
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
 
 
 # allowable node and edge features

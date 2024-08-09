@@ -1,10 +1,5 @@
 import sys
 from pathlib import Path
-
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
 from KGGraph.KGGModel.crawl_metrics import (
     create_test_round_df,
     create_train_round_df,
@@ -24,6 +19,11 @@ from sklearn.metrics import (
     matthews_corrcoef,
 )
 import pandas as pd
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
 
 
 def get_task_type(args):
@@ -515,8 +515,8 @@ def train_epoch_reg(
             model.state_dict(),
             f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth",
         )
-        
-        
+
+
 def predict_reg(model, loader, device, df):
     model.eval()
     y_scores = []
@@ -528,7 +528,7 @@ def predict_reg(model, loader, device, df):
             pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
             print(pred)
         y_scores.append(pred)
-        
+
     y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
     df["y_pred"] = y_scores
     df.to_csv("Data/ecoli_pred.csv", index=False)

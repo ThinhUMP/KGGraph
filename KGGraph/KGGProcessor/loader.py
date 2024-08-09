@@ -1,12 +1,12 @@
 from pathlib import Path
 import sys
+from KGGraph.KGGChem.atom_utils import get_mol
+import pandas as pd
 
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.KGGChem.atom_utils import get_mol
-import pandas as pd
 
 
 def load_tox21_dataset(input_path):

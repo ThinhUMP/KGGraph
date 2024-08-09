@@ -8,7 +8,8 @@ from rdkit.Chem import AllChem
 
 class ConformerChargeGeneration:
     """
-    A class for optimizing molecules using xTB and converting SMILES strings to 3D structure files.
+    A class for optimizing molecules using xTB and converting
+    SMILES strings to 3D structure files.
 
     Attributes:
         input_dir (str): Directory to store input files for optimization.
@@ -42,14 +43,15 @@ class ConformerChargeGeneration:
         output_format: str = "pdb",
     ) -> None:
         """
-        Converts SMILES strings from a DataFrame to 3D structure files in PDB or SDF format.
+        Converts SMILES strings from a DataFrame
+        to 3D structure files in PDB or SDF format.
 
         Args:
             data (pandas.DataFrame): DataFrame containing SMILES strings and IDs.
             smiles_col (str): Name of the column containing the SMILES strings.
             ID_col (str): Name of the column containing the molecule IDs.
             lig_dir (str): Directory to save the generated 3D structure files.
-            output_format (str): The output file format ('pdb' or 'sdf'). Defaults to 'pdb'.
+            output_format (str): The output file format ('pdb' or 'sdf'). Defaults 'pdb'.
         """
         if output_format not in ["pdb", "sdf"]:
             raise ValueError("output_format must be 'pdb' or 'sdf'")
@@ -80,12 +82,14 @@ class ConformerChargeGeneration:
         smiles: list or str, lig_dir: str, ID: list = None, output_format: str = "pdb"
     ) -> None:
         """
-        Convert SMILES to file in the specified format and save to the provided ligand directory.
+        Convert SMILES to file in the specified format
+        and save to the provided ligand directory.
 
         Args:
             smiles (list or str): A list of SMILES strings or a single SMILES string.
             lig_dir (str): The directory to save the output files.
-            ID (list, optional): A list of IDs for the molecules. If None, default IDs will be assigned.
+            ID (list, optional): A list of IDs for the molecules.
+            If None, default IDs will be assigned.
             output_format (str, optional): The format for the output files, either "pdb" or "sdf". Defaults to "pdb".
 
         Returns:
@@ -134,7 +138,6 @@ class ConformerChargeGeneration:
     ) -> None:
         """
         Optimizes the geometry of a molecule using xtb.
-
         Args:
             input_file (str): Path to the input file containing the molecule to be optimized.
             file_name (str): Name of the output file for the optimized molecule.

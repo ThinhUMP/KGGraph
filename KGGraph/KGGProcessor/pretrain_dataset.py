@@ -3,14 +3,14 @@ from torch_geometric.data import Batch
 from torch_geometric.data import Data
 import sys
 from pathlib import Path
+from KGGraph.KGGEncode.edge_feature import edge_feature
+from KGGraph.KGGEncode.x_feature import x_feature
+from KGGraph.KGGChem.atom_utils import get_mol
 
 # Get the root directory
 root_dir = Path(__file__).resolve().parents[2]
 # Add the root directory to the system path
 sys.path.append(str(root_dir))
-from KGGraph.KGGEncode.edge_feature import edge_feature
-from KGGraph.KGGEncode.x_feature import x_feature
-from KGGraph.KGGChem.atom_utils import get_mol
 
 
 class MoleculeDataset(Dataset):

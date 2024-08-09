@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.graph_model import GraphModel, GNN
+from KGGraph.KGGModel.graph_model import GraphModel
 from KGGraph.KGGModel.finetune_utils import (
     train_epoch_cls,
     train_epoch_reg,
@@ -89,7 +89,8 @@ def main():
         "--dataset",
         type=str,
         default="ecoli",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, \
+            esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
@@ -101,7 +102,7 @@ def main():
         "--seed",
         type=List[int],
         default=[42, 35, 106],
-        help="Seed for splitting the dataset, minibatch selection, random initialization.",
+        help="Seed for splitting the dataset, minibatch selection, random initialization",
     )
     parser.add_argument(
         "--split",
@@ -125,7 +126,8 @@ def main():
         "--GNN_different_lr",
         type=bool,
         default=True,
-        help="if the learning rate of GNN backbone is different from the learning rate of prediction layers",
+        help="if the learning rate of GNN backbone is different from \
+        the learning rate of prediction layers",
     )
     parser.add_argument(
         "--get_test_smiles",
@@ -315,47 +317,47 @@ def main():
         else:
             criterion = nn.L1Loss()  # MAE for regression
 
-    #     # training based on task type
-    #     if task_type == "classification":
-    #         train_epoch_cls(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             criterion,
-    #             task_type,
-    #             training_round=i,
-    #         )
+        # training based on task type
+        if task_type == "classification":
+            train_epoch_cls(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                criterion,
+                task_type,
+                training_round=i,
+            )
 
-    #     elif task_type == "regression":
-    #         train_epoch_reg(
-    #             args,
-    #             model,
-    #             device,
-    #             train_loader,
-    #             val_loader,
-    #             test_loader,
-    #             optimizer,
-    #             criterion,
-    #             task_type,
-    #             training_round=i,
-    #         )
+        elif task_type == "regression":
+            train_epoch_reg(
+                args,
+                model,
+                device,
+                train_loader,
+                val_loader,
+                test_loader,
+                optimizer,
+                criterion,
+                task_type,
+                training_round=i,
+            )
 
-    # # craw metrics
-    # average_test_metrics(args, task_type)
+    # craw metrics
+    average_test_metrics(args, task_type)
 
-    # # plot training metrics
-    # df_train_path = os.path.join(
-    #     args.save_path,
-    #     task_type,
-    #     args.dataset,
-    #     f"train_metrics_round_1.csv",
-    # )
-    # df_train = pd.read_csv(df_train_path)
-    # plot_metrics(args, df_train, task_type)
+    # plot training metrics
+    df_train_path = os.path.join(
+        args.save_path,
+        task_type,
+        args.dataset,
+        "train_metrics_round_1.csv",
+    )
+    df_train = pd.read_csv(df_train_path)
+    plot_metrics(args, df_train, task_type)
 
 
 if __name__ == "__main__":

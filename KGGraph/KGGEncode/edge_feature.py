@@ -7,17 +7,17 @@ import random
 from rdkit import Chem
 from typing import Tuple, List
 import numpy as np
-
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
 from KGGraph.KGGDecompose.brics_decompose import BRCISDecomposition
 from KGGraph.KGGDecompose.jin_decompose import TreeDecomposition
 from KGGraph.KGGDecompose.motif_decompose import MotifDecomposition
 from KGGraph.KGGDecompose.smotif_decompose import SMotifDecomposition
 from KGGraph.KGGDecompose.tmotif_decompose import TMotifDecomposition
 from KGGraph.KGGChem.bond_features import bond_type_feature
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
 
 
 # allowable edge features

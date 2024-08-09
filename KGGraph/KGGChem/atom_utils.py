@@ -61,7 +61,8 @@ def atomic_num_features(mol, atom_types) -> List[int]:
     for idx, atom in enumerate(mol.GetAtoms()):
         atomic_features[idx] = get_atomic_number(atom)
 
-    # Convert the feature vector to binary (1 if atom has the corresponding type, 0 otherwise)
+    # Convert the feature vector to binary
+    # (1 if atom has the corresponding type, 0 otherwise)
     atomic_features = np.where(
         atomic_features == np.tile(atom_types, (mol.GetNumAtoms(), 1)), 1, 0
     )

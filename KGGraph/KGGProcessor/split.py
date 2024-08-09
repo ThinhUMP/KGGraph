@@ -244,13 +244,14 @@ def random_scaffold_split(
     dataset (PyG Dataset): The PyTorch Geometric dataset object to be split.
     smiles_list (list of str): A list of SMILES strings corresponding to the entries in the dataset.
     task_idx (int, optional): Index of the task in the data.y tensor. If provided, examples with a null
-                              value in this task column are filtered out before splitting. Defaults to None.
+                            value in this task column are filtered out before splitting. Defaults to None.
     null_value (float): The value considered as null in the data.y tensor. Used for filtering when
                         task_idx is provided. Defaults to 0.
     frac_train (float): Fraction of the dataset to include in the training set. Defaults to 0.8.
     frac_valid (float): Fraction of the dataset to include in the validation set. Defaults to 0.1.
     frac_test (float): Fraction of the dataset to include in the test set. Defaults to 0.1.
-    seed (int): Seed for the random number generator used in shuffling the scaffolds. Defaults to 0.
+    seed (int): Seed for the random number generator used in shuffling the scaffolds.
+    Defaults to 0.
 
     Returns:
     tuple: Three PyTorch Geometric dataset objects representing the training, validation,
@@ -303,7 +304,7 @@ def random_scaffold_split(
 
 def scaffold_split_df(
     df,
-    smile_column='Smiles',
+    smile_column="Smiles",
     frac_train=0.8,
     frac_valid=0.1,
     frac_test=0.1,

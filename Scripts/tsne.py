@@ -1,9 +1,5 @@
 import sys
 import pathlib
-
-root_dir = str(pathlib.Path(__file__).resolve().parents[1])
-sys.path.append(root_dir)
-
 from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
@@ -19,6 +15,9 @@ import torch
 import argparse
 from pretrain import seed_everything
 import warnings
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[1])
+sys.path.append(root_dir)
 
 warnings.filterwarnings("ignore")
 
@@ -65,7 +64,8 @@ def main():
         "--dataset",
         type=str,
         default="clintox",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv,\
+            esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--seed", type=int, default=42, help="Seed for splitting the dataset."
@@ -188,7 +188,7 @@ def main():
 
     # data loader
     if args.dataset == "freesolv":
-        train_loader = DataLoader(
+        _ = DataLoader(
             train_dataset,
             batch_size=args.batch_size,
             shuffle=True,
@@ -196,13 +196,13 @@ def main():
             drop_last=True,
         )
     else:
-        train_loader = DataLoader(
+        _ = DataLoader(
             train_dataset,
             batch_size=args.batch_size,
             shuffle=True,
             num_workers=args.num_workers,
         )
-    val_loader = DataLoader(
+    _ = DataLoader(
         valid_dataset,
         batch_size=args.batch_size,
         shuffle=False,

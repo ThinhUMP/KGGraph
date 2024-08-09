@@ -2,10 +2,10 @@ from rdkit.Chem import BRICS
 from rdkit import Chem
 import pathlib
 import sys
+from KGGraph.KGGChem.chemutils import get_clique_mol
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGChem.chemutils import get_clique_mol
 
 
 class MotifDecomposition:

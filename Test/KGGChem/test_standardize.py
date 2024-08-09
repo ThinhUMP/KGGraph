@@ -2,11 +2,12 @@ import unittest
 import os
 import sys
 import pathlib
+import warnings
+from KGGraph.KGGChem.standardize import SmileStandardizer
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGChem.standardize import SmileStandardizer
-import warnings
+
 
 warnings.filterwarnings("ignore")
 

@@ -1,9 +1,5 @@
 import sys
 import pathlib
-
-root_dir = str(pathlib.Path(__file__).resolve().parents[1])
-sys.path.append(root_dir)
-
 import pandas as pd
 from rdkit import Chem
 from sklearn.model_selection import train_test_split
@@ -15,15 +11,19 @@ from KGGraph.KGGModel.visualize import visualize_fgs
 from KGGraph.KGGProcessor.split import scaffold_split_df
 from KGGraph.KGGModel.finetune_utils import get_task_type
 from tqdm import tqdm
-from joblib import Parallel, delayed
 import argparse
-
 import warnings
-
-warnings.filterwarnings("ignore")
 from rdkit import RDLogger
 
+root_dir = str(pathlib.Path(__file__).resolve().parents[1])
+sys.path.append(root_dir)
+
+
+warnings.filterwarnings("ignore")
+
+
 RDLogger.DisableLog("rdApp.*")
+
 
 def smiles_to_fingerprints(smiles):
     mol = Chem.MolFromSmiles(smiles)
@@ -40,7 +40,7 @@ def prepare_fingerprints(df, smile_column, target_column, n_job=10):
     ecfp4_fps = []
     rdk7_fps = []
     labels = []
-    for idx, row in tqdm(df.iterrows(), desc='Prepare fgs'):
+    for idx, row in tqdm(df.iterrows(), desc="Prepare fgs"):
         fingerprints = smiles_to_fingerprints(row[smile_column])
         if fingerprints is not None:
             maccs, ecfp4, rdk7 = fingerprints
@@ -107,7 +107,8 @@ def main():
         "--dataset",
         type=str,
         default="qm9",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, esol, freesolv, lipo, qm7, qm8, qm9]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, \
+            esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--smile_column",
@@ -141,7 +142,7 @@ def main():
     # Read data
     df = pd.read_csv(f"Data/{task_type}/{args.dataset}/raw/{args.dataset}.csv")
     df = df[[args.smile_column, args.target_column]]
-    df['Mol'] = df[args.smile_column].apply(Chem.MolFromSmiles)
+    df["Mol"] = df[args.smile_column].apply(Chem.MolFromSmiles)
     df.dropna(inplace=True)
 
     # Data split
@@ -151,13 +152,19 @@ def main():
 
     # Prepare fingerprints
     maccs_fps_train, ecfp4_fps_train, rdk7_fps_train, y_train = prepare_fingerprints(
-        train_df, args.smile_column, args.target_column,
+        train_df,
+        args.smile_column,
+        args.target_column,
     )
     maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints(
-        valid_df, args.smile_column, args.target_column,
+        valid_df,
+        args.smile_column,
+        args.target_column,
     )
     maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(
-        test_df, args.smile_column, args.target_column,
+        test_df,
+        args.smile_column,
+        args.target_column,
     )
 
     # Training and evaluating
@@ -190,10 +197,11 @@ def main():
         print(f"(RMSE, MAE) with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
         print(f"(RMSE, MAE) with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
 
-    visualize_fgs(args, maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test, task_type)
+    visualize_fgs(
+        args, maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test, task_type
+    )
     print("Done!")
-    
 
 
-if __name__ =='__main__':
+if __name__ == "__main__":
     main()

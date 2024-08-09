@@ -8,11 +8,8 @@ from torch_geometric.data import InMemoryDataset
 from itertools import repeat
 from joblib import Parallel, delayed
 from tqdm import tqdm
-
-# Get the root directory
-root_dir = Path(__file__).resolve().parents[2]
-# Add the root directory to the system path
-sys.path.append(str(root_dir))
+from KGGraph.KGGEncode.x_feature import x_feature
+from KGGraph.KGGEncode.edge_feature import edge_feature
 from KGGraph.KGGProcessor.loader import (
     load_tox21_dataset,
     load_bace_dataset,
@@ -30,8 +27,11 @@ from KGGraph.KGGProcessor.loader import (
     load_qm9_dataset,
     load_ecoli_dataset,
 )
-from KGGraph.KGGEncode.x_feature import x_feature
-from KGGraph.KGGEncode.edge_feature import edge_feature
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
 
 
 def feature(

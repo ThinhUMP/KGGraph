@@ -7,10 +7,11 @@ import sys
 import pathlib
 import numpy as np
 from matplotlib.colors import ListedColormap
+from KGGraph.KGGModel.graph_model import GraphModel
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[2])
 sys.path.append(root_dir)
-from KGGraph.KGGModel.graph_model import GraphModel
+
 
 def plot_metrics(args, df, task_type):
     """
@@ -118,9 +119,7 @@ def plot_pretrain_loss(pretrain_loss):
     plt.plot(pretrain_loss["loss"], label="Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.savefig(
-        f"Data/pretraining.png", dpi=600, bbox_inches="tight", transparent=False
-    )
+    plt.savefig("Data/pretraining.png", dpi=600, bbox_inches="tight", transparent=False)
     plt.show()
 
 
@@ -185,7 +184,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
     custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
 
     plt.figure(figsize=(7, 7))
-    scatter = plt.scatter(
+    _ = plt.scatter(
         embeddings_2d[:, 0],
         embeddings_2d[:, 1],
         c=loader.dataset.y,
@@ -287,16 +286,16 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
 
 def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
     # Combine all fingerprints into one array (Optional, if needed)
-    fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
-    
+    fingerprints = {"MACCS": maccs_fps, "ECFP4": ecfp4_fps, "RDK7": rdk7_fps}
+
     for fp_name, fps in fingerprints.items():
         tsne = TSNE(n_components=2, random_state=42)
         embeddings_2d = tsne.fit_transform(torch.tensor(fps))
 
-        if task_type=='classification':
+        if task_type == "classification":
             custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
         else:
-            custom_cmap = 'plasma'
+            custom_cmap = "plasma"
 
         plt.figure(figsize=(7, 7))
         scatter = plt.scatter(
@@ -305,13 +304,12 @@ def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
             c=y,
             cmap=custom_cmap,
             s=100,
-            edgecolor='w',
-            linewidth=0.5
+            edgecolor="w",
+            linewidth=0.5,
         )
 
+        if task_type == "classification":
 
-        if task_type =='classification':
-            
             # Create a custom legend
             handles = [
                 plt.Line2D(
@@ -337,10 +335,10 @@ def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
                 handles=handles,
                 title="Class",
                 title_fontsize="13",
-                loc='upper right',
+                loc="upper right",
                 # bbox_to_anchor=(0.5, -0.05),
                 prop={"size": 12},
-                ncol=2
+                ncol=2,
             )
         # Add a colorbar
         else:
@@ -355,12 +353,17 @@ def visualize_fgs(args, maccs_fps, ecfp4_fps, rdk7_fps, y, task_type):
         plt.xticks([])
         plt.yticks([])
         plt.tight_layout()
-        if os.path.isdir(f"Data/{task_type}/{args.dataset}/figures") == False:
+        if os.path.isdir(f"Data/{task_type}/{args.dataset}/figures") is False:
             os.mkdir(f"Data/{task_type}/{args.dataset}/figures")
-        plt.savefig(f"Data/{task_type}/{args.dataset}/figures/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
+        plt.savefig(
+            f"Data/{task_type}/{args.dataset}/figures/{fp_name}_fingerprint_tsne.png",
+            dpi=600,
+            bbox_inches="tight",
+            transparent=False,
+        )
         plt.show()
-        
-        
+
+
 def draw_pred_reg(args, model, device, loader, task_type):
     model.eval()
     y_true = []
@@ -379,6 +382,7 @@ def draw_pred_reg(args, model, device, loader, task_type):
     y_scores = torch.cat(y_scores, dim=0).cpu().numpy().flatten()
     plot_targets(args, y_scores, y_true, task_type)
 
+
 def plot_targets(args, pred, ground_truth, task_type):
     """Plot true vs predicted value in a scatter plot
 
@@ -394,5 +398,10 @@ def plot_targets(args, pred, ground_truth, task_type):
     plt.xlabel("Giá trị dự đoán")
     plt.ylabel("Giá trị thực tế")
     # plt.title("Ground truth vs prediction")
-    plt.savefig(f"Data/{task_type}/{args.dataset}/figures/{args.dataset}_pred.png", dpi=600, transparent=False, bbox_inches='tight')
+    plt.savefig(
+        f"Data/{task_type}/{args.dataset}/figures/{args.dataset}_pred.png",
+        dpi=600,
+        transparent=False,
+        bbox_inches="tight",
+    )
     plt.show()

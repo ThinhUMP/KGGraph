@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from torch.autograd import Variable
 
 
 class Model_decoder(nn.Module):

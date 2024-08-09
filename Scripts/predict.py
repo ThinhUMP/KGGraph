@@ -1,20 +1,19 @@
 import sys
 import pathlib
-
-root_dir = str(pathlib.Path(__file__).resolve().parents[1])
-sys.path.append(root_dir)
-
 from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from torch_geometric.data import DataLoader
 from KGGraph.KGGModel.graph_model import GraphModel
-from KGGraph.KGGModel.finetune_utils import get_task_type, predict_reg
+from KGGraph.KGGModel.finetune_utils import get_task_type
 from KGGraph.KGGModel.visualize import draw_pred_reg
 from KGGraph.KGGProcessor.split import scaffold_split, random_split
 import torch
 import argparse
 from pretrain import seed_everything
 import warnings
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[1])
+sys.path.append(root_dir)
 
 warnings.filterwarnings("ignore")
 
@@ -61,7 +60,8 @@ def main():
         "--dataset",
         type=str,
         default="ecoli",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, \
+            esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--seed", type=int, default=42, help="Seed for splitting the dataset."
@@ -137,8 +137,8 @@ def main():
     task_type = get_task_type(args)
 
     # set up dataset
-    df_pred = pd.read_csv(f"Data/{task_type}/{args.dataset}/raw/{args.dataset}.csv")
-    
+    _ = pd.read_csv(f"Data/{task_type}/{args.dataset}/raw/{args.dataset}.csv")
+
     dataset = MoleculeDataset(
         "Data/" + task_type + "/" + args.dataset,
         dataset=args.dataset,
@@ -159,7 +159,7 @@ def main():
     #     num_workers=args.num_workers,
     #     drop_last=True,
     # )
-    
+
     # data split
     smiles_list = pd.read_csv(
         "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
@@ -170,7 +170,7 @@ def main():
             train_dataset,
             valid_dataset,
             test_dataset,
-            (_, _, test_smiles),
+            (_, _, _),
         ) = scaffold_split(
             dataset,
             smiles_list,
@@ -188,7 +188,7 @@ def main():
             frac_train=0.8,
             frac_valid=0.1,
             frac_test=0.1,
-            seed=args.seed[i - 1],
+            seed=args.seed,
         )
         print("random")
     else:
@@ -198,7 +198,7 @@ def main():
 
     # data loader
     if args.dataset == "freesolv":
-        train_loader = DataLoader(
+        _ = DataLoader(
             train_dataset,
             batch_size=args.batch_size,
             shuffle=True,
@@ -206,13 +206,13 @@ def main():
             drop_last=True,
         )
     else:
-        train_loader = DataLoader(
+        _ = DataLoader(
             train_dataset,
             batch_size=args.batch_size,
             shuffle=True,
             num_workers=args.num_workers,
         )
-    val_loader = DataLoader(
+    _ = DataLoader(
         valid_dataset,
         batch_size=args.batch_size,
         shuffle=False,
@@ -225,20 +225,19 @@ def main():
         num_workers=args.num_workers,
     )
 
-
     # Load model
     state_dict = torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
 
     model = GraphModel(
-            args.num_layer,
-            args.emb_dim,
-            num_tasks=1,
-            JK=args.JK,
-            drop_ratio=args.dropout_ratio,
-            x_features=dataset[0].x.size(1),
-            edge_features=dataset[0].edge_attr.size(1),
-        )
-    
+        args.num_layer,
+        args.emb_dim,
+        num_tasks=1,
+        JK=args.JK,
+        drop_ratio=args.dropout_ratio,
+        x_features=dataset[0].x.size(1),
+        edge_features=dataset[0].edge_attr.size(1),
+    )
+
     model.load_state_dict(state_dict)
     model.to(device)
 
@@ -249,6 +248,7 @@ def main():
         # df_pred = predict_reg(model, predict_loader, device, df_pred)
         draw_pred_reg(args, model, device, test_loader, task_type)
         # print(df_pred)
+
 
 if __name__ == "__main__":
     main()

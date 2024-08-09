@@ -1,9 +1,11 @@
 import sys
 import pathlib
-
-root_dir = str(pathlib.Path(__file__).resolve().parents[1])
-sys.path.append(root_dir)
-
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+import torch
+import argparse
+import numpy as np
+from pretrain import seed_everything
+import warnings
 from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
 import pandas as pd
 from torch_geometric.data import DataLoader
@@ -20,12 +22,10 @@ from sklearn.metrics import (
     mean_squared_error,
     matthews_corrcoef,
 )
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
-import torch
-import argparse
-import numpy as np
-from pretrain import seed_everything
-import warnings
+
+root_dir = str(pathlib.Path(__file__).resolve().parents[1])
+sys.path.append(root_dir)
+
 
 warnings.filterwarnings("ignore")
 
@@ -72,7 +72,8 @@ def main():
         "--dataset",
         type=str,
         default="bbbp",
-        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
+        help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv,\
+            esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
@@ -84,7 +85,7 @@ def main():
         "--seed",
         type=int,
         default=42,
-        help="Seed for splitting the dataset, minibatch selection, random initialization.",
+        help="Seed for splitting the dataset, minibatch selection, random initialization",
     )
     parser.add_argument(
         "--split",
@@ -221,7 +222,7 @@ def main():
             num_workers=args.num_workers,
         )
 
-    val_loader = DataLoader(
+    _ = DataLoader(
         valid_dataset,
         batch_size=args.batch_size,
         shuffle=False,

@@ -32,7 +32,8 @@ class TestHybridizationFeaturize(unittest.TestCase):
         )  # 1 single bond in ethyne
 
     def test_num_bond_hybridization(self):
-        # Assuming get_hybridization returns 'SP3' for ethane, 'SP2' for ethene, and 'SP' for ethyne
+        # Assuming get_hybridization returns 'SP3' for ethane,
+        # 'SP2' for ethene, and 'SP' for ethyne
         self.assertEqual(
             HybridizationFeaturize.num_bond_hybridization(self.atom_ethane), 4
         )  # SP3 hybridization

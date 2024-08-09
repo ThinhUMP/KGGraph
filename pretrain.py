@@ -11,7 +11,6 @@ from KGGraph.KGGModel.visualize import plot_pretrain_loss
 from KGGraph.KGGModel.pretrain_utils import train
 import os
 import pandas as pd
-from typing import List
 import random
 import warnings
 

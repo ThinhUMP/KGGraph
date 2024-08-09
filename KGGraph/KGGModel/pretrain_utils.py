@@ -1,10 +1,11 @@
 import sys
 import pathlib
+from tqdm import tqdm
+from KGGraph.KGGProcessor.pretrain_dataset import molgraph_to_graph_data
+
 
 root_dir = str(pathlib.Path(__file__).resolve().parents[3])
 sys.path.append(root_dir)
-from tqdm import tqdm
-from KGGraph.KGGProcessor.pretrain_dataset import molgraph_to_graph_data
 
 
 def group_node_rep(node_rep, batch_size, num_part):

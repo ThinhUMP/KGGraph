@@ -10,7 +10,8 @@ def create_test_round_df(
     Creates and saves a test metrics DataFrame for various datasets.
 
     Args:
-    args: Argument parser or a similar object with attributes dataset, save_path, and task_type.
+    args: Argument parser or a similar object with attributes
+        dataset, save_path, and task_type.
     roc_list (list): List of ROC AUC values for individual task.
     ap_list (list): List of average precision (AP) values for individual task.
     f1_list (list): List of F1 scores for individual task.
@@ -42,7 +43,8 @@ def create_test_reg_round_df(args, mae, rmse, task_type, training_round):
     Creates and saves a test metrics DataFrame for various datasets.
 
     Args:
-    args: Argument parser or a similar object with attributes dataset, save_path, and task_type.
+    args: Argument parser or a similar object with attributes
+        dataset, save_path, and task_type.
     loss (list): List of loss values for individual task.
     task_type (str): The type of task for which metrics are being recorded.
     training_round (int): The identifier for the training round.
@@ -84,9 +86,11 @@ def create_train_round_df(
     Updates and saves the training metrics DataFrame with new epoch data.
 
     Args:
-    args: Argument parser or a similar object with attributes save_path, task_type, and dataset.
+    args: Argument parser or a similar object with attributes
+        save_path, task_type, and dataset.
     train_df (DataFrame): The DataFrame containing the training metrics.
-    train_loss, train_auc, train_ap, train_f1 (float): Training metrics for the current epoch.
+    train_loss, train_auc, train_ap, train_f1 (float):
+        Training metrics for the current epoch.
     val_loss, val_auc, val_ap, val_f1 (float): Validation metrics for the current epoch.
     test_loss, test_auc, test_ap, test_f1 (float): Test metrics for the current epoch.
     task_type (str): The type of task for which metrics are being recorded.
@@ -144,7 +148,8 @@ def create_train_reg_round_df(
     Updates and saves the training metrics DataFrame with new epoch data.
 
     Args:
-    args: Argument parser or a similar object with attributes save_path, task_type, and dataset.
+    args: Argument parser or a similar object with attributes
+        save_path, task_type, and dataset.
     train_df (DataFrame): The DataFrame containing the training metrics.
     train_loss (float): Training loss for the current epoch.
     val_loss (float): Validation loss for the current epoch.
@@ -181,11 +186,13 @@ def create_train_reg_round_df(
 
 def average_test_metrics(args, task_type, remove=True):
     """
-    Reads multiple test metrics CSV files, calculates their average and standard deviation,
+    Reads multiple test metrics CSV files,
+    calculates their average and standard deviation,
     and optionally removes the original files.
 
     Args:
-    args (object): An object containing configuration like save_path, dataset, and training_rounds.
+    args (object): An object containing configuration like save_path,
+        dataset, and training_rounds.
     task_type (str): The type of task for which metrics are being aggregated.
     remove (bool): Whether to remove the original CSV files after processing.
 
@@ -219,18 +226,24 @@ def average_test_metrics(args, task_type, remove=True):
         mean_auc = df_avg["AUC"].mean() * 100
         std_auc = df_std["AUC"].mean() * 100
         print(
-            f"AUC test for {args.dataset} dataset over {args.training_rounds} training rounds: {mean_auc:.2f}±{std_auc:.2f}"
+            f"AUC test for {args.dataset} dataset\
+                over {args.training_rounds} training rounds:\
+                    {mean_auc:.2f}±{std_auc:.2f}"
         )
     else:
         if args.dataset in ["qm7", "qm8", "qm9"]:
             mae_loss = df_avg["MAE"].mean()
             std_loss = df_std["MAE"].mean()
             print(
-                f"MAE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {mae_loss:.4f}±{std_loss:.4f}"
+                f"MAE loss of test sets for {args.dataset} dataset\
+                    over {args.training_rounds} training rounds: \
+                        {mae_loss:.4f}±{std_loss:.4f}"
             )
         else:
             rmse_loss = df_avg["RMSE"].mean()
             std_loss = df_std["RMSE"].mean()
             print(
-                f"RMSE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {rmse_loss:.4f}±{std_loss:.4f}"
+                f"RMSE loss of test sets for {args.dataset} dataset\
+                    over {args.training_rounds} training rounds: \
+                        {rmse_loss:.4f}±{std_loss:.4f}"
             )

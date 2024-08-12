@@ -6,17 +6,20 @@ import torch.nn.functional as F
 
 class GINConv(MessagePassing):
     """
-    GINConv is an extension of the Graph Isomorphism Network (GIN) that incorporates edge information
-    by concatenating edge embeddings with node features before aggregation. This class extends the
-    MessagePassing class to enable edge feature utilization in message passing.
+    GINConv is an extension of the Graph Isomorphism Network (GIN)
+    that incorporates edge information by concatenating
+    edge embeddings with node features before aggregation.
+    This class extends the MessagePassing class
+    to enable edge feature utilization in message passing.
 
     Args:
-        dataset: The dataset object, which is used to derive the number of edge features or embeddings.
+        dataset: The dataset object, which is used to
+        derive the number of edge features or embeddings.
         emb_dim (int): The dimensionality of embeddings for nodes and edges.
         aggr (str): The aggregation scheme to use ('add', 'mean', 'max').
 
     Reference:
-        Xu, K., Hu, W., Leskovec, J., & Jegelka, S. (2018). How powerful are graph neural networks?
+        Xu, K., Hu, W.(2018). How powerful are graph neural networks?
         https://arxiv.org/abs/1810.00826
     """
 
@@ -112,7 +115,8 @@ class GNN(torch.nn.Module):
         num_layer (int): the number of GNN layers
         emb_dim (int): dimensionality of embeddings
         JK (str): last, concat, max or sum.
-        max_pool_layer (int): the layer from which we use max pool rather than add pool for neighbor aggregation
+        max_pool_layer (int): the layer from which we use max pool
+        rather than add pool for neighbor aggregation
         drop_ratio (float): dropout rate
     Output:
         node representations
@@ -205,17 +209,22 @@ class GNN(torch.nn.Module):
 
 class GraphModel(torch.nn.Module):
     """
-    A GIN model extension that incorporates edge information by concatenation for graph-level prediction tasks.
+    A GIN model extension that incorporates edge information
+    by concatenation for graph-level prediction tasks.
 
-    This class defines a GNN model which can handle node features, edge features, and graph connectivity to
-    produce embeddings for graph-level prediction tasks. It supports different types of GNN layers (e.g., GIN, GCN)
+    This class defines a GNN model which can handle node features,
+    edge features, and graph connectivity to
+    produce embeddings for graph-level prediction tasks.
+    It supports different types of GNN layers (e.g., GIN, GCN)
     and aggregation methods for node representations.
 
     Args:
         num_layer (int): The number of GNN layers.
         emb_dim (int): The dimensionality of node embeddings.
-        num_tasks (int): The number of tasks for multi-task learning, typically corresponding to the number of output features.
-        JK (str): Choice of how to aggregate node representations across layers. Options are 'last', 'concat', 'max', or 'sum'.
+        num_tasks (int): The number of tasks for multi-task learning,
+        typically corresponding to the number of output features.
+        JK (str): Choice of how to aggregate node representations across layers.
+        Options are 'last', 'concat', 'max', or 'sum'.
         drop_ratio (float): The dropout rate applied after GNN layers.
     """
 
@@ -278,12 +287,14 @@ class GraphModel(torch.nn.Module):
         """
         Aggregates node representations to form super node representations.
 
-        This method aggregates the node representations of each graph in the batch to form a super node
-        representation by taking the representation of the last node for each graph in the batch.
+        This method aggregates the node representations
+        of each graph in the batch to form a super node representation
+        by taking the representation of the last node for each graph in the batch.
 
         Args:
             node_rep (Tensor): The node representations of all nodes in the batch.
-            batch (Tensor): The batch vector, which maps each node to its respective graph in the batch.
+            batch (Tensor): The batch vector, which maps each node to
+            its respective graph in the batch.
 
         Returns:
             Tensor: The super node representations for each graph in the batch.
@@ -301,13 +312,16 @@ class GraphModel(torch.nn.Module):
         """
         Forward pass of the GraphModel model.
 
-        The method can accept either a data object or the components of the data object as separate parameters.
-        It processes the input through GNN layers, aggregates the node representations to form super node
+        The method can accept either a data object or
+        the components of the data object as separate parameters.
+        It processes the input through GNN layers,
+        aggregates the node representations to form super node
         representations, and applies a final prediction layer.
 
         Args:
-            *argv: Variable length argument list. Can be a single data object or four separate components
-                   of the data object (x, edge_index, edge_attr, batch).
+            *argv: Variable length argument list.
+            Can be a single data object or four separate components of
+            the data object (x, edge_index, edge_attr, batch).
 
         Returns:
             Tensor: The output predictions for each graph in the batch.

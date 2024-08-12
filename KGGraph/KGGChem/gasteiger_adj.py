@@ -24,15 +24,19 @@ class GasteigerADJ:
         smiles: str, calculate_charges: bool = True
     ) -> tuple[Chem.Mol, dict]:
         """
-        Renumber atoms based on their atom map numbers and optionally calculate Gasteiger partial charges.
-        Returns a molecule with atom mapping and a dictionary mapping atom indices to their charges.
+        Renumber atoms based on their atom map numbers and optionally calculate
+        Gasteiger partial charges.
+        Returns a molecule with atom mapping and a dictionary mapping atom indices
+        to their charges.
 
         Args:
         smiles (str): The SMILES string of the molecule.
-        calculate_charges (bool, optional): Flag indicating whether to calculate Gasteiger partial charges. Defaults to True.
+        calculate_charges (bool, optional): Flag indicating whether to calculate
+        Gasteiger partial charges. Defaults to True.
 
         Returns:
-        tuple[Chem.Mol, dict]: A tuple containing the molecule with atom mapping and a dictionary mapping atom indices to their charges.
+        tuple[Chem.Mol, dict]: A tuple containing the molecule with atom mapping
+        and a dictionary mapping atom indices to their charges.
         """
         mol = Chem.MolFromSmiles(smiles)
         mol = GasteigerADJ.add_atom_mapping(mol)
@@ -54,10 +58,12 @@ class GasteigerADJ:
 
         Args:
         mol (Chem.Mol): The molecule for which the adjacency matrix is to be calculated.
-        charges (dict): A dictionary mapping atom indices to their Gasteiger partial charges.
+        charges (dict): A dictionary mapping atom indices to
+        their Gasteiger partial charges.
 
         Returns:
-        np.ndarray: The directed adjacency matrix, where matrix[i, j] = 1 indicates a directed edge from atom i to atom j based on charge difference.
+        np.ndarray: The directed adjacency matrix, where matrix[i, j] = 1
+        indicates a directed edge from atom i to atom j based on charge difference.
         """
         num_atoms = mol.GetNumAtoms()
         adjacency_matrix = np.zeros((num_atoms, num_atoms), dtype=int)
@@ -92,15 +98,18 @@ def add_atom_mapping(molecule):
 
 def renumber_and_calculate_charges(smiles, calculate_charges=True):
     """
-    Renumber atoms based on their atom map numbers and optionally calculate Gasteiger partial charges.
-    Return a molecule with atom mapping and a dictionary mapping atom indices to their charges.
+    Renumber atoms based on their atom map numbers and optionally calculate
+    Gasteiger partial charges.
+    Return a molecule with atom mapping and a dictionary mapping atom indices
+    to their charges.
 
     Args:
     smiles (str): The SMILES string of the molecule.
     calculate_charges (bool): Whether to calculate Gasteiger partial charges.
 
     Returns:
-    tuple: A molecule with atom mapping and a dictionary mapping atom indices to their charges.
+    tuple: A molecule with atom mapping and a dictionary mapping atom indices
+    to their charges.
     """
     mol = Chem.MolFromSmiles(smiles)
     mol = add_atom_mapping(mol)

@@ -41,7 +41,8 @@ class AtomFeature:
     @staticmethod
     def feature(mol: Chem.Mol):
         """
-        Get feature molecules from the list of molecules and return a list of feature molecules.
+        Get feature molecules from the list of molecules
+        and return a list of feature molecules.
         """
         x_node_list = []
 
@@ -56,7 +57,10 @@ class AtomFeature:
                 and get_hybridization(atom) != "UNSPECIFIED"
             ):
                 print(
-                    f"Error key:{(total_sigma_bonds, num_lone_pairs)} with atom: {get_symbol(atom)} and hybridization: {get_hybridization(atom)} smiles: {get_smiles(mol)}"
+                    f"Error key:{(total_sigma_bonds, num_lone_pairs)}\
+                        with atom: {get_symbol(atom)}\
+                            and hybridization: {get_hybridization(atom)}\
+                                smiles: {get_smiles(mol)}"
                 )
 
             atom_feature = (
@@ -124,7 +128,8 @@ def motif_supernode_feature(mol: Chem.Mol, number_atom_node_attr: int, decompose
         cliques, _ = TMotifDecomposition.defragment(mol)
     else:
         raise ValueError(
-            f"Unknown decomposition type: {decompose_type}. It should be motif, brics, jin or smotif."
+            f"Unknown decomposition type: {decompose_type}.\
+                It should be motif, brics, jin or smotif."
         )
 
     num_motif = len(cliques)

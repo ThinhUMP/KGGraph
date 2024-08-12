@@ -79,7 +79,8 @@ class TMotifDecomposition:
     @staticmethod
     def _generate_mark_pattern(mol: Chem.Mol) -> Set[int]:
         """
-        Generate marks for atoms that are part of identified functional groups in a molecule.
+        Generate marks for atoms that are part of
+        identified functional groups in a molecule.
 
         Parameters:
         mol (Chem.Mol): RDKit molecule object to analyze.
@@ -105,7 +106,8 @@ class TMotifDecomposition:
     @staticmethod
     def _find_carbonyl(mol: Chem.Mol) -> Tuple[List[List[int]], List[Tuple[int]]]:
         """
-        Identify carbonyl groups in the molecule and merge adjacent or overlapping CO groups.
+        Identify carbonyl groups in the molecule
+        and merge adjacent or overlapping CO groups.
 
         Parameters:
         mol (Chem.Mol): RDKit molecule object.

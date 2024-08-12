@@ -22,7 +22,8 @@ def tree_vis(
     colormap: ScalarMappable = plt.cm.coolwarm,
 ) -> plt.Figure:
     """
-    Visualize a directed graph with specific features, reorienting edges based on edge labels.
+    Visualize a directed graph with specific features,
+    reorienting edges based on edge labels.
 
     Args:
     - G (nx.DiGraph): A NetworkX directed graph.
@@ -108,7 +109,8 @@ def vis_compare(
     mol_img_size: tuple = (500, 500),
 ) -> None:
     """
-    Create a 1x2 subplot with a molecule structure from a SMILES string and a tree nodes figure.
+    Create a 1x2 subplot with a molecule structure
+    from a SMILES string and a tree nodes figure.
 
     Args:
     - smiles (str): A SMILES string representing a molecule.

@@ -90,7 +90,8 @@ class ConformerChargeGeneration:
             lig_dir (str): The directory to save the output files.
             ID (list, optional): A list of IDs for the molecules.
             If None, default IDs will be assigned.
-            output_format (str, optional): The format for the output files, either "pdb" or "sdf". Defaults to "pdb".
+            output_format (str, optional): The format for the output files,
+            either "pdb" or "sdf". Defaults to "pdb".
 
         Returns:
             None
@@ -139,7 +140,8 @@ class ConformerChargeGeneration:
         """
         Optimizes the geometry of a molecule using xtb.
         Args:
-            input_file (str): Path to the input file containing the molecule to be optimized.
+            input_file (str): Path to the input file containing the molecule
+            to be optimized.
             file_name (str): Name of the output file for the optimized molecule.
             level (str): Optimization level to be used with xtb.
             output_dir (str): Directory where the optimized molecule file will be saved.
@@ -203,8 +205,8 @@ class ConformerChargeGeneration:
         """
         Converts SMILES to 3D structures and optimizes their geometry.
 
-        This method first converts SMILES strings from a DataFrame to 3D structure files and
-        then optimizes the geometry of each structure using xtb.
+        This method first converts SMILES strings from a DataFrame to 3D structure files
+        and then optimizes the geometry of each structure using xtb.
 
         Args:
             data (pandas.DataFrame): DataFrame containing SMILES strings and IDs.
@@ -213,7 +215,8 @@ class ConformerChargeGeneration:
             xtb (bool): Whether to use xtb for geometry optimization. Defaults to True.
             level (str): Optimization level to be used with xtb.
             num_cpus (int): Number of CPUs to use for the optimization. Defaults to 1.
-            format (str): The format of the output files ('pdb' or 'sdf'). Defaults to 'pdb'.
+            format (str): The format of the output files ('pdb' or 'sdf').
+            Defaults to 'pdb'.
         """
         self.smiles2file_df(
             data, smiles_col, ID_col, self.input_dir, output_format=format
@@ -246,15 +249,22 @@ class ConformerChargeGeneration:
         format: str = "pdb",
     ) -> None:
         """
-        Runs geometry optimization for the given SMILES strings using xTB or a specified level of theory.
+        Runs geometry optimization for the given SMILES strings using xTB or
+        a specified level of theory.
 
         Args:
-            smiles (list or str): The SMILES string or list of SMILES strings to be optimized.
-            ID (list, optional): List of identifiers for the input SMILES strings. Defaults to None.
-            xtb (bool, optional): Flag to indicate whether to use xTB for optimization. Defaults to True.
-            level (str, optional): The level of theory for the geometry optimization. Defaults to 'normal'.
-            num_cpus (int, optional): The number of CPUs to use for the optimization. Defaults to 1.
-            format (str, optional): The output format for the optimized structures. Defaults to "pdb".
+            smiles (list or str): The SMILES string or list of SMILES strings
+            to be optimized.
+            ID (list, optional): List of identifiers for the input SMILES strings.
+            Defaults to None.
+            xtb (bool, optional): Flag to indicate whether to use xTB for optimization.
+            Defaults to True.
+            level (str, optional): The level of theory for the geometry optimization.
+            Defaults to 'normal'.
+            num_cpus (int, optional): The number of CPUs to use for the optimization.
+            Defaults to 1.
+            format (str, optional): The output format for the optimized structures.
+            Defaults to "pdb".
 
         Returns:
             None

@@ -5,7 +5,8 @@ from .atom_features import (
     get_hybridization,
 )
 
-# five features are in the order of (numbers of orbital s, numbers of orbital p, number of orbital d, total neighbors including hydrogens, number of lone pairs)
+# five features are in the order of (numbers of orbital s, numbers of orbital p,
+# number of orbital d, total neighbors including hydrogens, number of lone pairs)
 HYBRIDIZATION = {
     (1, 0): [1, 0, 0, 1, 0],  # AX1E0 => s => Ex: Na in NaI
     (0, 0): [1, 0, 0, 0, 0],  # AX0E0 => s => Ex: Zn2+
@@ -73,10 +74,12 @@ class HybridizationFeaturize:
     @staticmethod
     def total_sigma_bond(atom: Chem.Atom) -> int:
         """
-        Compute the total number of single bonds for a given atom, including the bonds with hydrogen atoms.
+        Compute the total number of single bonds for a given atom,
+        including the bonds with hydrogen atoms.
 
         Parameters:
-        atom (Chem.Atom): The atom for which the total number of single bonds is to be computed.
+        atom (Chem.Atom): The atom for which the total number of single bonds
+        is to be computed.
 
         Returns:
         int: The total number of single bonds for the given atom.
@@ -87,10 +90,12 @@ class HybridizationFeaturize:
     @staticmethod
     def num_bond_hybridization(atom: Chem.Atom) -> int:
         """
-        Compute the number of bonds involved in hybridization for a given atom based on the atom's hybridization state.
+        Compute the number of bonds involved in hybridization for a given atom
+        based on the atom's hybridization state.
 
         Parameters:
-        atom (Chem.Atom): The atom for which the number of bonds involved in hybridization is to be computed.
+        atom (Chem.Atom): The atom for which the number of bonds involved in hybridization
+        is to be computed.
 
         Returns:
         int: The number of bonds involved in hybridization for the given atom.
@@ -101,20 +106,27 @@ class HybridizationFeaturize:
     @staticmethod
     def num_lone_pairs(atom: Chem.Atom) -> int:
         """
-        Calculate the number of lone pairs on a given atom. This method estimates the number of lone pairs by subtracting the total number
-        of single bonds (including those with hydrogens) from the atom's hybridization-based expected bonding capacity. The calculation assumes
-        that each atom has a fixed bonding capacity based on its hybridization state (sp, sp2, sp3, etc.), and any valence electrons not involved
+        Calculate the number of lone pairs on a given atom. This method estimates the
+        number of lone pairs by subtracting the total number
+        of single bonds (including those with hydrogens) from the
+        atom's hybridization-based expected bonding capacity. The calculation assumes
+        that each atom has a fixed bonding capacity based on its hybridization state
+        (sp, sp2, sp3, etc.), and any valence electrons not involved
         in single bonding can be considered as part of lone pairs.
 
         Parameters:
-        atom (Chem.Atom): The atom for which the number of lone pairs is to be computed. This atom should be part of a molecule object.
+        atom (Chem.Atom): The atom for which the number of lone pairs is to be computed.
+        This atom should be part of a molecule object.
 
         Returns:
-        int: The estimated number of lone pairs on the atom. The value is computed based on the atom's hybridization and its single bonds.
+        int: The estimated number of lone pairs on the atom. The value is computed
+        based on the atom's hybridization and its single bonds.
 
         Note:
-        This method relies on the `num_bond_hybridization` and `total_sigma_bond` methods from the `HybridizationFeaturize` class. Ensure that
-        these methods correctly compute the atom's expected bonding capacity based on hybridization and the actual count of single bonds,
+        This method relies on the `num_bond_hybridization` and `total_sigma_bond` methods
+        from the `HybridizationFeaturize` class. Ensure that
+        these methods correctly compute the atom's expected bonding capacity based on
+        hybridization and the actual count of single bonds,
         respectively, for accurate results.
         """
         num_lone_pairs = HybridizationFeaturize.num_bond_hybridization(
@@ -125,17 +137,22 @@ class HybridizationFeaturize:
     @staticmethod
     def feature(atom: Chem.Atom) -> tuple[int, int, list[int]]:
         """
-        Compute a feature vector for a given atom, including the total number of single bonds, the number of lone pairs,
-        and a predefined feature vector based on the atom's hybridization characteristics. This vector is intended to capture
+        Compute a feature vector for a given atom, including the total number of
+        single bonds, the number of lone pairs, and a predefined feature vector based on
+        the atom's hybridization characteristics.
+        This vector is intended to capture
         aspects of the atom that are relevant to its chemical behavior and properties.
 
         Parameters:
         atom (Chem.Atom): The atom for which the feature vector is to be computed.
 
         Returns:
-        tuple[int, int, list[int]]: A tuple containing the total number of single bonds to the atom (including hydrogen atoms),
-        the number of lone electron pairs on the atom, and a list representing the hybridization feature vector. The hybridization
-        feature vector is predefined and retrieved based on the total number of single bonds and the number of lone pairs.
+        tuple[int, int, list[int]]: A tuple containing the total number of
+        single bonds to the atom (including hydrogen atoms),
+        the number of lone electron pairs on the atom,
+        and a list representing the hybridization feature vector. The hybridization
+        feature vector is predefined and retrieved based on
+        the total number of single bonds and the number of lone pairs.
         """
         total_sigma_bonds = HybridizationFeaturize.total_sigma_bond(atom)
         num_lone_pairs = HybridizationFeaturize.num_lone_pairs(atom)

@@ -59,7 +59,8 @@ class BRCISDecomposition:
         cliques (List[List[int]]): The current list of cliques.
 
         Returns:
-        Tuple[List[List[int]], List[List[int]]]: Updated list of cliques and list of broken bonds.
+        Tuple[List[List[int]], List[List[int]]]:
+            Updated list of cliques and list of broken bonds.
         """
         break_ring_bonds = []
         for (
@@ -134,8 +135,10 @@ class BRCISDecomposition:
         Parameters:
         cliques (List[List[int]]): The list of cliques.
         res_list (List[Tuple]): BRICS breaks result.
-        breaks_ring_bonds (List[List[int]]): List of broken bonds for ring and non-ring atoms.
-        break_intersections (List[List[int]]): List of atoms at intersections as individual motifs.
+        breaks_ring_bonds (List[List[int]]):
+            List of broken bonds for ring and non-ring atoms.
+        break_intersections (List[List[int]]):
+            List of atoms at intersections as individual motifs.
 
         Returns:
         List[Tuple[int, int]]: List of edges representing the breaks.
@@ -161,7 +164,8 @@ class BRCISDecomposition:
         mol (Chem.Mol): The RDKit molecule object.
 
         Returns:
-        Tuple[List[List[int]], List[Tuple[int, int]]]: List of cliques and list of edges representing the breaks.
+        Tuple[List[List[int]], List[Tuple[int, int]]]:
+            List of cliques and list of edges representing the breaks.
         """
         n_atoms = mol.GetNumAtoms()
         if n_atoms == 1:

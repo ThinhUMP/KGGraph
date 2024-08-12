@@ -100,7 +100,8 @@ class TreeDecomposition:
         nei_list (List[List[int]]): Neighbor list for each atom.
 
         Returns:
-        Tuple[Dict[Tuple[int, int], int], List[List[int]]]: Dictionary of edges and updated cliques.
+        Tuple[Dict[Tuple[int, int], int], List[List[int]]]:
+            Dictionary of edges and updated cliques.
         """
         # print(cliques)
         # print(nei_list)
@@ -174,7 +175,8 @@ class TreeDecomposition:
         mol (Chem.Mol): RDKit molecule object.
 
         Returns:
-        Tuple[List[List[int]], List[Tuple[int, int]]]: List of cliques and list of edges representing the tree decomposition.
+        Tuple[List[List[int]], List[Tuple[int, int]]]:
+            List of cliques and list of edges representing the tree decomposition.
         """
         n_atoms = mol.GetNumAtoms()
         if n_atoms == 1:

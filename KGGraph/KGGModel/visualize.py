@@ -235,7 +235,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
     plt.yticks([])
     plt.tight_layout()
     plt.savefig(
-        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_kgg_tsne.png",
+        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_tsne.png",
         dpi=600,
         bbox_inches="tight",
         transparent=False,
@@ -244,7 +244,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
     plt.show()
 
 
-def visualize_embeddings_reg(args, model, device, loader, task_type):
+def visualize_embeddings_reg(args, model, device, loader, task_type, name: str):
     embeddings, _ = extract_embeddings(args, model, device, loader)
 
     tsne = TSNE(n_components=2, random_state=42)
@@ -274,8 +274,9 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     plt.xticks([])
     plt.yticks([])
     plt.tight_layout()
+    name = f"{args.dataset}_lumo_tsne.png"
     plt.savefig(
-        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_lumo_tsne.png",
+        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{name}",
         dpi=600,
         bbox_inches="tight",
         transparent=False,

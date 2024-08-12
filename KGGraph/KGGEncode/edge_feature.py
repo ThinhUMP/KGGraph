@@ -35,11 +35,13 @@ allowable_features = {
 class EdgeFeature:
     def __init__(self, mol: Chem.Mol, decompose_type: str):
         """
-        Initializes the class with the given molecule and sets up the decompose type for further processing.
+        Initializes the class with the given molecule and
+        sets up the decompose type for further processing.
 
         Args:
             mol (Chem.Mol): The input molecule for the class.
-            decompose_type (str): The type of decomposition to use, e.g., 'motif', 'brics', 'jin', 'smotif'.
+            decompose_type (str): The type of decomposition
+                to use, e.g., 'motif', 'brics', 'jin', 'smotif'.
         """
         self.mol = mol
         self.decompose_type = decompose_type
@@ -59,7 +61,8 @@ class EdgeFeature:
             return TMotifDecomposition.defragment(self.mol)
         else:
             raise ValueError(
-                f"Unknown decomposition type: {self.decompose_type}. It should be motif, brics, jin or smotif."
+                f"Unknown decomposition type: {self.decompose_type}.\
+                    It should be motif, brics, jin or smotif."
             )
 
     @property
@@ -270,7 +273,8 @@ class EdgeFeature:
             fix_ratio (bool): Whether to use a fixed ratio for masking or a random ratio.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: The masked edge attribute tensor and masked edge index tensor.
+            Tuple[torch.Tensor, torch.Tensor]: The masked edge attribute tensor
+            and masked edge index tensor.
         """
         # Calculate the number of edges to be masked
         if fix_ratio:
@@ -332,7 +336,8 @@ def edge_feature(mol, decompose_type, mask_edge, mask_edge_ratio, fix_ratio):
 
     # If masking is not enabled
     if not mask_edge:
-        # Get the edge index tensor for the graph and the edge attribute tensor for the graph
+        # Get the edge index tensor for the graph and
+        # the edge attribute tensor for the graph
         motif_edge_index, edge_index = obj.get_edge_index(
             edge_index_node, obj.num_motif, obj.cliques, obj.num_atoms, obj.clique_edges
         )
@@ -355,7 +360,8 @@ def edge_feature(mol, decompose_type, mask_edge, mask_edge_ratio, fix_ratio):
             mask_edge_ratio,
             fix_ratio=fix_ratio,
         )
-        # Get the edge index tensor for the graph and the edge attribute tensor for the graph
+        # Get the edge index tensor for the graph and
+        # the edge attribute tensor for the graph
         motif_edge_index, edge_index = obj.get_edge_index(
             edge_index_masked,
             obj.num_motif,

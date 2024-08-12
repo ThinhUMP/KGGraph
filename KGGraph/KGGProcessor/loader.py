@@ -123,7 +123,8 @@ def load_bbbp_dataset(input_path):
     Load the BBBP dataset from a CSV file.
 
     :param input_path: Path to the CSV file containing the dataset
-    :return: Tuple containing a list of SMILES strings, a list of RDKit Mol objects, and a NumPy array containing the labels
+    :return: Tuple containing a list of SMILES strings, a list of RDKit Mol objects,
+        and a NumPy array containing the labels
     """
     # Load the dataset
     input_df = pd.read_csv(input_path, sep=",")
@@ -151,7 +152,8 @@ def load_clintox_dataset(input_path):
     Load the clintox dataset from a CSV file.
 
     :param input_path: Path to the CSV file containing the dataset
-    :return: Tuple containing a list of SMILES strings, a list of RDKit Mol objects, and a NumPy array containing the labels
+    :return: Tuple containing a list of SMILES strings,
+        a list of RDKit Mol objects, and a NumPy array containing the labels
     """
     # Load the dataset
     input_df = pd.read_csv(input_path, sep=",")

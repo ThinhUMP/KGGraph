@@ -148,48 +148,135 @@ class MoleculeDataset(InMemoryDataset):
             "Must indicate valid location of raw data. No download allowed"
         )
 
+    # def process(self):
+    #     data_smiles_list = []
+    #     data_list = []
+    #     print("Decompose type:", self.decompose_type)
+
+    #     # Classification datasets
+    #     if self.dataset == "tox21":
+    #         smiles_list, mols_list, labels = load_tox21_dataset(self.raw_paths[0])
+    #     elif self.dataset == "bbbp":
+    #         smiles_list, mols_list, labels = load_bbbp_dataset(self.raw_paths[0])
+    #     elif self.dataset == "clintox":
+    #         smiles_list, mols_list, labels = load_clintox_dataset(self.raw_paths[0])
+    #     elif self.dataset == "sider":
+    #         smiles_list, mols_list, labels = load_sider_dataset(self.raw_paths[0])
+    #     elif self.dataset == "toxcast":
+    #         smiles_list, mols_list, labels = load_toxcast_dataset(self.raw_paths[0])
+    #     elif self.dataset == "hiv":
+    #         smiles_list, mols_list, labels = load_hiv_dataset(self.raw_paths[0])
+    #     elif self.dataset == "muv":
+    #         smiles_list, mols_list, labels = load_muv_dataset(self.raw_paths[0])
+    #     elif self.dataset == "bace":
+    #         smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
+
+    #     # Regression datasets
+    #     elif self.dataset == "esol":
+    #         smiles_list, mols_list, labels = load_esol_dataset(self.raw_paths[0])
+    #     elif self.dataset == "freesolv":
+    #         smiles_list, mols_list, labels = load_freesolv_dataset(self.raw_paths[0])
+    #     elif self.dataset == "lipo":
+    #         smiles_list, mols_list, labels = load_lipo_dataset(self.raw_paths[0])
+    #     elif self.dataset == "qm7":
+    #         smiles_list, mols_list, labels = load_qm7_dataset(self.raw_paths[0])
+    #     elif self.dataset == "qm8":
+    #         smiles_list, mols_list, labels = load_qm8_dataset(self.raw_paths[0])
+    #     elif self.dataset == "qm9":
+    #         smiles_list, mols_list, labels = load_qm9_dataset(self.raw_paths[0])
+    #     elif self.dataset == "ecoli":
+    #         smiles_list, mols_list, labels = load_ecoli_dataset(self.raw_paths[0])
+    #     else:
+    #         raise ValueError(f"Dataset {self.dataset} is not supported")
+
+    #     data_result_list = Parallel(n_jobs=-1)(
+    #         delayed(feature)(
+    #             mol,
+    #             self.decompose_type,
+    #             self.mask_node,
+    #             self.mask_edge,
+    #             self.mask_node_ratio,
+    #             self.mask_edge_ratio,
+    #             self.fix_ratio,
+    #         )
+    #         for mol in tqdm(mols_list)
+    #     )
+    #     for idx, data in enumerate(data_result_list):
+    #         data.id = torch.tensor(
+    #             [idx]
+    #         )  # id here is the index of the mol in the dataset
+    #         data.y = torch.tensor(labels[idx])
+    #         if self.dataset == "bace":
+    #             data.fold = torch.tensor([folds[idx]])
+    #         data_list.append(data)
+    #         data_smiles_list.append(smiles_list[idx])
+
+    #     if self.pre_filter is not None:
+    #         data_list = [data for data in data_list if self.pre_filter(data)]
+
+    #     if self.pre_transform is not None:
+    #         data_list = [self.pre_transform(data) for data in data_list]
+
+    #     # write data_smiles_list in processed paths
+    #     data_smiles_series = pd.Series(data_smiles_list)
+    #     data_smiles_series.to_csv(
+    #         os.path.join(self.processed_dir, "smiles.csv"), index=False, header=False
+    #     )
+
+    #     if data_list:  # Ensure data_list is not empty
+    #         data, slices = self.collate(data_list)
+    #         torch.save((data, slices), self.processed_paths[0])
+
     def process(self):
-        data_smiles_list = []
-        data_list = []
+        data_smiles_list, data_list = [], []
+
         print("Decompose type:", self.decompose_type)
 
-        # Classification datasets
-        if self.dataset == "tox21":
-            smiles_list, mols_list, labels = load_tox21_dataset(self.raw_paths[0])
-        elif self.dataset == "bbbp":
-            smiles_list, mols_list, labels = load_bbbp_dataset(self.raw_paths[0])
-        elif self.dataset == "clintox":
-            smiles_list, mols_list, labels = load_clintox_dataset(self.raw_paths[0])
-        elif self.dataset == "sider":
-            smiles_list, mols_list, labels = load_sider_dataset(self.raw_paths[0])
-        elif self.dataset == "toxcast":
-            smiles_list, mols_list, labels = load_toxcast_dataset(self.raw_paths[0])
-        elif self.dataset == "hiv":
-            smiles_list, mols_list, labels = load_hiv_dataset(self.raw_paths[0])
-        elif self.dataset == "muv":
-            smiles_list, mols_list, labels = load_muv_dataset(self.raw_paths[0])
-        elif self.dataset == "bace":
-            smiles_list, mols_list, folds, labels = load_bace_dataset(self.raw_paths[0])
+        # Load the dataset
+        smiles_list, mols_list, labels, folds = self._load_dataset(
+            self.dataset, self.raw_paths[0]
+        )
+        # Process molecules in parallel
+        data_result_list = self._process_molecules(mols_list, labels)
 
-        # Regression datasets
-        elif self.dataset == "esol":
-            smiles_list, mols_list, labels = load_esol_dataset(self.raw_paths[0])
-        elif self.dataset == "freesolv":
-            smiles_list, mols_list, labels = load_freesolv_dataset(self.raw_paths[0])
-        elif self.dataset == "lipo":
-            smiles_list, mols_list, labels = load_lipo_dataset(self.raw_paths[0])
-        elif self.dataset == "qm7":
-            smiles_list, mols_list, labels = load_qm7_dataset(self.raw_paths[0])
-        elif self.dataset == "qm8":
-            smiles_list, mols_list, labels = load_qm8_dataset(self.raw_paths[0])
-        elif self.dataset == "qm9":
-            smiles_list, mols_list, labels = load_qm9_dataset(self.raw_paths[0])
-        elif self.dataset == "ecoli":
-            smiles_list, mols_list, labels = load_ecoli_dataset(self.raw_paths[0])
-        else:
-            raise ValueError(f"Dataset {self.dataset} is not supported")
+        # Prepare data for saving
+        data_list, data_smiles_list = self._prepare_data(
+            data_result_list, smiles_list, labels, folds
+        )
 
-        data_result_list = Parallel(n_jobs=-1)(
+        # Apply filters and transformations
+        data_list = self._apply_filters_and_transformations(data_list)
+
+        # Save processed data
+        self._save_data(data_list, data_smiles_list)
+
+    def _load_dataset(self, dataset: str, raw_path: str):
+        dataset_loaders = {
+            "tox21": load_tox21_dataset,
+            "bbbp": load_bbbp_dataset,
+            "clintox": load_clintox_dataset,
+            "sider": load_sider_dataset,
+            "toxcast": load_toxcast_dataset,
+            "hiv": load_hiv_dataset,
+            "muv": load_muv_dataset,
+            "bace": load_bace_dataset,
+            "esol": load_esol_dataset,
+            "freesolv": load_freesolv_dataset,
+            "lipo": load_lipo_dataset,
+            "qm7": load_qm7_dataset,
+            "qm8": load_qm8_dataset,
+            "qm9": load_qm9_dataset,
+            "ecoli": load_ecoli_dataset,
+        }
+
+        if dataset not in dataset_loaders:
+            raise ValueError(f"Dataset {dataset} is not supported")
+
+        loader = dataset_loaders[dataset]
+        return loader(raw_path) + (None,)
+
+    def _process_molecules(self, mols_list, labels):
+        return Parallel(n_jobs=-1)(
             delayed(feature)(
                 mol,
                 self.decompose_type,
@@ -201,28 +288,40 @@ class MoleculeDataset(InMemoryDataset):
             )
             for mol in tqdm(mols_list)
         )
+
+    def _prepare_data(self, data_result_list, smiles_list, labels, folds):
+        data_list = []
+        data_smiles_list = []
+
         for idx, data in enumerate(data_result_list):
-            data.id = torch.tensor(
-                [idx]
-            )  # id here is the index of the mol in the dataset
-            data.y = torch.tensor(labels[idx])
-            if self.dataset == "bace":
-                data.fold = torch.tensor([folds[idx]])
+            data.id = torch.tensor([idx])  # Assign the molecule index
+            data.y = torch.tensor(labels[idx])  # Assign the label
+            if self.dataset == "bace" and folds is not None:
+                data.fold = torch.tensor(
+                    [folds[idx]]
+                )  # Assign the fold for BACE dataset
             data_list.append(data)
             data_smiles_list.append(smiles_list[idx])
 
+        return data_list, data_smiles_list
+
+    def _apply_filters_and_transformations(self, data_list):
         if self.pre_filter is not None:
             data_list = [data for data in data_list if self.pre_filter(data)]
 
         if self.pre_transform is not None:
             data_list = [self.pre_transform(data) for data in data_list]
 
-        # write data_smiles_list in processed paths
+        return data_list
+
+    def _save_data(self, data_list, data_smiles_list):
+        # Write SMILES to CSV
         data_smiles_series = pd.Series(data_smiles_list)
         data_smiles_series.to_csv(
             os.path.join(self.processed_dir, "smiles.csv"), index=False, header=False
         )
 
+        # Save processed data
         if data_list:  # Ensure data_list is not empty
             data, slices = self.collate(data_list)
             torch.save((data, slices), self.processed_paths[0])

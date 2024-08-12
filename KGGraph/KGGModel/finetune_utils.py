@@ -31,7 +31,8 @@ def get_task_type(args):
     Determines the type of task (classification or regression) based on the dataset.
 
     Args:
-    args: An argument parser object or a similar structure where args.dataset is the name of the dataset.
+    args: An argument parser object or a similar structure
+        where args.dataset is the name of the dataset.
 
     Returns:
     str: The type of task associated with the dataset ('classification' or 'regression').
@@ -59,7 +60,8 @@ def get_num_task(args):
     Retrieves the number of tasks associated with a specific dataset.
 
     Args:
-    args: An argument parser object or a similar structure where args.dataset is the name of the dataset.
+    args: An argument parser object or a similar structure
+        where args.dataset is the name of the dataset.
 
     Returns:
     int: The number of tasks associated with the dataset.
@@ -100,7 +102,8 @@ def train(model, device, loader, optimizer, criterion):
     criterion (function): The loss function used for training.
 
     Returns:
-    tuple: A tuple containing the average loss, ROC AUC, average precision, and F1 score for the training epoch.
+    tuple: A tuple containing the average loss, ROC AUC, average precision,
+        and F1 score for the training epoch.
     """
     model.train()
     y_true = []
@@ -339,21 +342,25 @@ def train_epoch_cls(
     training_round,
 ):
     """
-    Trains a classification model for a specified number of epochs and returns the training metrics.
+    Trains a classification model for a specified number of
+        epochs and returns the training metrics.
 
     Args:
-        args (object): The arguments object containing the necessary parameters for training.
+        args (object): The arguments object containing
+            the necessary parameters for training.
         model (object): The classification model to be trained.
         device (str): The device on which the training will be performed.
         train_loader (object): The data loader for the training dataset.
         val_loader (object): The data loader for the validation dataset.
         test_loader (object): The data loader for the test dataset.
         optimizer (object): The optimizer used for training.
-        task_type (str): The type of task (e.g., binary classification, multi-class classification).
-        training_rounds (int): The number of rounds of training to be performed.
+        task_type (str):
+            The type of task (e.g., binary classification, multi-class classification).
+            training_rounds (int): The number of rounds of training to be performed.
 
     Returns:
-        dict: A dictionary containing the training metrics for each epoch, including the training and validation loss, AUC, AP, and F1 scores.
+        dict: A dictionary containing the training metrics for each epoch,
+        including the training and validation loss, AUC, AP, and F1 scores.
     """
     columns = [
         "train_loss",
@@ -426,7 +433,8 @@ def train_epoch_cls(
         )
         torch.save(
             model.state_dict(),
-            f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth",
+            f"{args.save_path+task_type}/{args.dataset}/\
+                {args.dataset}_{training_round}.pth",
         )
 
         print(
@@ -513,7 +521,8 @@ def train_epoch_reg(
 
         torch.save(
             model.state_dict(),
-            f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth",
+            f"{args.save_path+task_type}/{args.dataset}/\
+            {args.dataset}_{training_round}.pth",
         )
 
 

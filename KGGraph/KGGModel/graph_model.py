@@ -174,7 +174,7 @@ class GNN(torch.nn.Module):
                 self.gnns.append(
                     GINConv(emb_dim, aggr="add", edge_features=edge_features)
                 )
-        elif gnn_type == "transforme_gnn":
+        elif gnn_type == "transformer_gnn":
             self.gnns = torch.nn.ModuleList(
                 [
                     TransformerConv(
@@ -192,7 +192,7 @@ class GNN(torch.nn.Module):
             )
         else:
             raise ValueError(
-                "GNN layer types must be gin, gin_selfcoded, transforme_gnn or gat."
+                "GNN layer types must be gin, gin_selfcoded, transformer_gnn or gat."
             )
 
         # List of batchnorms

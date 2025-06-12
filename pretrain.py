@@ -37,7 +37,7 @@ def main():
         description="PyTorch implementation of pre-training of graph neural networks"
     )
     parser.add_argument(
-        "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
+        "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -85,8 +85,8 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gin",
-        help="gnn_type (gin, gin_selfcoded, transforme_gnn, gat)",
+        default="transformer_gnn",
+        help="gnn_type (gin, gin_selfcoded, transformer_gnn, gat)",
     )
     parser.add_argument(
         "--decompose_type",
@@ -198,6 +198,11 @@ def main():
         weight_decay=args.decay,
     )
 
+    if args.output_model_directory == "":
+        raise ValueError(
+            "You must indicate the directory where pretrained model is saved!"
+        )
+
     pretrain_loss = pd.DataFrame(columns=["loss"], index=range(args.epochs))
     for epoch in range(1, args.epochs + 1):
         print("====epoch", epoch)
@@ -205,24 +210,20 @@ def main():
             args, model_list, loader, optimizer, device, pretrain_loss, epoch
         )
 
-    if args.output_model_directory == "":
-        raise ValueError(
-            "You must indicate the directory where pretrained model is saved!"
-        )
+        # Save model for every epoch
+        base_path = os.path.join(args.output_model_directory, args.gnn_type)
+        print(base_path)
+        os.makedirs(base_path, exist_ok=True)
+        torch.save(model.state_dict(), os.path.join(base_path, "pretrain.pth"))
 
-    # Save model for every epoch
-    base_path = os.path.join(args.output_model_directory, args.gnn_type)
-    os.makedirs(base_path, exist_ok=True)
-    torch.save(model.state_dict(), os.path.join(base_path, "pretrain.pth"))
-
-    # Save model at specific checkpoint epochs
-    checkpoint_epochs = [40, 60, 80, 100]
-    if epoch in checkpoint_epochs:
-        checkpoint_path = os.path.join(
-            args.output_model_directory, f"{args.gnn_type}_e{epoch}"
-        )
-        os.makedirs(checkpoint_path, exist_ok=True)
-        torch.save(model.state_dict(), os.path.join(checkpoint_path, "pretrain.pth"))
+        # Save model at specific checkpoint epochs
+        checkpoint_epochs = [40, 60, 80, 100]
+        if epoch in checkpoint_epochs:
+            checkpoint_path = os.path.join(
+                args.output_model_directory, f"{args.gnn_type}_e{epoch}"
+            )
+            os.makedirs(checkpoint_path, exist_ok=True)
+            torch.save(model.state_dict(), os.path.join(checkpoint_path, "pretrain.pth"))
 
     plot_pretrain_loss(pretrain_loss)
 

@@ -20,6 +20,7 @@ warnings.filterwarnings("ignore")
 lg = rdkit.RDLogger.logger()
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
+
 def seed_everything(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -28,6 +29,7 @@ def seed_everything(seed):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
 
 def main():
     # Training settings
@@ -80,7 +82,12 @@ def main():
         default="./Data/zinc/all.txt",
         help="root directory of dataset. For now, only classification.",
     )
-    parser.add_argument("--gnn_type", type=str, default="gat", help="gnn_type (gin, gin_selfcoded, transforme_gnn, gat)")
+    parser.add_argument(
+        "--gnn_type",
+        type=str,
+        default="gat",
+        help="gnn_type (gin, gin_selfcoded, transforme_gnn, gat)",
+    )
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -139,7 +146,7 @@ def main():
     args = parser.parse_args()
 
     seed_everything(args.seed)
-    
+
     device = (
         torch.device("cuda:" + str(args.device))
         if torch.cuda.is_available()
@@ -197,9 +204,11 @@ def main():
         pretrain_loss = train(
             args, model_list, loader, optimizer, device, pretrain_loss, epoch
         )
-    
+
     if args.output_model_directory == "":
-        raise ValueError("You must indicate the directory where pretrained model is saved!")
+        raise ValueError(
+            "You must indicate the directory where pretrained model is saved!"
+        )
 
     # Save model for every epoch
     base_path = os.path.join(args.output_model_directory, args.gnn_type)
@@ -209,7 +218,9 @@ def main():
     # Save model at specific checkpoint epochs
     checkpoint_epochs = [40, 60, 80, 100]
     if epoch in checkpoint_epochs:
-        checkpoint_path = os.path.join(args.output_model_directory, f"{args.gnn_type}_e{epoch}")
+        checkpoint_path = os.path.join(
+            args.output_model_directory, f"{args.gnn_type}_e{epoch}"
+        )
         os.makedirs(checkpoint_path, exist_ok=True)
         torch.save(model.state_dict(), os.path.join(checkpoint_path, "pretrain.pth"))
 

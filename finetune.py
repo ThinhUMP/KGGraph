@@ -290,9 +290,18 @@ def main():
         model.load_state_dict(state_dict)
         model.to(device)
 
-        
         criterion = nn.BCEWithLogitsLoss(reduction="none")
-        eval_roc, eval_matthews, eval_ap, eval_f1, loss, roc_list, matthews_list, ap_list, f1_list = evaluate(args, model, device, test_loader, task_type, criterion)
+        (
+            eval_roc,
+            eval_matthews,
+            eval_ap,
+            eval_f1,
+            loss,
+            roc_list,
+            matthews_list,
+            ap_list,
+            f1_list,
+        ) = evaluate(args, model, device, test_loader, task_type, criterion)
         print(eval_matthews)
 
     #     # set up optimizer
@@ -317,7 +326,7 @@ def main():
     #         criterion = nn.BCEWithLogitsLoss(reduction="none")
     #     else:
     #         pass
-        
+
     #     # training based on task type
     #     if task_type == "classification":
     #         train_epoch_cls(
@@ -358,7 +367,6 @@ def main():
     # )
     # df_train = pd.read_csv(df_train_path)
     # plot_metrics(args, df_train, task_type)
-
 
 
 if __name__ == "__main__":

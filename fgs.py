@@ -19,14 +19,19 @@ import numpy as np
 from matplotlib.colors import ListedColormap
 
 import warnings
+
 warnings.filterwarnings("ignore")
 from rdkit import RDLogger
-RDLogger.DisableLog('rdApp.*')
+
+RDLogger.DisableLog("rdApp.*")
+
+
 def generate_scaffold(smiles, include_chirality=False):
     mol = Chem.MolFromSmiles(smiles)
     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
     scaffold_smiles = Chem.MolToSmiles(scaffold, isomericSmiles=include_chirality)
     return scaffold_smiles
+
 
 def scaffold_split(
     df,
@@ -37,7 +42,7 @@ def scaffold_split(
 ):
     np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
 
-    smiles_list = df['mol'].tolist()
+    smiles_list = df["mol"].tolist()
 
     # create dict of the form {scaffold_i: [idx1, idx....]}
     all_scaffolds = defaultdict(list)
@@ -94,20 +99,22 @@ def smiles_to_fingerprints(smiles):
     rdk7 = RDKFingerprint(mol, maxPath=7, fpSize=4096)
     return maccs, ecfp4, rdk7
 
+
 def prepare_fingerprints(df):
     maccs_fps = []
     ecfp4_fps = []
     rdk7_fps = []
     labels = []
     for idx, row in df.iterrows():
-        fingerprints = smiles_to_fingerprints(row['mol'])
+        fingerprints = smiles_to_fingerprints(row["mol"])
         if fingerprints is not None:
             maccs, ecfp4, rdk7 = fingerprints
             maccs_fps.append(maccs)
             ecfp4_fps.append(ecfp4)
             rdk7_fps.append(rdk7)
-            labels.append(row['Class'])
+            labels.append(row["Class"])
     return maccs_fps, ecfp4_fps, rdk7_fps, labels
+
 
 def train_and_evaluate_knn(X_train, X_test, y_train, y_test, n_neighbors=3):
     knn = KNeighborsClassifier(n_neighbors=n_neighbors)
@@ -115,6 +122,7 @@ def train_and_evaluate_knn(X_train, X_test, y_train, y_test, n_neighbors=3):
     y_pred = knn.predict(X_test)
     rocauc = roc_auc_score(y_test, y_pred)
     return rocauc
+
 
 def trainreg_and_evaluate_knn(X_train, X_test, y_train, y_test, n_neighbors=3):
     knn = KNeighborsRegressor(n_neighbors=n_neighbors)
@@ -124,23 +132,31 @@ def trainreg_and_evaluate_knn(X_train, X_test, y_train, y_test, n_neighbors=3):
     mae = mean_absolute_error(y_test, y_pred)
     return rmse, mae
 
-def split_data(df, method='scaffold', frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=42):
-    if method == 'scaffold':
+
+def split_data(
+    df, method="scaffold", frac_train=0.8, frac_valid=0.1, frac_test=0.1, seed=42
+):
+    if method == "scaffold":
         print("scaffold")
         return scaffold_split(df, frac_train, frac_valid, frac_test)
-        
-    elif method == 'random':
-        train_df, temp_df = train_test_split(df, test_size=(frac_valid + frac_test), random_state=seed)
-        valid_df, test_df = train_test_split(temp_df, test_size=(frac_test / (frac_valid + frac_test)), random_state=seed)
+
+    elif method == "random":
+        train_df, temp_df = train_test_split(
+            df, test_size=(frac_valid + frac_test), random_state=seed
+        )
+        valid_df, test_df = train_test_split(
+            temp_df, test_size=(frac_test / (frac_valid + frac_test)), random_state=seed
+        )
         print("random")
         return train_df, valid_df, test_df
-        
+
     else:
         raise ValueError("Method must be either 'scaffold' or 'random'.")
 
+
 # Đọc dữ liệu
 
-df= pd.read_csv("Data/classification/bace/raw/bace.csv")
+df = pd.read_csv("Data/classification/bace/raw/bace.csv")
 # df = df[['smiles', 'p_np']]
 # df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
 # df = df[df["mol"].notnull()]
@@ -148,7 +164,7 @@ df.dropna(inplace=True)
 print(df.shape)
 # print(df['p_np'].unique())
 # Lựa chọn phương pháp chia dữ liệu: 'scaffold' hoặc 'random'
-method = 'scaffold'  # Thay thế bằng 'random' nếu muốn chia ngẫu nhiên
+method = "scaffold"  # Thay thế bằng 'random' nếu muốn chia ngẫu nhiên
 
 # Chia dữ liệu
 train_df, valid_df, test_df = split_data(df, method=method)
@@ -184,20 +200,21 @@ train_df, valid_df, test_df = split_data(df, method=method)
 # print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
 # print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
 
+
 def visualize_embeddings(df):
     maccs_fps, ecfp4_fps, rdk7_fps, y = prepare_fingerprints(df)
-    
+
     # Combine all fingerprints into one array (Optional, if needed)
-    fingerprints = {'MACCS': maccs_fps, 'ECFP4': ecfp4_fps, 'RDK7': rdk7_fps}
-    
-    custom_cmap = ListedColormap(['red', 'green'])
-    
+    fingerprints = {"MACCS": maccs_fps, "ECFP4": ecfp4_fps, "RDK7": rdk7_fps}
+
+    custom_cmap = ListedColormap(["red", "green"])
+
     for fp_name, fps in fingerprints.items():
         # pca = PCA(n_components=50)
         # embeddings_pca = pca.fit_transform(fps)
         tsne = TSNE(n_components=2, random_state=42)
         embeddings_2d = tsne.fit_transform(torch.tensor(fps))
-        
+
         custom_cmap = ListedColormap(["#EBBC4E", "#7DB0A8"])
 
         plt.figure(figsize=(7, 7))
@@ -207,8 +224,8 @@ def visualize_embeddings(df):
             c=y,
             cmap=custom_cmap,
             s=100,  # Increase the size of the points
-            edgecolor='w',  # Add white edge color for better visibility
-            linewidth=0.5  # Set the linewidth for the edges
+            edgecolor="w",  # Add white edge color for better visibility
+            linewidth=0.5,  # Set the linewidth for the edges
         )
 
         # Create a custom legend
@@ -237,10 +254,10 @@ def visualize_embeddings(df):
             handles=handles,
             title="Class",
             title_fontsize="13",
-            loc='upper left',
+            loc="upper left",
             # bbox_to_anchor=(0.5, -0.05),
             prop={"size": 12},
-            ncol=2
+            ncol=2,
         )
 
         plt.title(f"{fp_name}".upper(), fontsize=16)
@@ -251,9 +268,14 @@ def visualize_embeddings(df):
         plt.xticks([])
         plt.yticks([])
         plt.tight_layout()
-        plt.savefig(f"Data/classification/bace/figures/{fp_name}_fingerprint_tsne.png", dpi=600, bbox_inches='tight', transparent=False)
+        plt.savefig(
+            f"Data/classification/bace/figures/{fp_name}_fingerprint_tsne.png",
+            dpi=600,
+            bbox_inches="tight",
+            transparent=False,
+        )
         plt.show()
+
+
 visualize_embeddings(test_df)
 print("Done!")
-
-

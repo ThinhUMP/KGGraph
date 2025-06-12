@@ -85,7 +85,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gin",
+        default="transformer_gnn",
         help="gnn_type (gin, gin_selfcoded, transformer_gnn, gat)",
     )
     parser.add_argument(

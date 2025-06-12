@@ -37,7 +37,7 @@ def main():
         description="PyTorch implementation of pre-training of graph neural networks"
     )
     parser.add_argument(
-        "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
+        "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -85,7 +85,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gat",
+        default="gin",
         help="gnn_type (gin, gin_selfcoded, transforme_gnn, gat)",
     )
     parser.add_argument(

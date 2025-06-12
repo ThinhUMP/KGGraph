@@ -151,7 +151,9 @@ def train(model, device, loader, optimizer, criterion):
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             matthews_list.append(
-                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i])
+                matthews_corrcoef(
+                    (y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i]
+                )
             )
             ap_list.append(
                 average_precision_score(
@@ -268,7 +270,9 @@ def evaluate(args, model, device, loader, task_type, criterion):
                 roc_auc_score((y_true[is_valid, i] + 1) / 2, y_scores[is_valid, i])
             )
             matthews_list.append(
-                matthews_corrcoef((y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i])
+                matthews_corrcoef(
+                    (y_true[is_valid, i] + 1) / 2, y_pred_labels[is_valid, i]
+                )
             )
             ap_list.append(
                 average_precision_score(
@@ -288,7 +292,17 @@ def evaluate(args, model, device, loader, task_type, criterion):
     eval_ap = sum(ap_list) / len(ap_list)
     eval_f1 = sum(f1_list) / len(f1_list)
 
-    return eval_roc, eval_matthews, eval_ap, eval_f1, loss, roc_list, matthews_list, ap_list, f1_list
+    return (
+        eval_roc,
+        eval_matthews,
+        eval_ap,
+        eval_f1,
+        loss,
+        roc_list,
+        matthews_list,
+        ap_list,
+        f1_list,
+    )
 
 
 def eval_reg(model, device, loader):
@@ -375,9 +389,17 @@ def train_epoch_cls(
         val_auc, val_matthews, val_ap, val_f1, val_loss, _, _, _, _ = evaluate(
             args, model, device, val_loader, task_type, criterion
         )
-        test_auc, test_matthews, test_ap, test_f1, test_loss, roc_list, matthews_list, ap_list, f1_list = evaluate(
-            args, model, device, test_loader, task_type, criterion
-        )
+        (
+            test_auc,
+            test_matthews,
+            test_ap,
+            test_f1,
+            test_loss,
+            roc_list,
+            matthews_list,
+            ap_list,
+            f1_list,
+        ) = evaluate(args, model, device, test_loader, task_type, criterion)
 
         create_train_round_df(
             args,
@@ -415,7 +437,10 @@ def train_epoch_cls(
             % (train_loss, val_loss, test_loss)
         )
         print("train_auc: %f val_auc: %f test_auc: %f" % (train_auc, val_auc, test_auc))
-        print("train_matthews: %f val_matthews: %f test_matthews: %f" % (train_matthews, val_matthews, test_matthews))
+        print(
+            "train_matthews: %f val_matthews: %f test_matthews: %f"
+            % (train_matthews, val_matthews, test_matthews)
+        )
         print("train_ap: %f val_ap: %f test_ap: %f" % (train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" % (train_f1, val_f1, test_f1))
 

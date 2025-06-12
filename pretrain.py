@@ -80,7 +80,7 @@ def main():
         default="./Data/zinc/all.txt",
         help="root directory of dataset. For now, only classification.",
     )
-    parser.add_argument("--gnn_type", type=str, default="transforme_gnn", help="gnn_type (gin, transforme_gnn, gat)")
+    parser.add_argument("--gnn_type", type=str, default="transforme_gnn", help="gnn_type (gin, gin_selfcoded, transforme_gnn, gat)")
     parser.add_argument(
         "--decompose_type",
         type=str,

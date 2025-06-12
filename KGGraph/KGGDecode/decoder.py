@@ -265,7 +265,6 @@ class Model_decoder(nn.Module):
             atom_num_loss,
             bond_num_loss,
         ]
-
         return loss_tur
 
     def forward(self, mol_batch, node_rep, super_node_rep):

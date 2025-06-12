@@ -2,7 +2,7 @@ import torch
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
 import torch.nn.functional as F
-
+from torch_geometric.nn.conv import GINEConv, GATConv, TransformerConv
 
 class GINConv(MessagePassing):
     """
@@ -129,7 +129,7 @@ class GNN(torch.nn.Module):
         drop_ratio=0,
         gnn_type="gin",
         x_features=7,
-        edge_features=5,
+        # edge_features=5,
     ):
         super(GNN, self).__init__()
         self.num_layer = num_layer
@@ -153,9 +153,39 @@ class GNN(torch.nn.Module):
         )
 
         # List of MLPs
-        self.gnns = torch.nn.ModuleList()
-        for layer in range(num_layer):
-            self.gnns.append(GINConv(emb_dim, aggr="add", edge_features=edge_features))
+        # self.gnns = torch.nn.ModuleList()
+        # for layer in range(num_layer):
+        #     self.gnns.append(GINConv(emb_dim, aggr="add", edge_features=edge_features))
+        if gnn_type=="gin":
+            self.gnns = torch.nn.ModuleList(
+                [
+                    GINEConv(
+                        nn=torch.nn.Sequential(
+                            torch.nn.Linear(emb_dim, emb_dim),
+                            torch.nn.ReLU(),
+                            torch.nn.Linear(emb_dim, emb_dim),
+                        ), edge_dim=5
+                    )
+                    for _ in range(num_layer)
+                ]
+            )
+        elif gnn_type=="transforme_gnn":
+            self.gnns = torch.nn.ModuleList(
+                [
+                    TransformerConv(in_channels=emb_dim, out_channels=emb_dim, edge_dim=5)
+                    for _ in range(num_layer)
+                ]
+            )
+        elif gnn_type=="gat":
+            self.gnns = torch.nn.ModuleList(
+                [
+                    GATConv(in_channels=emb_dim, out_channels=emb_dim, edge_dim=5)
+                    for _ in range(num_layer)
+                ]
+            )
+        else:
+            raise ValueError("GNN layer types must be gin, transforme_gnn or gat.")
+
 
         # List of batchnorms
         self.batch_norms = torch.nn.ModuleList()

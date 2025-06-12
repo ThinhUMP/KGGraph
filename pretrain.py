@@ -35,7 +35,7 @@ def main():
         description="PyTorch implementation of pre-training of graph neural networks"
     )
     parser.add_argument(
-        "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
+        "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -46,7 +46,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=60,
+        default=100,
         help="number of epochs to train (default: 60)",
     )
 
@@ -80,7 +80,7 @@ def main():
         default="./Data/zinc/all.txt",
         help="root directory of dataset. For now, only classification.",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin")
+    parser.add_argument("--gnn_type", type=str, default="transforme_gnn", help="gnn_type (gin, transforme_gnn, gat)")
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -88,10 +88,10 @@ def main():
         help="decompose_type (brics, jin, motif, smotif, tmotif) (default: motif).",
     )
     parser.add_argument(
-        "--output_model_file",
+        "--output_model_directory",
         type=str,
-        default="./saved_model/pretrain.pth",
-        help="filename to output the pre-trained model",
+        default="./pretrained_model/",
+        help="directory contains pre-trained models",
     )
     parser.add_argument(
         "--seed",
@@ -176,11 +176,11 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if not os.path.isdir("./saved_model"):
-        os.mkdir("./saved_model")
-    if "pretrain.pth" in os.listdir("saved_model"):
-        print("Continue pretraining")
-        model.load_state_dict(torch.load(args.output_model_file))
+    # if not os.path.isdir("./saved_model"):
+    #     os.mkdir("./saved_model")
+    # if "pretrain.pth" in os.listdir("saved_model"):
+    #     print("Continue pretraining")
+    #     model.load_state_dict(torch.load(args.output_model_file))
 
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 
@@ -197,24 +197,21 @@ def main():
         pretrain_loss = train(
             args, model_list, loader, optimizer, device, pretrain_loss, epoch
         )
+    
+    if args.output_model_directory == "":
+        raise ValueError("You must indicate the directory where pretrained model is saved!")
 
-        if epoch == 40:
-            if not os.path.isdir("./saved_model_five_ce40"):
-                os.mkdir("./saved_model_five_ce40")
-            torch.save(model.state_dict(), "./saved_model_five_ce40/pretrain.pth")
-        elif epoch == 60:
-            if not os.path.isdir("./saved_model_five_ce60"):
-                os.mkdir("./saved_model_five_ce60")
-            torch.save(model.state_dict(), "./saved_model_five_ce60/pretrain.pth")
-        elif epoch == 80:
-            if not os.path.isdir("./saved_model_five_ce80"):
-                os.mkdir("./saved_model_five_ce80")
-            torch.save(model.state_dict(), "./saved_model_five_ce80/pretrain.pth")
+    # Save model for every epoch
+    base_path = os.path.join(args.output_model_directory, args.gnn_type)
+    os.makedirs(base_path, exist_ok=True)
+    torch.save(model.state_dict(), os.path.join(base_path, "pretrain.pth"))
 
-        if not args.output_model_file == "":
-        #     if not os.path.isdir("./saved_model_five_ce100"):
-        #         os.mkdir("./saved_model_five_ce100")
-            torch.save(model.state_dict(), args.output_model_file)
+    # Save model at specific checkpoint epochs
+    checkpoint_epochs = [40, 60, 80, 100]
+    if epoch in checkpoint_epochs:
+        checkpoint_path = os.path.join(args.output_model_directory, f"{args.gnn_type}_e{epoch}")
+        os.makedirs(checkpoint_path, exist_ok=True)
+        torch.save(model.state_dict(), os.path.join(checkpoint_path, "pretrain.pth"))
 
     plot_pretrain_loss(pretrain_loss)
 

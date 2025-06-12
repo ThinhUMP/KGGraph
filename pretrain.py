@@ -85,7 +85,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gat",
+        default="gin",
         help="gnn_type (gin, gin_selfcoded, transformer_gnn, gat)",
     )
     parser.add_argument(
@@ -109,7 +109,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=20,
+        default=10,
         help="number of workers for dataset loading",
     )
     parser.add_argument("--hidden_size", type=int, default=512, help="hidden size")

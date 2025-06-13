@@ -122,7 +122,7 @@ class MoleculeDataset(InMemoryDataset):
         )
 
         if not empty:
-            self.data, self.slices = torch.load(self.processed_paths[0])
+            self.data, self.slices = torch.load(self.processed_paths[0], weights_only=False)
 
     def get(self, idx):
         data = Data()

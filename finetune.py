@@ -81,7 +81,7 @@ def main():
         default="last",
         help="how the node features across layers are combined. last, sum, max or concat",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin", help="gnn_type (gin, gat, gin_selfcoded, transformer)")
+    parser.add_argument("--gnn_type", type=str, default="gin_selfcoded", help="gnn_type (gin, gat, gin_selfcoded, transformer)")
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -97,7 +97,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./pretrained_model/gin_e60/pretrain.pth",
+        default="./saved_model/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(

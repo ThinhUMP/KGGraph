@@ -154,7 +154,7 @@ class GNN(torch.nn.Module):
         )
 
         # List of MLPs
-        if gnn_type == "gin":
+        if gnn_type == "gin_torch":
             self.gnns = torch.nn.ModuleList(
                 [
                     GINEConv(
@@ -168,7 +168,7 @@ class GNN(torch.nn.Module):
                     for _ in range(num_layer)
                 ]
             )
-        elif gnn_type == "gin_selfcoded":
+        elif gnn_type == "gin":
             self.gnns = torch.nn.ModuleList()
             for _ in range(num_layer):
                 self.gnns.append(
@@ -192,7 +192,7 @@ class GNN(torch.nn.Module):
             )
         else:
             raise ValueError(
-                "GNN layer types must be gin, gin_selfcoded, transformer_gnn or gat."
+                "GNN layer types must be gin, gin_torch, transformer_gnn or gat."
             )
 
         # List of batchnorms

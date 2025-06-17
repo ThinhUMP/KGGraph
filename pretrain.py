@@ -80,14 +80,14 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/zinc/all.txt",
+        default="./Data/pretrain_datasets/chembl29-2m.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gat",
-        help="gnn_type (gin, gin_selfcoded, transformer_gnn, gat)",
+        default="gin",
+        help="gnn_type (gin_torch, gin, transformer_gnn, gat)",
     )
     parser.add_argument(
         "--decompose_type",
@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--output_model_directory",
         type=str,
-        default="./pretrained_model/",
+        default="./pretrained_model_chembl29/",
         help="directory contains pre-trained models",
     )
     parser.add_argument(
@@ -183,12 +183,6 @@ def main():
         drop_ratio=args.dropout_ratio,
         gnn_type=args.gnn_type,
     ).to(device)
-
-    # if not os.path.isdir("./saved_model"):
-    #     os.mkdir("./saved_model")
-    # if "pretrain.pth" in os.listdir("saved_model"):
-    #     print("Continue pretraining")
-    #     model.load_state_dict(torch.load(args.output_model_file))
 
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 

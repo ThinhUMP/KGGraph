@@ -57,3 +57,4 @@ Data/cleanup/
 Data/zinc/standsmi_zinc.txt
 check_intersection.py
 Data/contamination/*.txt
+pretrained_model/

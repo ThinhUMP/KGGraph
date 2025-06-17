@@ -117,12 +117,15 @@ def plot_metrics(args, df, task_type):
         plt.show()
 
 
-def plot_pretrain_loss(pretrain_loss):
+def plot_pretrain_loss(args, pretrain_loss):
     plt.plot(pretrain_loss["loss"], label="Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.savefig(
-        f"Data/pretraining.png", dpi=600, bbox_inches="tight", transparent=False
+        f"Data/pretraining_{args.gnn_type}.png", dpi=600, bbox_inches="tight", transparent=False
+    )
+    plt.savefig(
+        f"Data/pretraining_{args.gnn_type}.pdf", dpi=600, bbox_inches="tight", transparent=False, format='pdf'
     )
     plt.show()
 

@@ -236,7 +236,7 @@ def main():
     print(f"Time taken for pretraining: {((end_pretrain - start_pretrain))/3600:.2f} hours")
     print("========================")
 
-    plot_pretrain_loss(pretrain_loss)
+    plot_pretrain_loss(args, pretrain_loss)
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ from sklearn.metrics import (
     matthews_corrcoef,
 )
 import pandas as pd
-
+import time
 
 def get_task_type(args):
     """
@@ -232,11 +232,12 @@ def evaluate(args, model, device, loader, task_type, criterion):
     y_true = []
     y_scores = []
     y_pred_labels = []
+
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
 
         with torch.no_grad():
-            pred = model(batch)
+            pred = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
 
         y_true.append(batch.y.view(pred.shape))
         y_scores.append(pred)
@@ -389,6 +390,7 @@ def train_epoch_cls(
         val_auc, val_matthews, val_ap, val_f1, val_loss, _, _, _, _ = evaluate(
             args, model, device, val_loader, task_type, criterion
         )
+        
         (
             test_auc,
             test_matthews,
@@ -444,6 +446,9 @@ def train_epoch_cls(
         print("train_ap: %f val_ap: %f test_ap: %f" % (train_ap, val_ap, test_ap))
         print("train_f1: %f val_f1: %f test_f1: %f" % (train_f1, val_f1, test_f1))
 
+        # inference time per mol
+        if epoch == args.epochs:
+            measure_inference_time(model, test_loader, device)
 
 def train_epoch_reg(
     args,
@@ -540,3 +545,31 @@ def train_epoch_reg(
             model.state_dict(),
             f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth",
         )
+
+        # inference time per mol
+        if epoch == args.epochs:
+            measure_inference_time(model, test_loader, device)
+
+
+def measure_inference_time(model, test_loader, device) -> None:
+    model.eval()
+    inference_times = []
+
+    for _, batch in enumerate(tqdm(test_loader, desc="Inference")):
+        batch = batch.to(device)
+        start_inference_time = time.time()
+        with torch.no_grad():
+            _ = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+        end_inference_time = time.time()
+
+        batch_time = end_inference_time - start_inference_time
+        batch_size = len(batch.y)
+        inference_times.append(batch_time / batch_size)
+
+    mean_time = np.mean(inference_times)
+    std_time = np.std(inference_times)
+
+    print("========================")
+    print(f"Inference Time per Molecule: {mean_time:.6f} ± {std_time:.6f} seconds")
+    print("========================")
+

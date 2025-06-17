@@ -21,6 +21,7 @@ from typing import List
 import numpy as np
 from pretrain import seed_everything
 import warnings
+import time
 
 warnings.filterwarnings("ignore")
 
@@ -42,7 +43,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=3,
+        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -97,7 +98,7 @@ def main():
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./saved_model/pretrain.pth",
+        default="./pretrained_model/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -115,7 +116,7 @@ def main():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=16,
+        default=10,
         help="number of workers for dataset loading",
     )
     parser.add_argument(
@@ -162,21 +163,16 @@ def main():
     )
     args = parser.parse_args()
 
+    # set up time
+    # Start timing for finetuning
+    round_start_finetune = time.time() 
+    
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
+
         # set up seeds
         seed_everything(args.seed)
 
-        # dropout=[0.5,0.5,0.5,0.5]
-        # decay=[1e-7,1e-6,1e-5,1e-4]
-        # dropout=[0.5,0.6,0.7,0.8]
-        # args.dropout_ratio = dropout[i-1]
-        # args.decay = decay[i-1]
-        # args.decay = decay[i-1]
-        # dataset_name=["bbbp", "sider", "clintox", "tox21", "toxcast", "hiv", "muv", "esol", "freesolv", "lipo", "qm7", "qm8", "qm9"]
-        # args.dataset = dataset_name[i-1]
-        # input_model = ["saved_model_mlp_ce100/pretrain.pth", "saved_model_mlp_ce80/pretrain.pth", "saved_model_mlp_ce40/pretrain.pth"]
-        # args.input_model_file = input_model[i-1]
         # set up device
         device = (
             torch.device("cuda:" + str(args.device))
@@ -282,27 +278,11 @@ def main():
             x_features=dataset[0].x.size(1),
             edge_features=dataset[0].edge_attr.size(1),
         )
+
+        # load pretrained model
         if not args.input_model_file == "":
             model.from_pretrained(args.input_model_file)
-
-        # state_dict = torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
-
-        # model.load_state_dict(state_dict)
         model.to(device)
-
-        criterion = nn.BCEWithLogitsLoss(reduction="none")
-        (
-            eval_roc,
-            eval_matthews,
-            eval_ap,
-            eval_f1,
-            loss,
-            roc_list,
-            matthews_list,
-            ap_list,
-            f1_list,
-        ) = evaluate(args, model, device, test_loader, task_type, criterion)
-        print(eval_matthews)
 
         # set up optimizer
         # different learning rate for different part of GNN
@@ -354,6 +334,12 @@ def main():
                 task_type,
                 training_round=i,
             )
+
+    # End timing for finetuning
+    round_end_finetune = time.time()
+    print("========================")
+    print(f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins")
+    print("========================")
 
     # craw metrics
     average_test_metrics(args, task_type)

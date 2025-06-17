@@ -58,3 +58,7 @@ Data/zinc/standsmi_zinc.txt
 check_intersection.py
 Data/contamination/*.txt
 pretrained_model/
+Data/*/*.smi
+Data/pretrain_datasets/all_inter_2m.txt
+Data/pretrain_datasets/all_inter_10m.txt
+Data/pretrain_datasets/pubchem-10m.txt

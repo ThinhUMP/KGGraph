@@ -14,6 +14,7 @@ import pandas as pd
 from typing import List
 import random
 import warnings
+import time
 
 warnings.filterwarnings("ignore")
 
@@ -204,6 +205,10 @@ def main():
         )
 
     pretrain_loss = pd.DataFrame(columns=["loss"], index=range(args.epochs))
+
+    # Start timing for finetuning
+    start_pretrain = time.time()
+    
     for epoch in range(1, args.epochs + 1):
         print("====epoch", epoch)
         pretrain_loss = train(
@@ -224,6 +229,12 @@ def main():
             )
             os.makedirs(checkpoint_path, exist_ok=True)
             torch.save(model.state_dict(), os.path.join(checkpoint_path, "pretrain.pth"))
+
+    # End timing for finetuning
+    end_pretrain = time.time()
+    print("========================")
+    print(f"Time taken for pretraining: {((end_pretrain - start_pretrain))/3600:.2f} hours")
+    print("========================")
 
     plot_pretrain_loss(pretrain_loss)
 

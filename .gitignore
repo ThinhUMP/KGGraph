@@ -62,4 +62,8 @@ Data/*/*.smi
 Data/pretrain_datasets/all_inter_2m.txt
 Data/pretrain_datasets/all_inter_10m.txt
 Data/pretrain_datasets/pubchem-10m.txt
+Data/pretrain_datasets/pubchem-10m_canonical.txt
 Data/pretrain_datasets/chembl29-2m.txt
+Data/pretrain_datasets/chembl29-2m_canonical.txt
+*/*.pth
+*/*/*.pth

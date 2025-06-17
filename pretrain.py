@@ -80,7 +80,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/pretrain_datasets/pubchem-10m.txt",
+        default="./Data/pretrain_datasets/chembl29-2m_canonical.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument(

@@ -77,7 +77,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/zinc/all.txt",
+        default="./Data/pretrain_datasets/chembl29-2m_canonical.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument("--gnn_type", type=str, default="gin")

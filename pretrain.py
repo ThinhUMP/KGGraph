@@ -43,13 +43,13 @@ def main():
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=32,
+        default=1,
         help="input batch size for training (default: 32)",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=3,
         help="number of epochs to train (default: 60)",
     )
 
@@ -80,7 +80,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/pretrain_datasets/pubchem-10m.txt",
+        default="./Data/pretrain_datasets/chembl29-2m.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument(
@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--output_model_directory",
         type=str,
-        default="./pretrained_model_chembl29/",
+        default="./pretrained_model_zic15/",
         help="directory contains pre-trained models",
     )
     parser.add_argument(

@@ -197,15 +197,18 @@ def main():
 
     _, mols, _ = load_tox21_dataset("Data/classification/tox21/raw/tox21.csv")
     t1 = time.time()
+    
     for mol in mols:
-        x_node, x, num_part = x_feature(
-            mol,
-            decompose_type="motif",
-            mask_node=True,
-            mask_node_ratio=0.25,
-            fix_ratio=False,
-        )
-        print(x)
+        try:
+            x_node, x, num_part = x_feature(
+                mol,
+                decompose_type="motif",
+                mask_node=True,
+                mask_node_ratio=0.25,
+                fix_ratio=False,
+            )
+        except:
+            print(mol)
     t2 = time.time()
     print(t2 - t1)
 

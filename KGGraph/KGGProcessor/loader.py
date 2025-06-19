@@ -7,7 +7,7 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.append(str(root_dir))
 from KGGraph.KGGChem.atom_utils import get_mol
 import pandas as pd
-
+import numpy as np
 
 def load_tox21_dataset(input_path):
     tox21_dataset = pd.read_csv(input_path, sep=",")
@@ -34,7 +34,7 @@ def load_tox21_dataset(input_path):
     labels = labels.fillna(0)
     assert len(smiles_list) == len(mols_list)
     assert len(smiles_list) == len(labels)
-    return smiles_list, mols_list, labels.values
+    return list(smiles_list), list(mols_list), np.array(labels)
 
 
 def load_hiv_dataset(input_path):

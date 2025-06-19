@@ -16,6 +16,8 @@ def get_mol(smiles: str) -> Optional[Chem.Mol]:
     mol = Chem.MolFromSmiles(smiles)
     # if mol is not None:
     #     Chem.Kekulize(mol, clearAromaticFlags=False)
+    if mol is None:
+        print(smiles)
     return mol
 
 

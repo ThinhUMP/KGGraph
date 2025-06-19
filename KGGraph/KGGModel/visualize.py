@@ -98,7 +98,7 @@ def plot_metrics(args, df, task_type):
         axs[1, 1].plot(df["train_r2"], label="Train R2")
         axs[1, 1].plot(df["val_r2"], label="Val R2")
         axs[1, 1].plot(df["test_r2"], label="Test R2")
-        axs[1, 1].set_title("R2 Loss")
+        axs[1, 1].set_title("R2")
         axs[1, 1].legend()
 
         # Setting labels for all subplots

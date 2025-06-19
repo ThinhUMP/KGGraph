@@ -49,7 +49,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=3,
         help="number of epochs to train (default: 60)",
     )
 
@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--output_model_directory",
         type=str,
-        default="./pretrained_model_chembl29/",
+        default="./pretrained_model_zic15/",
         help="directory contains pre-trained models",
     )
     parser.add_argument(

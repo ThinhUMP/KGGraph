@@ -49,7 +49,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=47,
         help="number of epochs to train (default: 60)",
     )
 
@@ -183,6 +183,12 @@ def main():
         drop_ratio=args.dropout_ratio,
         gnn_type=args.gnn_type,
     ).to(device)
+
+    # if not os.path.isdir("./pretrain_model"):
+    #     os.mkdir("./pretrain_model")
+    if "pretrain.pth" in os.listdir("pretrain_model_chembl29/gin/"):
+        print("Continue pretraining")
+        model.load_state_dict(torch.load(args.output_model_file))
 
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 

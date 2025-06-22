@@ -272,6 +272,7 @@ class EdgeFeature:
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: The masked edge attribute tensor and masked edge index tensor.
         """
+        random.seed(42)
         # Calculate the number of edges to be masked
         if fix_ratio:
             num_masked_edges = max(0, math.floor(mask_edge_ratio * num_bonds))

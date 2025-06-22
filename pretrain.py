@@ -43,7 +43,7 @@ def main():
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=32,
+        default=1,
         help="input batch size for training (default: 32)",
     )
     parser.add_argument(
@@ -80,7 +80,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/pretrain_datasets/chembl29-2m_canonical.txt",
+        default="./Data/pretrain_datasets/250kzinc15.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument(

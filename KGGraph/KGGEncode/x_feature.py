@@ -80,6 +80,7 @@ class AtomFeature:
     @staticmethod
     def masked_atom_feature(mol: Chem.Mol, x_node, mask_node_ratio, fix_ratio):
         num_node = mol.GetNumAtoms()
+        random.seed(42)
         if fix_ratio:
             num_masked_node = max([1, math.floor(mask_node_ratio * num_node)])
         else:
@@ -97,7 +98,6 @@ class AtomFeature:
             x_node_masked[atom_idx, :] = torch.tensor(
                 [121] + [0] * (x_node.size(1) - 1), dtype=torch.float32
             )  # 121 implies masked atom
-
         return x_node_masked
 
 
@@ -160,7 +160,7 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node, mask_node_ratio, fix_rat
     """
     x_node = AtomFeature.feature(mol)
     x_motif, x_supernode = motif_supernode_feature(mol, x_node.size(1), decompose_type)
-
+    
     if not mask_node:
         # Concatenate features
         x = torch.cat(
@@ -204,9 +204,10 @@ def main():
                 mol,
                 decompose_type="motif",
                 mask_node=True,
-                mask_node_ratio=0.25,
-                fix_ratio=False,
+                mask_node_ratio=1.0,
+                fix_ratio=True,
             )
+            break
         except:
             print(mol)
     t2 = time.time()

@@ -80,7 +80,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/pretrain_datasets/250kzinc15.txt",
+        default="./Data/pretrain_datasets/chembl29-2m_canonical.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument(
@@ -186,9 +186,9 @@ def main():
 
     # if not os.path.isdir("./pretrain_model"):
     #     os.mkdir("./pretrain_model")
-    if "pretrain.pth" in os.listdir("pretrain_model_chembl29/gin/"):
+    if "pretrain.pth" in os.listdir("pretrained_model_chembl29/gin/"):
         print("Continue pretraining")
-        model.load_state_dict(torch.load(args.output_model_file))
+        model.load_state_dict(torch.load("pretrained_model_chembl29/gin/pretrain.pth"))
 
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 

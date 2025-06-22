@@ -184,6 +184,10 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
+    if "pretrain.pth" in os.listdir("pretrained_model_chembl29/gin/"):
+        print("Continue pretraining")
+        model.load_state_dict(torch.load("pretrained_model_chembl29/gin/pretrain.pth"))
+    
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 
     model_list = [model, model_decoder]

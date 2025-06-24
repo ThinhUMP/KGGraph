@@ -67,3 +67,4 @@ Data/pretrain_datasets/chembl29-2m.txt
 Data/pretrain_datasets/chembl29-2m_canonical.txt
 */*.pth
 */*/*.pth
+Data/*.pdf

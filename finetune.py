@@ -92,13 +92,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./pretrained_model/pretrain.pth",
+        default="./pretrained_model_chembl29/gin/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -134,13 +134,13 @@ def main():
     parser.add_argument(
         "--mask_node",
         type=bool,
-        default=True,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=True,
+        default=False,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(

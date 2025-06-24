@@ -49,7 +49,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=7,
+        default=1,
         help="number of epochs to train (default: 60)",
     )
 
@@ -80,13 +80,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="./Data/pretrain_datasets/chembl29-2m_canonical.txt",
+        default="./Data/pretrain_datasets/250kzinc15.txt",
         help="root directory of dataset. For now, only classification.",
     )
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gin",
+        default="gcn",
         help="gnn_type (gin_torch, gin, transformer_gnn, gat)",
     )
     parser.add_argument(
@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--output_model_directory",
         type=str,
-        default="./pretrained_model_chembl29/",
+        default="./pretrained_model_zinc15/",
         help="directory contains pre-trained models",
     )
     parser.add_argument(
@@ -184,9 +184,9 @@ def main():
         gnn_type=args.gnn_type,
     ).to(device)
 
-    if "pretrain.pth" in os.listdir("pretrained_model_chembl29/gin/"):
-        print("Continue pretraining")
-        model.load_state_dict(torch.load("pretrained_model_chembl29/gin/pretrain.pth"))
+    # if "pretrain.pth" in os.listdir("pretrained_model_chembl29/gin/"):
+    #     print("Continue pretraining")
+    #     model.load_state_dict(torch.load("pretrained_model_chembl29/gin/pretrain.pth"))
     
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 

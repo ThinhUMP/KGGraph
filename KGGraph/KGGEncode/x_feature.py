@@ -160,7 +160,7 @@ def x_feature(mol: Chem.Mol, decompose_type, mask_node, mask_node_ratio, fix_rat
     """
     x_node = AtomFeature.feature(mol)
     x_motif, x_supernode = motif_supernode_feature(mol, x_node.size(1), decompose_type)
-    
+
     if not mask_node:
         # Concatenate features
         x = torch.cat(
@@ -197,7 +197,7 @@ def main():
 
     _, mols, _ = load_tox21_dataset("Data/classification/tox21/raw/tox21.csv")
     t1 = time.time()
-    
+
     for mol in mols:
         try:
             x_node, x, num_part = x_feature(

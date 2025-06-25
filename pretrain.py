@@ -87,7 +87,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gcn",
+        default="graphsage",
         help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(

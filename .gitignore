@@ -65,6 +65,7 @@ Data/pretrain_datasets/pubchem-10m.txt
 Data/pretrain_datasets/pubchem-10m_canonical.txt
 Data/pretrain_datasets/chembl29-2m.txt
 Data/pretrain_datasets/chembl29-2m_canonical.txt
+ata/pretrain_datasets/log/
 */*.pth
 */*/*.pth
 Data/*.pdf

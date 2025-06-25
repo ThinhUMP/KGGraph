@@ -118,6 +118,7 @@ def plot_metrics(args, df, task_type):
 
 
 def plot_pretrain_loss(args, pretrain_loss):
+    os.makedirs("Data/pretrain_datasets/log", exist_ok=True)
     plt.plot(pretrain_loss["loss"], label="Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")

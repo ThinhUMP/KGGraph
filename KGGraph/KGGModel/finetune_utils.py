@@ -26,6 +26,7 @@ from sklearn.metrics import (
 import pandas as pd
 import time
 
+
 def get_task_type(args):
     """
     Determines the type of task (classification or regression) based on the dataset.
@@ -390,7 +391,7 @@ def train_epoch_cls(
         val_auc, val_matthews, val_ap, val_f1, val_loss, _, _, _, _ = evaluate(
             args, model, device, val_loader, task_type, criterion
         )
-        
+
         (
             test_auc,
             test_matthews,
@@ -449,6 +450,7 @@ def train_epoch_cls(
         # inference time per mol
         if epoch == args.epochs:
             measure_inference_time(model, test_loader, device)
+
 
 def train_epoch_reg(
     args,
@@ -572,4 +574,3 @@ def measure_inference_time(model, test_loader, device) -> None:
     print("========================")
     print(f"Inference Time per Molecule: {mean_time:.6f} ± {std_time:.6f} seconds")
     print("========================")
-

@@ -49,7 +49,7 @@ def main():
     parser.add_argument(
         "--epochs",
         type=int,
-        default=1,
+        default=100,
         help="number of epochs to train (default: 60)",
     )
 
@@ -87,8 +87,8 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gcn",
-        help="gnn_type (gin_torch, gin, transformer_gnn, gat)",
+        default="graphsage",
+        help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(
         "--decompose_type",
@@ -188,7 +188,7 @@ def main():
     # if "pretrain.pth" in os.listdir("pretrained_model_chembl29/gin/"):
     #     print("Continue pretraining")
     #     model.load_state_dict(torch.load("pretrained_model_chembl29/gin/pretrain.pth"))
-    
+
     model_decoder = Model_decoder(args.hidden_size, device).to(device)
 
     model_list = [model, model_decoder]
@@ -207,7 +207,7 @@ def main():
 
     # Start timing for finetuning
     start_pretrain = time.time()
-    
+
     for epoch in range(1, args.epochs + 1):
         print("====epoch", epoch)
         pretrain_loss = train(
@@ -227,12 +227,16 @@ def main():
                 args.output_model_directory, f"{args.gnn_type}_e{epoch}"
             )
             os.makedirs(checkpoint_path, exist_ok=True)
-            torch.save(model.state_dict(), os.path.join(checkpoint_path, "pretrain.pth"))
+            torch.save(
+                model.state_dict(), os.path.join(checkpoint_path, "pretrain.pth")
+            )
 
     # End timing for finetuning
     end_pretrain = time.time()
     print("========================")
-    print(f"Time taken for pretraining: {((end_pretrain - start_pretrain))/3600:.2f} hours")
+    print(
+        f"Time taken for pretraining: {((end_pretrain - start_pretrain))/3600:.2f} hours"
+    )
     print("========================")
 
     plot_pretrain_loss(args, pretrain_loss)

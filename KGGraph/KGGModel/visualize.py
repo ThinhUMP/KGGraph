@@ -122,10 +122,17 @@ def plot_pretrain_loss(args, pretrain_loss):
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.savefig(
-        f"Data/pretraining_{args.gnn_type}.png", dpi=600, bbox_inches="tight", transparent=False
+        f"Data/pretrain_datasets/log/pretraining_{args.gnn_type}.png",
+        dpi=600,
+        bbox_inches="tight",
+        transparent=False,
     )
     plt.savefig(
-        f"Data/pretraining_{args.gnn_type}.pdf", dpi=600, bbox_inches="tight", transparent=False, format='pdf'
+        f"Data/pretrain_datasets/log/pretraining_{args.gnn_type}.pdf",
+        dpi=600,
+        bbox_inches="tight",
+        transparent=False,
+        format="pdf",
     )
     plt.show()
 

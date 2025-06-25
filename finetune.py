@@ -83,7 +83,12 @@ def main():
         default="last",
         help="how the node features across layers are combined. last, sum, max or concat",
     )
-    parser.add_argument("--gnn_type", type=str, default="gin", help="gnn_type (gin, gat, gin_torch, transformer)")
+    parser.add_argument(
+        "--gnn_type",
+        type=str,
+        default="gintorch",
+        help="gnn_type (gat, gin, gcn, graphsage)",
+    )
     parser.add_argument(
         "--decompose_type",
         type=str,
@@ -94,12 +99,12 @@ def main():
         "--dataset",
         type=str,
         default="clintox",
+        default="clintox",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./pretrained_model_chembl29/gin/pretrain.pth",
         default="./pretrained_model_chembl29/gin/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
@@ -137,11 +142,13 @@ def main():
         "--mask_node",
         type=bool,
         default=False,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
+        default=False,
         default=False,
         help="Mask edge for pretrain and finetune",
     )
@@ -170,8 +177,8 @@ def main():
 
     # set up time
     # Start timing for finetuning
-    round_start_finetune = time.time() 
-    
+    round_start_finetune = time.time()
+
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
 
@@ -343,7 +350,9 @@ def main():
     # End timing for finetuning
     round_end_finetune = time.time()
     print("========================")
-    print(f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins")
+    print(
+        f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins"
+    )
     print("========================")
 
     # craw metrics

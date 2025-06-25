@@ -9,6 +9,7 @@ from KGGraph.KGGChem.atom_utils import get_mol
 import pandas as pd
 import numpy as np
 
+
 def load_tox21_dataset(input_path):
     tox21_dataset = pd.read_csv(input_path, sep=",")
     smiles_list = tox21_dataset["smiles"]

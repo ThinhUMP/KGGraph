@@ -155,6 +155,7 @@ def main():
         else torch.device("cpu")
     )
     print("device", device)
+    print("GNNs backbone: ", args.gnn_type)
 
     torch.multiprocessing.set_sharing_strategy("file_system")
 

@@ -173,9 +173,6 @@ def main():
     # Start timing for finetuning
     round_start_finetune = time.time()
 
-    # train_frac = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
-    # val_frac = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-
     
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
@@ -225,8 +222,6 @@ def main():
                 dataset,
                 smiles_list,
                 null_value=0,
-                # frac_train=train_frac[i-1],
-                # frac_valid=val_frac[i-1],
                 frac_train=0.8,
                 frac_valid=0.1,
                 frac_test=0.1,

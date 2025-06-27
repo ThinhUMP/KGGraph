@@ -22,8 +22,6 @@ import numpy as np
 from pretrain import seed_everything
 import shutil
 import time
-import shutil
-import time
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -36,6 +34,7 @@ def main():
     )
     parser.add_argument(
         "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
+        "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -47,6 +46,7 @@ def main():
         "--training_rounds",
         type=int,
         default=5,
+        default=5,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -57,7 +57,6 @@ def main():
     )
     parser.add_argument(
         "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
-        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
@@ -66,8 +65,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
+        "--decay", type=float, default=2e-4, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -94,12 +92,6 @@ def main():
         help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(
-        "--gnn_type",
-        type=str,
-        default="gin",
-        help="gnn_type (gat, gin, gcn, graphsage)",
-    )
-    parser.add_argument(
         "--decompose_type",
         type=str,
         default="motif",
@@ -108,13 +100,12 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="tox21",
+        default="sider",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./pretrained_model_zinc15/gin_e60/pretrain.pth",
         default="./pretrained_model_zinc15/gin_e60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
@@ -159,10 +150,13 @@ def main():
         "--mask_edge",
         type=bool,
         default=False,
+        default=False,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_node_ratio",
+        type=list,
+        default=[0.1, 0.2, 0.3, 0.4, 0.5],
         type=list,
         default=[0.1, 0.2, 0.3, 0.4, 0.5],
         help="Ratio of removal nodes",
@@ -183,8 +177,6 @@ def main():
 
     # set up time
     # Start timing for finetuning
-    round_start_finetune = time.time()
-
     round_start_finetune = time.time()
 
     
@@ -216,10 +208,10 @@ def main():
             mask_node=args.mask_node,
             mask_edge=args.mask_edge,
             mask_node_ratio=args.mask_node_ratio[i-1],
+            mask_node_ratio=args.mask_node_ratio[i-1],
             mask_edge_ratio=args.mask_edge_ratio,
             fix_ratio=args.fix_ratio,
         )
-        print(dataset[0])
         print(dataset[0])
 
         # data split
@@ -249,7 +241,6 @@ def main():
                 frac_train=0.8,
                 frac_valid=0.1,
                 frac_test=0.1,
-                seed=args.seed,
                 seed=args.seed,
             )
             print("random")
@@ -359,14 +350,13 @@ def main():
         processed_dataset_path = f"Data/{task_type}/{args.dataset}/processed"
         if os.path.exists(processed_dataset_path):
             shutil.rmtree(processed_dataset_path)
-            
-        processed_dataset_path = f"Data/{task_type}/{args.dataset}/processed"
-        if os.path.exists(processed_dataset_path):
-            shutil.rmtree(processed_dataset_path)
 
     # End timing for finetuning
     round_end_finetune = time.time()
     print("========================")
+    print(
+        f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins"
+    )
     print(
         f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins"
     )

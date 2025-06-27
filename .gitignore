@@ -69,3 +69,4 @@ ata/pretrain_datasets/log/
 */*.pth
 */*/*.pth
 Data/*.pdf
+Data/pretrain_datasets/log/*

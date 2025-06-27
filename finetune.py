@@ -62,7 +62,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=1e-7, help="weight decay (default: 0)"
+        "--decay", type=float, default=0, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -74,7 +74,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.6, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -85,7 +85,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gat",
+        default="gin",
         help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(
@@ -97,7 +97,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="qm7",
+        default="esol",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -140,11 +140,13 @@ def main():
         "--mask_node",
         type=bool,
         default=False,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
+        default=False,
         default=False,
         help="Mask edge for pretrain and finetune",
     )
@@ -172,10 +174,6 @@ def main():
     # Start timing for finetuning
     round_start_finetune = time.time()
 
-    # train_frac = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
-    # val_frac = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-
-    
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
 
@@ -207,7 +205,7 @@ def main():
             mask_edge_ratio=args.mask_edge_ratio,
             fix_ratio=args.fix_ratio,
         )
-        print(dataset)
+        print(dataset[0])
 
         # data split
         if args.split == "scaffold":
@@ -243,8 +241,6 @@ def main():
             print("random")
         else:
             raise ValueError("Invalid split option.")
-
-        print(train_dataset[0])
 
         # with open(f"Data/contamination/test_{args.dataset}.txt", "a") as f:
         #         f.writelines("%s\n" % s for s in test_smiles)
@@ -349,6 +345,9 @@ def main():
     # End timing for finetuning
     round_end_finetune = time.time()
     print("========================")
+    print(
+        f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins"
+    )
     print(
         f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins"
     )

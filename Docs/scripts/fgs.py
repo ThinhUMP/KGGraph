@@ -154,53 +154,6 @@ def split_data(
         raise ValueError("Method must be either 'scaffold' or 'random'.")
 
 
-# Đọc dữ liệu
-
-df = pd.read_csv("Data/classification/bace/raw/bace.csv")
-# df = df[['smiles', 'p_np']]
-# df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
-# df = df[df["mol"].notnull()]
-df.dropna(inplace=True)
-print(df.shape)
-# print(df['p_np'].unique())
-# Lựa chọn phương pháp chia dữ liệu: 'scaffold' hoặc 'random'
-method = "scaffold"  # Thay thế bằng 'random' nếu muốn chia ngẫu nhiên
-
-# Chia dữ liệu
-train_df, valid_df, test_df = split_data(df, method=method)
-
-# Chuẩn bị dấu vân tay cho tập huấn luyện
-# maccs_fps_train, ecfp4_fps_train, rdk7_fps_train, y_train = prepare_fingerprints(train_df)
-# maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints(valid_df)
-# maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(test_df)
-
-# def check_class_balance(y_train, y_test):
-#     unique_train = np.unique(y_train)
-#     unique_test = np.unique(y_test)
-#     print(unique_train, unique_test)
-#     return set(unique_train) == set(unique_test)
-
-# if not check_class_balance(y_train, y_test):
-#     raise ValueError("Class imbalance detected. Ensure both classes are present in training and test sets.")
-
-# Huấn luyện và đánh giá mô hình k-NN với từng bộ dấu vân tay
-# rocauc_maccs = train_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
-# rocauc_ecfp4 = train_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
-# rocauc_rdk7 = train_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
-
-# print(f"ROC-AUC with MACCS fingerprints: {rocauc_maccs:.4f}")
-# print(f"ROC-AUC with ECFP4 fingerprints: {rocauc_ecfp4:.4f}")
-# print(f"ROC-AUC with RDK7 fingerprints: {rocauc_rdk7:.4f}")
-
-# rmse_maccs, mae_maccs = trainreg_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
-# rmse_ecfp4, mae_ecfp4 = trainreg_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
-# rmse_rdk7, mae_rdk7 = trainreg_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
-
-# print(f"ROC-AUC with MACCS fingerprints: {rmse_maccs, mae_maccs}")
-# print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
-# print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
-
-
 def visualize_embeddings(df):
     maccs_fps, ecfp4_fps, rdk7_fps, y = prepare_fingerprints(df)
 
@@ -277,5 +230,47 @@ def visualize_embeddings(df):
         plt.show()
 
 
-visualize_embeddings(test_df)
-print("Done!")
+if __name__ == "__main__":
+    df = pd.read_csv("Data/classification/bace/raw/bace.csv")
+    # df = df[['smiles', 'p_np']]
+    # df['mol'] = df['smiles'].apply(Chem.MolFromSmiles)
+    # df = df[df["mol"].notnull()]
+    df.dropna(inplace=True)
+    print(df.shape)
+    # print(df['p_np'].unique())
+
+    method = "scaffold" 
+
+    train_df, valid_df, test_df = split_data(df, method=method)
+
+    # maccs_fps_train, ecfp4_fps_train, rdk7_fps_train, y_train = prepare_fingerprints(train_df)
+    # maccs_fps_valid, ecfp4_fps_valid, rdk7_fps_valid, y_valid = prepare_fingerprints(valid_df)
+    # maccs_fps_test, ecfp4_fps_test, rdk7_fps_test, y_test = prepare_fingerprints(test_df)
+
+    # def check_class_balance(y_train, y_test):
+    #     unique_train = np.unique(y_train)
+    #     unique_test = np.unique(y_test)
+    #     print(unique_train, unique_test)
+    #     return set(unique_train) == set(unique_test)
+
+    # if not check_class_balance(y_train, y_test):
+    #     raise ValueError("Class imbalance detected. Ensure both classes are present in training and test sets.")
+
+    # rocauc_maccs = train_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
+    # rocauc_ecfp4 = train_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
+    # rocauc_rdk7 = train_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
+
+    # print(f"ROC-AUC with MACCS fingerprints: {rocauc_maccs:.4f}")
+    # print(f"ROC-AUC with ECFP4 fingerprints: {rocauc_ecfp4:.4f}")
+    # print(f"ROC-AUC with RDK7 fingerprints: {rocauc_rdk7:.4f}")
+
+    # rmse_maccs, mae_maccs = trainreg_and_evaluate_knn(maccs_fps_train, maccs_fps_test, y_train, y_test)
+    # rmse_ecfp4, mae_ecfp4 = trainreg_and_evaluate_knn(ecfp4_fps_train, ecfp4_fps_test, y_train, y_test)
+    # rmse_rdk7, mae_rdk7 = trainreg_and_evaluate_knn(rdk7_fps_train, rdk7_fps_test, y_train, y_test)
+
+    # print(f"ROC-AUC with MACCS fingerprints: {rmse_maccs, mae_maccs}")
+    # print(f"ROC-AUC with ECFP4 fingerprints: {rmse_ecfp4, mae_ecfp4}")
+    # print(f"ROC-AUC with RDK7 fingerprints: {rmse_rdk7, mae_rdk7}")
+
+    visualize_embeddings(test_df)
+    print("Done!")

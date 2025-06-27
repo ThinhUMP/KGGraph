@@ -252,7 +252,6 @@ class GATConv(MessagePassing):
         edge_attr = edge_attr.unsqueeze(1).repeat(1, self.heads, 1)
         x_j = torch.cat([x_j, edge_attr], dim=-1)
         x_i = x_i.view(-1, self.heads, self.out_channels)
-        # print(torch.cat([x_i, x_j], dim=-1).shape, self.att.shape)
         alpha = (torch.cat([x_i, x_j], dim=-1) * self.att).sum(dim=-1)
 
         alpha = F.leaky_relu(alpha, self.negative_slope)
@@ -337,8 +336,8 @@ class GNN(torch.nn.Module):
 
     def __init__(
         self,
-        num_layer,
-        emb_dim,
+        num_layer=5,
+        emb_dim=512,
         JK="last",
         drop_ratio=0,
         gnn_type="gin",
@@ -528,6 +527,44 @@ class GraphModel(torch.nn.Module):
                 super_group.append(node_rep[i, :])
         super_rep = torch.stack(super_group, dim=0)
         return super_rep
+
+    @staticmethod
+    def motif_rep(node_rep, num_node, num_motif):
+        """
+        Generate motif-level representations by summing motif node embeddings
+        from each molecule in the batch.
+
+        Args:
+            node_rep (Tensor): Node representations of shape [N, D]
+            batch (Tensor): Batch assignments of shape [N]
+            num_node (List[int]): Number of nodes per molecule
+            num_motif (List[int]): Number of motifs per molecule
+
+        Returns:
+            Tensor: Global motif representations per molecule of shape [len(num_node), D]
+        """
+
+        # Step 1: Split node_rep by molecules using `batch`
+        mols = []
+        start = 0
+        for i in range(len(num_node)):
+            mols.append(node_rep[start : start + num_node[i] + num_motif[i] + 1])
+            start += num_node[i] + num_motif[i] + 1
+
+        # Step 2: Extract and sum motif representations for each molecule
+        motif_group = []
+        for i, mol in enumerate(mols):
+            start_idx = num_node[i]
+            end_idx = start_idx + num_motif[i]
+            motif_nodes = mol[start_idx:end_idx]
+            assert (
+                motif_nodes.shape[0] == num_motif[i]
+            )  # check for the number of motif embeddings
+            motif_group.append(torch.sum(motif_nodes, dim=0))
+
+        # Step 3: Stack to form global representation
+        global_rep = torch.stack(motif_group, dim=0)
+        return global_rep
 
     def forward(self, *argv):
         """

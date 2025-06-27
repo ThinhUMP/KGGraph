@@ -1,17 +1,41 @@
-from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
-import pandas as pd
-from KGGraph.KGGProcessor.split import scaffold_split, random_split
-from torch_geometric.data import DataLoader
-from KGGraph.KGGModel.visualize import (
-    clean_state_dict,
-    visualize_embeddings,
-    visualize_embeddings_reg,
-)
-from KGGraph.KGGModel.graph_model import GNN
-from KGGraph.KGGModel.finetune_utils import get_task_type
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 import torch
 import argparse
 import numpy as np
+import pandas as pd
+from torch_geometric.data import DataLoader
+import argparse
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import (
+    f1_score,
+    average_precision_score,
+    roc_auc_score,
+    r2_score,
+    mean_absolute_error,
+    mean_squared_error,
+)
+import sys
+from pathlib import Path
+
+# Get the root directory
+root_dir = Path(__file__).resolve().parents[2]
+# Add the root directory to the system path
+sys.path.append(str(root_dir))
+
+from KGGraph.KGGProcessor.finetune_dataset import MoleculeDataset
+from KGGraph.KGGModel.visualize import extract_embeddings, clean_state_dict
+from KGGraph.KGGModel.graph_model import GNN
+from KGGraph.KGGProcessor.split import scaffold_split, random_split
+from KGGraph.KGGModel.finetune_utils import get_task_type
+from KGGraph.KGGProcessor.loader import (
+    load_bace_dataset,
+    load_bbbp_dataset,
+    load_esol_dataset,
+    load_freesolv_dataset,
+    load_lipo_dataset,
+    load_qm7_dataset,
+)
+from pretrain import seed_everything
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -63,13 +87,22 @@ def main():
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
-        "--seed", type=int, default=42, help="Seed for splitting the dataset."
+        "--motif_embeddings",
+        type=bool,
+        default=False,
+        help="Using motif embeddings for visualization instead of supernode embeddings",
     )
     parser.add_argument(
-        "--runseed",
+        "--input_model_file",
+        type=str,
+        default="saved_model_mlp_ce60_1layer_x/pretrain.pth",
+        help="filename to read the model (if there is any)",
+    )
+    parser.add_argument(
+        "--seed",
         type=int,
         default=42,
-        help="Seed for minibatch selection, random initialization.",
+        help="Seed for splitting the dataset, minibatch selection, random initialization.",
     )
     parser.add_argument(
         "--split",
@@ -122,10 +155,7 @@ def main():
     args = parser.parse_args()
 
     # set up seeds
-    torch.manual_seed(args.runseed)
-    np.random.seed(args.runseed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(args.runseed)
+    seed_everything(args.seed)
 
     # set up device
     device = (
@@ -133,7 +163,6 @@ def main():
         if torch.cuda.is_available()
         else torch.device("cpu")
     )
-    print("device", device)
 
     # set up task type
     task_type = get_task_type(args)
@@ -149,33 +178,43 @@ def main():
         mask_edge_ratio=args.mask_edge_ratio,
         fix_ratio=args.fix_ratio,
     )
-    print(dataset)
+    print(args.dataset)
 
     # data split
+    smiles_list = pd.read_csv(
+        "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
+        header=None,
+    )[0].tolist()
     if args.split == "scaffold":
-        smiles_list = pd.read_csv(
-            "Data/" + task_type + "/" + args.dataset + "/processed/smiles.csv",
-            header=None,
-        )[0].tolist()
-        train_dataset, valid_dataset, test_dataset, (_, _, test_smiles) = (
-            scaffold_split(
-                dataset,
-                smiles_list,
-                null_value=0,
-                frac_train=0.8,
-                frac_valid=0.1,
-                frac_test=0.1,
-            )
+        (
+            train_dataset,
+            valid_dataset,
+            test_dataset,
+            (train_smiles, valid_smiles, test_smiles),
+        ) = scaffold_split(
+            dataset,
+            smiles_list,
+            null_value=0,
+            frac_train=0.8,
+            frac_valid=0.1,
+            frac_test=0.1,
         )
         print("scaffold")
     elif args.split == "random":
-        train_dataset, valid_dataset, test_dataset = random_split(
+        (
+            train_dataset,
+            valid_dataset,
+            test_dataset,
+            (train_smiles, valid_smiles, test_smiles),
+        ) = random_split(
             dataset,
+            smiles_list,
             null_value=0,
             frac_train=0.8,
             frac_valid=0.1,
             frac_test=0.1,
             seed=args.seed,
+            return_smiles=True,
         )
         print("random")
     else:
@@ -199,6 +238,7 @@ def main():
             shuffle=True,
             num_workers=args.num_workers,
         )
+
     val_loader = DataLoader(
         valid_dataset,
         batch_size=args.batch_size,
@@ -212,6 +252,7 @@ def main():
         num_workers=args.num_workers,
     )
 
+    # state_dict = torch.load(args.input_model_file)
     state_dict = clean_state_dict(
         torch.load(f"Data/{task_type}/{args.dataset}/{args.dataset}_1.pth")
     )
@@ -226,10 +267,40 @@ def main():
         edge_features=dataset[0].edge_attr.size(1),
     )
     model.load_state_dict(state_dict)
+    print("Load model done")
+    X_train, y_train = extract_embeddings(args, model, device, train_loader)
+    X_test, y_test = extract_embeddings(args, model, device, test_loader)
+    print("Done extracting embeddings")
+
     if task_type == "classification":
-        visualize_embeddings(args, model, device, test_loader, task_type)
+        neigh = KNeighborsClassifier(n_neighbors=3)
+        neigh.fit(X_train, y_train)
+
+        y_pred = neigh.predict(X_test)
+        rocauc = roc_auc_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
+        ap = average_precision_score(y_test, y_pred)
+        print("rocauc of kgg fgs", rocauc)
+        print("f1 of kgg fgs", f1)
+        print("ap of kgg fgs", ap)
+        print("-------------------")
     else:
-        visualize_embeddings_reg(args, model, device, test_loader, task_type)
+        neigh = KNeighborsRegressor(n_neighbors=3)
+        neigh.fit(X_train, y_train)
+
+        y_pred = neigh.predict(X_test)
+        r2 = r2_score(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        print("r2 of kgg fgs", r2)
+        print("mae of kgg fgs", mae)
+        print("mse of kgg fgs", mse)
+        print("rmse of kgg fgs", rmse)
+        print("-------------------")
+
+
+# def compare_fgs():
 
 
 if __name__ == "__main__":

@@ -43,7 +43,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
-        default=7,
+        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -74,7 +74,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -97,7 +97,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="qm8",
+        default="esol",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -172,10 +172,6 @@ def main():
     # Start timing for finetuning
     round_start_finetune = time.time()
 
-    train_frac = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
-    val_frac = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-
-    
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
 
@@ -207,7 +203,7 @@ def main():
             mask_edge_ratio=args.mask_edge_ratio,
             fix_ratio=args.fix_ratio,
         )
-        print(dataset)
+        print(dataset[0])
 
         # data split
         if args.split == "scaffold":
@@ -224,10 +220,8 @@ def main():
                 dataset,
                 smiles_list,
                 null_value=0,
-                frac_train=train_frac[i-1],
-                frac_valid=val_frac[i-1],
-                # frac_train=0.7,
-                # frac_valid=0.2,
+                frac_train=0.8,
+                frac_valid=0.1,
                 frac_test=0.1,
             )
             print("scaffold")
@@ -243,8 +237,6 @@ def main():
             print("random")
         else:
             raise ValueError("Invalid split option.")
-
-        print(train_dataset[0])
 
         # with open(f"Data/contamination/test_{args.dataset}.txt", "a") as f:
         #         f.writelines("%s\n" % s for s in test_smiles)

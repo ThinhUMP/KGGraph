@@ -207,6 +207,7 @@ def main():
                 mask_node_ratio=1.0,
                 fix_ratio=True,
             )
+            print(num_part)
             break
         except:
             print(mol)

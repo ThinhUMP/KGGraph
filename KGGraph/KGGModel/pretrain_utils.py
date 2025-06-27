@@ -70,7 +70,7 @@ def train(args, model_list, loader, optimizer_list, device, pretrain_loss, epoch
         if (step + 1) % 20 == 0:
             print("Batch:", step, "loss:", loss.item())
         pretrain_loss["loss"][epoch - 1] = loss.item()
-    
+
     os.makedirs("Data/pretrain_datasets/log", exist_ok=True)
     pretrain_loss.to_csv(
         f"Data/pretrain_datasets/log/pretrain_loss_{args.gnn_type}.csv"

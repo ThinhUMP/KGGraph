@@ -223,18 +223,18 @@ def average_test_metrics(args, task_type, remove=True):
         mean_auc = df_avg["AUC"].mean() * 100
         std_auc = df_std["AUC"].mean() * 100
         print(
-            f"AUC test for {args.dataset} dataset over {args.training_rounds} training rounds: {mean_auc:.2f}±{std_auc:.2f}"
+            f"AUC test for {args.dataset} dataset built on {args.gnn_type} over {args.training_rounds} training rounds: {mean_auc:.2f}±{std_auc:.2f}"
         )
     else:
         if args.dataset in ["qm7", "qm8", "qm9"]:
             mae_loss = df_avg["MAE"].mean()
             std_loss = df_std["MAE"].mean()
             print(
-                f"MAE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {mae_loss:.4f}±{std_loss:.4f}"
+                f"MAE loss of test sets for {args.dataset} dataset built on {args.gnn_type} over {args.training_rounds} training rounds: {mae_loss:.4f}±{std_loss:.4f}"
             )
         else:
             rmse_loss = df_avg["RMSE"].mean()
             std_loss = df_std["RMSE"].mean()
             print(
-                f"RMSE loss of test sets for {args.dataset} dataset over {args.training_rounds} training rounds: {rmse_loss:.4f}±{std_loss:.4f}"
+                f"RMSE loss of test sets for {args.dataset} dataset built on {args.gnn_type} over {args.training_rounds} training rounds: {rmse_loss:.4f}±{std_loss:.4f}"
             )

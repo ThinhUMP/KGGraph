@@ -302,7 +302,7 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
 
     # Add a colorbar
     cbar = plt.colorbar(scatter)
-    cbar.set_label("lumo", fontsize=16)
+    cbar.set_label(f"{args.target_column}", fontsize=16)
 
     if args.motif_embeddings:
         plt.title(f"{args.dataset}-Motif embeddings".upper(), fontsize=16)

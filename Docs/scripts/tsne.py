@@ -63,14 +63,20 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="bace",
+        default="lipo",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--motif_embeddings",
         type=bool,
-        default=False,
+        default=True,
         help="Using motif embeddings for visualization instead of supernode embeddings",
+    )
+    parser.add_argument(
+        "--target_column",
+        type=str,
+        default="octanol/water distribution coefficient",
+        help="This is used for regression tasks",
     )
     parser.add_argument(
         "--seed", type=int, default=42, help="Seed for splitting the dataset."

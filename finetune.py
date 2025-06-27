@@ -32,7 +32,7 @@ def main():
         description="PyTorch implementation of training of graph neural networks"
     )
     parser.add_argument(
-        "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
+        "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -43,6 +43,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
+        default=1,
         default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
@@ -62,7 +63,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-7, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -85,7 +86,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gin",
+        default="gat",
         help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(
@@ -97,7 +98,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="esol",
+        default="qm9",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -174,6 +175,10 @@ def main():
     # Start timing for finetuning
     round_start_finetune = time.time()
 
+    # train_frac = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+    # val_frac = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+
+    
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
 
@@ -236,7 +241,7 @@ def main():
                 frac_train=0.8,
                 frac_valid=0.1,
                 frac_test=0.1,
-                seed=args.seed[i - 1],
+                seed=args.seed,
             )
             print("random")
         else:

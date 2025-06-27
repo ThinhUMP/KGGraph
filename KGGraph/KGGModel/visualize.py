@@ -179,7 +179,16 @@ def extract_embeddings(args, model, device, loader):
         for step, batch in enumerate(tqdm(loader, desc="Generating embeddings")):
             batch = batch.to(device)
             node_representation = model(batch.x, batch.edge_index, batch.edge_attr)
-            super_rep = GraphModel.super_node_rep(node_representation, batch.batch)
+
+            if args.motif_embeddings == True:
+                num_node = batch.num_node.detach().cpu().numpy().flatten()
+                num_motif = batch.num_motif.detach().cpu().numpy().flatten()
+                super_rep = GraphModel.motif_rep(
+                    node_representation, num_node, num_motif
+                )
+            else:
+                super_rep = GraphModel.super_node_rep(node_representation, batch.batch)
+
             embeddings_list.append(super_rep.detach().cpu().numpy())
 
             y = batch.y.view(-1, 1).to(torch.float64)
@@ -242,8 +251,10 @@ def visualize_embeddings(args, model, device, loader, task_type):
         prop={"size": 12},
         ncol=2,
     )
-
-    plt.title(f"{'kgg'}".upper(), fontsize=16)
+    if args.motif_embeddings:
+        plt.title(f"{args.dataset}-Motif embeddings".upper(), fontsize=16)
+    else:
+        plt.title(f"{args.dataset}".upper(), fontsize=16)
     plt.xlabel("t-SNE-0", fontsize=16)
     plt.ylabel("t-SNE-1", fontsize=16)
 
@@ -251,12 +262,22 @@ def visualize_embeddings(args, model, device, loader, task_type):
     plt.xticks([])
     plt.yticks([])
     plt.tight_layout()
-    plt.savefig(
-        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_kgg_tsne.png",
-        dpi=600,
-        bbox_inches="tight",
-        transparent=False,
-    )
+    if args.motif_embeddings:
+        plt.savefig(
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_motif_tsne.pdf",
+            dpi=600,
+            bbox_inches="tight",
+            transparent=False,
+            format="pdf",
+        )
+    else:
+        plt.savefig(
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_tsne.pdf",
+            dpi=600,
+            bbox_inches="tight",
+            transparent=False,
+            format="pdf",
+        )
 
     plt.show()
 
@@ -283,7 +304,10 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     cbar = plt.colorbar(scatter)
     cbar.set_label("lumo", fontsize=16)
 
-    plt.title(f"{args.dataset}".upper(), fontsize=16)
+    if args.motif_embeddings:
+        plt.title(f"{args.dataset}-Motif embeddings".upper(), fontsize=16)
+    else:
+        plt.title(f"{args.dataset}".upper(), fontsize=16)
     plt.xlabel("t-SNE-0", fontsize=16)
     plt.ylabel("t-SNE-1", fontsize=16)
 
@@ -291,11 +315,21 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     plt.xticks([])
     plt.yticks([])
     plt.tight_layout()
-    plt.savefig(
-        f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_lumo_tsne.png",
-        dpi=600,
-        bbox_inches="tight",
-        transparent=False,
-    )
+    if args.motif_embeddings:
+        plt.savefig(
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_motif_tsne.pdf",
+            dpi=600,
+            bbox_inches="tight",
+            transparent=False,
+            format="pdf",
+        )
+    else:
+        plt.savefig(
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_tsne.pdf",
+            dpi=600,
+            bbox_inches="tight",
+            transparent=False,
+            format="pdf",
+        )
 
     plt.show()

@@ -58,18 +58,18 @@ def feature(
     )
 
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
-    return data
+    return data, num_part
 
 
 class MoleculeDataset(InMemoryDataset):
     def __init__(
         self,
         root,
-        decompose_type,
-        mask_node,
-        mask_edge,
-        mask_node_ratio,
-        mask_edge_ratio,
+        decompose_type="motif",
+        mask_node=False,
+        mask_edge=False,
+        mask_node_ratio=0.0,
+        mask_edge_ratio=0.0,
         fix_ratio=True,
         transform=None,
         pre_transform=None,
@@ -200,11 +200,21 @@ class MoleculeDataset(InMemoryDataset):
             )
             for mol in tqdm(mols_list)
         )
-        for idx, data in enumerate(data_result_list):
+        # Separate processed data and number of node and motif of a molecule
+        data_result = [processed_data[0] for processed_data in data_result_list]
+        num_node = [
+            processed_data[1][0] for processed_data in data_result_list
+        ]  # processed_data[1]=num_part
+        num_motif = [processed_data[1][1] for processed_data in data_result_list]
+
+        for idx, data in enumerate(data_result):
             data.id = torch.tensor(
                 [idx]
             )  # id here is the index of the mol in the dataset
             data.y = torch.tensor(labels[idx])
+            data.num_node = num_node[idx]
+            data.num_motif = num_motif[idx]
+
             if self.dataset == "bace":
                 data.fold = torch.tensor([folds[idx]])
             data_list.append(data)
@@ -229,11 +239,11 @@ class MoleculeDataset(InMemoryDataset):
 
 if __name__ == "__main__":
     dataset = MoleculeDataset(
-        "./Data/classification/tox21/",
-        dataset="tox21",
+        "./Data/regression/freesolv/",
+        dataset="freesolv",
         decompose_type="motif",
-        mask_node=True,
-        mask_edge=True,
+        mask_node=False,
+        mask_edge=False,
         mask_node_ratio=0.25,
         mask_edge_ratio=0.1,
         fix_ratio=False,

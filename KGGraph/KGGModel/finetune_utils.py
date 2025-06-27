@@ -389,7 +389,7 @@ def train_epoch_cls(
         print("====Evaluation")
 
         val_auc, val_matthews, val_ap, val_f1, val_loss, _, _, _, _ = evaluate(
-            args, model, device, test_loader, task_type, criterion
+            args, model, device, val_loader, task_type, criterion
         )
 
         (
@@ -486,7 +486,7 @@ def train_epoch_reg(
         )
 
         print("====Evaluation")
-        val_mae, val_mse, val_rmse, val_r2 = eval_reg(model, device, test_loader)
+        val_mae, val_mse, val_rmse, val_r2 = eval_reg(model, device, val_loader)
         test_mae, test_mse, test_rmse, test_r2 = eval_reg(model, device, test_loader)
 
         if args.dataset in ["qm7", "qm8", "qm9", "ecoli"]:
@@ -547,7 +547,6 @@ def train_epoch_reg(
             model.state_dict(),
             f"{args.save_path+task_type}/{args.dataset}/{args.dataset}_{training_round}.pth",
         )
-
         # inference time per mol
         if epoch == args.epochs:
             measure_inference_time(model, test_loader, device)

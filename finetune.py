@@ -20,8 +20,9 @@ from torch import optim
 from typing import List
 import numpy as np
 from pretrain import seed_everything
-import warnings
+import shutil
 import time
+import warnings
 
 warnings.filterwarnings("ignore")
 
@@ -44,7 +45,6 @@ def main():
         "--training_rounds",
         type=int,
         default=1,
-        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -54,16 +54,16 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
         type=float,
-        default=0.001,
+        default=0.0005,
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=1e-7, help="weight decay (default: 0)"
+        "--decay", type=float, default=0, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -75,7 +75,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -86,7 +86,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gat",
+        default="gin",
         help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(
@@ -98,13 +98,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="qm9",
+        default="lipo",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./pretrained_model_zinc15/gat_e60/pretrain.pth",
+        default="./pretrained_model_zinc15/gin_e60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -341,6 +341,10 @@ def main():
                 task_type,
                 training_round=i,
             )
+            
+        processed_dataset_path = f"Data/{task_type}/{args.dataset}/processed"
+        if os.path.exists(processed_dataset_path):
+            shutil.rmtree(processed_dataset_path)
 
     # End timing for finetuning
     round_end_finetune = time.time()

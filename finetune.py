@@ -33,7 +33,7 @@ def main():
         description="PyTorch implementation of training of graph neural networks"
     )
     parser.add_argument(
-        "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
+        "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -152,8 +152,8 @@ def main():
     )
     parser.add_argument(
         "--mask_node_ratio",
-        type=float,
-        default=0.5,
+        type=list,
+        default=[0.1, 0.2, 0.3, 0.4, 0.5],
         help="Ratio of removal nodes",
     )
     parser.add_argument(
@@ -202,7 +202,7 @@ def main():
             decompose_type=args.decompose_type,
             mask_node=args.mask_node,
             mask_edge=args.mask_edge,
-            mask_node_ratio=args.mask_node_ratio,
+            mask_node_ratio=args.mask_node_ratio[i-1],
             mask_edge_ratio=args.mask_edge_ratio,
             fix_ratio=args.fix_ratio,
         )

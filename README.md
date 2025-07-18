@@ -27,44 +27,32 @@ Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Pr
 
 To install and set up the KGG framework, follow these steps. 
 
-### Prerequisites
+1. Step by step installation
 
-- Python 3.11
-- rdkit>=2024.3.5
-- networkx>=3.3
-- synrbl>=1.0.0
-- synkit>=0.0.4
-
-### Step-by-Step Installation Guide
-
-1. **Python Installation:**
-  Ensure that Python 3.11 or later is installed on your system. You can download it from [python.org](https://www.python.org/downloads/).
-
-2. **Creating a Virtual Environment (Optional but Recommended):**
+**Creating a Virtual Environment (Optional but Recommended):**
   It's recommended to use a virtual environment to avoid conflicts with other projects or system-wide packages. Use the following commands to create and activate a virtual environment:
 
-  ```bash
-  python -m venv syntemp-env
-  source syntemp-env/bin/activate  # On Windows use `syntemp-env\Scripts\activate`
-  ```
-  Or Conda
+```bash
+# Create and activate a new Conda environment with Python 3.11
+conda create -n kgg python=3.11
+conda activate kgg
 
-  ```bash
-  conda create --name syntemp-env python=3.11
-  conda activate syntemp-env
-  ```
+# Install torch and rdkit packages
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+conda install -c conda-forge rdkit
 
-3. **Install from PyPi:**
-  The easiest way to use SynTemp is by installing the PyPI package 
-  [syntemp](https://pypi.org/project/syntemp/).
+# Install PyTorch Geometric and dependencies
+pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv \
+    -f https://data.pyg.org/whl/torch-2.7.0+cu118.html
+pip install torch_geometric
 
-  ```
-  pip install syntemp
-  ```
-  Optional if you want to install full version including three types of atom map
-  ```
-  pip install syntemp[all]
-  ```
+# Install utility libraries
+pip install joblib scikit-learn pytest black
+
+
+3. **Install from environment.yml:**
+conda env create -f environment.yml
+
 
 ## Usage
 

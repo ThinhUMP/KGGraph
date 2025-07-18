@@ -548,7 +548,9 @@ class GraphModel(torch.nn.Module):
         mols = []
         start = 0
         for i in range(len(num_node)):
-            mols.append(node_rep[start : start + num_node[i] + num_motif[i] + 1]) #1 indicates supernode
+            mols.append(
+                node_rep[start : start + num_node[i] + num_motif[i] + 1]
+            )  # 1 indicates supernode
             start += num_node[i] + num_motif[i] + 1
 
         # Extract and sum motif representations for each molecule

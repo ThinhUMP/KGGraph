@@ -173,7 +173,6 @@ def main():
     # Start timing for finetuning
     round_start_finetune = time.time()
 
-    
     for i in range(1, args.training_rounds + 1):
         print("====Round ", i)
 
@@ -201,8 +200,8 @@ def main():
             decompose_type=args.decompose_type,
             mask_node=args.mask_node,
             mask_edge=args.mask_edge,
-            mask_node_ratio=args.mask_node_ratio[i-1],
-            mask_edge_ratio=args.mask_edge_ratio[i-1],
+            mask_node_ratio=args.mask_node_ratio[i - 1],
+            mask_edge_ratio=args.mask_edge_ratio[i - 1],
             fix_ratio=args.fix_ratio,
         )
         print(dataset[0])
@@ -339,7 +338,7 @@ def main():
                 task_type,
                 training_round=i,
             )
-            
+
         processed_dataset_path = f"Data/{task_type}/{args.dataset}/processed"
         if os.path.exists(processed_dataset_path):
             shutil.rmtree(processed_dataset_path)

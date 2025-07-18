@@ -239,7 +239,7 @@ if __name__ == "__main__":
     print(df.shape)
     # print(df['p_np'].unique())
 
-    method = "scaffold" 
+    method = "scaffold"
 
     train_df, valid_df, test_df = split_data(df, method=method)
 

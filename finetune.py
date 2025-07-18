@@ -36,7 +36,6 @@ def main():
     )
     parser.add_argument(
         "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
-        "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -57,7 +56,6 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
         "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(

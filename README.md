@@ -58,11 +58,45 @@ conda env create -f environment.yml
 
 ## Reproduce
 
-### Reproduce templates extraction
-  Run these commands from the root of the cloned repository.
-  ```bash
-  python
-  ```
+### 📂 Dataset
+
+- **Pre-training data**: `Data/pretrain_datasets/`
+- **Fine-tuning datasets**:  
+  - Classification tasks: `Data/classification/`  
+  - Regression tasks: `Data/regression/`
+
+---
+
+### 📦 Pretrained Models
+
+- Download [pretrained ZINC15 models](https://drive.google.com/drive/folders/1jI_20IKUhSn4_YKu9B7EobLFd7KNxS3T?usp=sharing) and [pretrained ChEMBL29 models](https://drive.google.com/drive/folders/1j3igj7nNr4OYmBCOB9lXJeYuYSEdivCl?usp=sharing)
+- After downloading, place the pretrained model files in the following directory: `./pretrained_model_zinc15/` or `./pretrained_model_chembl29/`
+
+
+### Pre-training
+To begin pre-training, modify the arguments in `pretrain.py` as needed for your experiment, then run:
+```bash
+python pretrain.py
+```
+### Fine-tuning
+To begin fine-tuning, modify the arguments in `pretrain.py` as needed for your experiment, then run:
+```bash
+python finetune.py
+```
+### Analysis
+To begin analyzing, modify the arguments in `fgs.py` or `knn.py` or `tsne.py` as needed for your experiment, then run:
+- Comparison with fingerprints
+```bash
+python Docs/scripts/fgs.py
+```
+- knn model
+```bash
+python Docs/scripts/knn.py
+```
+- tsne visualization
+```bash
+python Docs/scripts/tsne.py
+```
 
 ## Publication
 

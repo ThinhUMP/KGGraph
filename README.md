@@ -79,7 +79,7 @@ To begin pre-training, modify the arguments in `pretrain.py` as needed for your 
 python pretrain.py
 ```
 ### Fine-tuning
-To begin fine-tuning, modify the arguments in `pretrain.py` as needed for your experiment, then run:
+To begin fine-tuning, modify the arguments in `finetune.py` as needed for your experiment, then run:
 ```bash
 python finetune.py
 ```

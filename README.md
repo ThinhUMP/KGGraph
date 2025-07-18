@@ -39,16 +39,16 @@ conda create -n kgg python=3.11
 conda activate kgg
 
 # Install torch and rdkit packages
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 conda install -c conda-forge rdkit
 
 # Install PyTorch Geometric and dependencies
-pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv \
-    -f https://data.pyg.org/whl/torch-2.7.0+cu118.html
+pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.7.0+cu118.html
 pip install torch_geometric
 
 # Install utility libraries
-pip install joblib scikit-learn pytest black
+pip3 install -U scikit-learn
+pip install joblib pytest black
 ```
 
 ### **Install from environment.yml:**

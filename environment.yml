@@ -206,4 +206,3 @@ dependencies:
       - u==1.0.4
       - urllib3==2.4.0
       - yarl==1.20.1
-prefix: /home/labhhc4/anaconda3/envs/kgg

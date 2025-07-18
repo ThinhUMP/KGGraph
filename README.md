@@ -26,7 +26,7 @@ Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Pr
 
 To install and set up the KGG framework, follow these steps. 
 
-1. Step by step installation
+1. **Step by step installation**
 
 **Creating a Virtual Environment (Optional but Recommended):**
   It's recommended to use a virtual environment to avoid conflicts with other projects or system-wide packages. Use the following commands to create and activate a virtual environment:
@@ -47,11 +47,12 @@ pip install torch_geometric
 
 # Install utility libraries
 pip install joblib scikit-learn pytest black
-
+```
 
 2. **Install from environment.yml:**
+```bash
 conda env create -f environment.yml
-
+```
 
 ## Publication
 

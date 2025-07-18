@@ -4,6 +4,8 @@ from torch_geometric.data import DataLoader
 import numpy as np
 import argparse
 import sys
+import shutil
+import os
 from pathlib import Path
 
 # Get the root directory
@@ -63,7 +65,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="lipo",
+        default="qm9",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -75,7 +77,7 @@ def main():
     parser.add_argument(
         "--target_column",
         type=str,
-        default="octanol/water distribution coefficient",
+        default="gap",
         help="This is used for regression tasks",
     )
     parser.add_argument(
@@ -245,6 +247,9 @@ def main():
     else:
         visualize_embeddings_reg(args, model, device, test_loader, task_type)
 
+    processed_dataset_path = f"Data/{task_type}/{args.dataset}/processed"
+    if os.path.exists(processed_dataset_path):
+        shutil.rmtree(processed_dataset_path)
 
 if __name__ == "__main__":
     main()

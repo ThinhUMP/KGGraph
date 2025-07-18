@@ -22,8 +22,6 @@ import numpy as np
 from pretrain import seed_everything
 import shutil
 import time
-import shutil
-import time
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -47,6 +45,7 @@ def main():
     parser.add_argument(
         "--training_rounds",
         type=int,
+        default=5,
         default=5,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
@@ -78,19 +77,13 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
         type=str,
         default="last",
         help="how the node features across layers are combined. last, sum, max or concat",
-    )
-    parser.add_argument(
-        "--gnn_type",
-        type=str,
-        default="gin",
-        help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(
         "--gnn_type",
@@ -107,13 +100,12 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
+        default="qm9",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./pretrained_model_zinc15/gin_e60/pretrain.pth",
         default="./pretrained_model_zinc15/gin_e60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
@@ -151,7 +143,6 @@ def main():
         "--mask_node",
         type=bool,
         default=False,
-        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
@@ -164,12 +155,14 @@ def main():
         "--mask_node_ratio",
         type=list,
         default=[0.1, 0.2, 0.3, 0.4, 0.5],
+        type=list,
+        default=[0.1, 0.2, 0.3, 0.4, 0.5],
         help="Ratio of removal nodes",
     )
     parser.add_argument(
         "--mask_edge_ratio",
-        type=float,
-        default=0.5,
+        type=list,
+        default=[0.1, 0.2, 0.3, 0.4, 0.5],
         help="Ratio of removal edges",
     )
     parser.add_argument(
@@ -182,8 +175,6 @@ def main():
 
     # set up time
     # Start timing for finetuning
-    round_start_finetune = time.time()
-
     round_start_finetune = time.time()
 
     
@@ -215,10 +206,9 @@ def main():
             mask_node=args.mask_node,
             mask_edge=args.mask_edge,
             mask_node_ratio=args.mask_node_ratio[i-1],
-            mask_edge_ratio=args.mask_edge_ratio,
+            mask_edge_ratio=args.mask_edge_ratio[i-1],
             fix_ratio=args.fix_ratio,
         )
-        print(dataset[0])
         print(dataset[0])
 
         # data split
@@ -248,7 +238,6 @@ def main():
                 frac_train=0.8,
                 frac_valid=0.1,
                 frac_test=0.1,
-                seed=args.seed,
                 seed=args.seed,
             )
             print("random")
@@ -358,14 +347,13 @@ def main():
         processed_dataset_path = f"Data/{task_type}/{args.dataset}/processed"
         if os.path.exists(processed_dataset_path):
             shutil.rmtree(processed_dataset_path)
-            
-        processed_dataset_path = f"Data/{task_type}/{args.dataset}/processed"
-        if os.path.exists(processed_dataset_path):
-            shutil.rmtree(processed_dataset_path)
 
     # End timing for finetuning
     round_end_finetune = time.time()
     print("========================")
+    print(
+        f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins"
+    )
     print(
         f"Time taken for finetuning 1 round: {((round_end_finetune - round_start_finetune)/args.training_rounds)/60:.2f} mins"
     )

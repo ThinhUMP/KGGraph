@@ -148,7 +148,7 @@ def main():
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=False,
+        default=True,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(

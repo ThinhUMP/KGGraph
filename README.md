@@ -54,6 +54,8 @@ pip install joblib scikit-learn pytest black
 conda env create -f environment.yml
 ```
 
+## Usage
+
 ## Publication
 
 [SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases](https://pubs.acs.org/doi/full/10.1021/acs.jcim.4c01795)
@@ -61,21 +63,16 @@ conda env create -f environment.yml
 
 ### Citation
 ```
-@article{phan2025syntemp,
-  title={SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases},
-  author={Phan, Tieu-Long and Weinbauer, Klaus and Laffitte, Marcos E Gonz{\'a}lez and Pan, Yingjie and Merkle, Daniel and Andersen, Jakob L and Fagerberg, Rolf and Flamm, Christoph and Stadler, Peter F},
-  journal={Journal of Chemical Information and Modeling},
-  volume={65},
-  number={6},
-  pages={2882--2896},
-  year={2025},
-  publisher={ACS Publications}
+@article{to2025kgg,
+  title={KGG: Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Predictions},
+  author={To, Van-Thinh and Van-Nguyen, Phuoc-Chung and Truong, Gia-Bao and Phan, Tuyet-Minh and Phan, Tieu-Long and Fagerberg, Rolf and Stadler, Peter and Truong, Tuyen},
+  year={2025}
 }
 ```
 
 
 ## Contributing
-- [Tieu-Long Phan](https://tieulongphan.github.io/)
+- [Van-Thinh TO](https://github.com/ThinhUMP)
 
 ## License
 
@@ -83,4 +80,4 @@ This project is licensed under MIT License - see the [License](LICENSE) file for
 
 ## Acknowledgments
 
-This project has received funding from the European Unions Horizon Europe Doctoral Network programme under the Marie-Skłodowska-Curie grant agreement No 101072930 ([TACsy](https://tacsy.eu/) -- Training Alliance for Computational)
+This work has received support from the Korea International Cooperation Agency (KOICA) under the project entitled “Education and Research Capacity Building Project at University of Medicine and Pharmacy at Ho Chi Minh City”, conducted from 2024 to 2025 (Project No. 2021-00020-3).

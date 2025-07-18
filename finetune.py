@@ -33,7 +33,7 @@ def main():
         description="PyTorch implementation of training of graph neural networks"
     )
     parser.add_argument(
-        "--device", type=int, default=1, help="which gpu to use if any (default: 0)"
+        "--device", type=int, default=0, help="which gpu to use if any (default: 0)"
     )
     parser.add_argument(
         "--batch_size",
@@ -45,7 +45,6 @@ def main():
         "--training_rounds",
         type=int,
         default=1,
-        default=1,
         help="number of rounds to train to get the average test auc (default: 3)",
     )
     parser.add_argument(
@@ -55,12 +54,12 @@ def main():
         help="number of epochs to train (default: 100)",
     )
     parser.add_argument(
-        "--lr_feat", type=float, default=0.0005, help="learning rate (default: 0.0005)"
+        "--lr_feat", type=float, default=0.001, help="learning rate (default: 0.0005)"
     )
     parser.add_argument(
         "--lr_pred",
         type=float,
-        default=0.0005,
+        default=0.001,
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
@@ -76,7 +75,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.7, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -87,7 +86,7 @@ def main():
     parser.add_argument(
         "--gnn_type",
         type=str,
-        default="gat",
+        default="gin",
         help="gnn_type (gat, gin, gcn, graphsage)",
     )
     parser.add_argument(
@@ -99,13 +98,13 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="qm7",
+        default="bbbp",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
         "--input_model_file",
         type=str,
-        default="./pretrained_model_zinc15/gat_e60/pretrain.pth",
+        default="./pretrained_model_zinc15/gin_e60/pretrain.pth",
         help="filename to read the model (if there is any)",
     )
     parser.add_argument(
@@ -147,7 +146,7 @@ def main():
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=True,
+        default=False,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(

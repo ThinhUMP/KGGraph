@@ -158,8 +158,8 @@ def main():
     )
     parser.add_argument(
         "--mask_edge_ratio",
-        type=float,
-        default=0.5,
+        type=list,
+        default=[0.1, 0.2, 0.3, 0.4, 0.5],
         help="Ratio of removal edges",
     )
     parser.add_argument(

@@ -1,23 +1,17 @@
 # KGG
-Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Predictions 
+Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Predictions [(ChemRxiv)](https://chemrxiv.org/engage/chemrxiv/article-details/68088e84e561f77ed461ef2d)
 
 ## Overview
 
-This repository is dedicated to the systematic extraction of reaction rules from reaction databases. Our primary focus is the computational analysis and transformation of molecular reactions into a structured set of rules. This work facilitates a deeper understanding of reaction mechanisms and pathways. The `SynTemp` framework is organized into four main phases:
+**Knowledge‑Guided Graph (KGG)** is a lightweight, self‑supervised pre‑training framework that injects orbital‑level chemical knowledge into Graph Neural Networks (GNNs) for molecular property prediction.
 
-1. **AAMs Inference**: Based on ensemble AAMs for accurate atom mapping.
-2. **Imaginary Transition State (ITS) Completion**: Enhances ITS by incorporating hydrogen inference to fully capture the reaction mechanism.
-3. **Reaction Center Detection and Extension**: Focuses on identifying and extending the core active sites of reactions.
-4. **Hierarchical Clustering**: Groups extended reaction centers or partial ITS to analyze reaction patterns.
+### Why KGG?
+- **Orbital‑aware descriptors** – Hybridization‑ and bond‑type vectors embed explicit orbital information for richer chemical context. 
+- **Data‑efficient pre‑training** – Self‑supervised on ~250 k ZINC15 molecules (≈10 × less than typical), easing label scarcity and lowering contamination ratio.  
+- **Plug‑and‑play compatibility** – Works out of the box with popular GNN backbones (GIN, GCN, GAT, GraphSAGE).  
+- **State‑of‑the‑art accuracy** – Consistently surpasses existing methods across diverse molecular property benchmarks, especially with noisy data.  
+- **Chemically interpretable embeddings** – t‑SNE and fingerprint analyses show clear, domain‑aligned clustering.  
 
-The general framework and its components are depicted in Figures A, B, and C below. Please visit [full user guide & API reference](https://syntemp.readthedocs.io/en/latest/) for detailed examples, configuration options, and best practices.  
-
-![screenshot](https://github.com/TieuLongPhan/SynTemp/raw/main/Docs/Image/TOC.png)
-
-### Downstream Applications
-
-- **Templates Analysis**: We have developed topological descriptors for ITS graphs to encapsulate the essential information of templates.
-- **Rules Application**: Observes the trade-off between radii and coverage/novelty metrics. Increased coverage tends to reduce the number of output solutions due to the complexities of subgraph matching within the DPO framework. However, it also decreases novelty. This trade-off serves as a precursor to our forthcoming research, which will focus on developing a constrained framework for synthesis planning.
 
 
 ## Table of Contents
@@ -31,7 +25,7 @@ The general framework and its components are depicted in Figures A, B, and C bel
 
 ## Installation
 
-To install and set up the SynTemp framework, follow these steps. 
+To install and set up the KGG framework, follow these steps. 
 
 ### Prerequisites
 
@@ -40,21 +34,6 @@ To install and set up the SynTemp framework, follow these steps.
 - networkx>=3.3
 - synrbl>=1.0.0
 - synkit>=0.0.4
-
-If you want to run ensemble AAMs
-
-- dgl==2.1.0
-- dgllife==0.3.2
-- localmapper>=0.1.5
-- rxn-chem-utils>=1.6.0
-- rxn-utils>=2.0.0
-- rxnmapper>=0.4.1
-- chython==1.78
-- chytorch>=1.65
-- chytorch-rxnmap>=1.4
-- torch==2.2.0
-- torchdata==0.7.1
-
 
 ### Step-by-Step Installation Guide
 
@@ -85,14 +64,6 @@ If you want to run ensemble AAMs
   Optional if you want to install full version including three types of atom map
   ```
   pip install syntemp[all]
-  ```
-
-4. **Verify Installation:**
-  After installation, you can verify that Syn Temp is correctly installed by running a simple test
-
-  ```bash
-  echo -e "R-id,reaction\n0,COC(=O)[C@H](CCCCNC(=O)OCc1ccccc1)NC(=O)Nc1cc(OC)cc(C(C)(C)C)c1O>>COC(=O)[C@H](CCCCN)NC(=O)Nc1cc(OC)cc(C(C)(C)C)c1O" > test.csv
-  python -m syntemp --data_path test.csv --rebalancing --id 'R-id' --rsmi 'reaction' --rerun_aam --fix_hydrogen --log_file ./log.txt --save_dir ./
   ```
 
 ## Usage

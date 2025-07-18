@@ -147,7 +147,7 @@ def main():
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=False,
+        default=True,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(
@@ -203,7 +203,7 @@ def main():
             mask_node=args.mask_node,
             mask_edge=args.mask_edge,
             mask_node_ratio=args.mask_node_ratio[i-1],
-            mask_edge_ratio=args.mask_edge_ratio,
+            mask_edge_ratio=args.mask_edge_ratio[i-1],
             fix_ratio=args.fix_ratio,
         )
         print(dataset[0])

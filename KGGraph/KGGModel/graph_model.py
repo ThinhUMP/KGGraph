@@ -544,14 +544,14 @@ class GraphModel(torch.nn.Module):
             Tensor: Global motif representations per molecule of shape [len(num_node), D]
         """
 
-        # Step 1: Split node_rep by molecules using `batch`
+        # Split node_rep by molecules using `batch`
         mols = []
         start = 0
         for i in range(len(num_node)):
-            mols.append(node_rep[start : start + num_node[i] + num_motif[i] + 1])
+            mols.append(node_rep[start : start + num_node[i] + num_motif[i] + 1]) #1 indicates supernode
             start += num_node[i] + num_motif[i] + 1
 
-        # Step 2: Extract and sum motif representations for each molecule
+        # Extract and sum motif representations for each molecule
         motif_group = []
         for i, mol in enumerate(mols):
             start_idx = num_node[i]
@@ -562,7 +562,7 @@ class GraphModel(torch.nn.Module):
             )  # check for the number of motif embeddings
             motif_group.append(torch.sum(motif_nodes, dim=0))
 
-        # Step 3: Stack to form global representation
+        # Stack to form global representation
         global_rep = torch.stack(motif_group, dim=0)
         return global_rep
 

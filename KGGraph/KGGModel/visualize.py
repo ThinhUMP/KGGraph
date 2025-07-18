@@ -244,7 +244,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
 
     plt.legend(
         handles=handles,
-        title="Class",
+        title=f"{args.target_column}",
         title_fontsize="13",
         loc="upper left",
         # bbox_to_anchor=(0.5, -0.05),
@@ -264,7 +264,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
     plt.tight_layout()
     if args.motif_embeddings:
         plt.savefig(
-            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_motif_tsne.pdf",
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_motif_tsne_{args.target_column}.pdf",
             dpi=600,
             bbox_inches="tight",
             transparent=False,
@@ -272,7 +272,7 @@ def visualize_embeddings(args, model, device, loader, task_type):
         )
     else:
         plt.savefig(
-            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_tsne.pdf",
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_tsne_{args.target_column}.pdf",
             dpi=600,
             bbox_inches="tight",
             transparent=False,
@@ -317,7 +317,7 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
     plt.tight_layout()
     if args.motif_embeddings:
         plt.savefig(
-            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_motif_tsne.pdf",
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_motif_tsne_{args.target_column}.pdf",
             dpi=600,
             bbox_inches="tight",
             transparent=False,
@@ -325,7 +325,7 @@ def visualize_embeddings_reg(args, model, device, loader, task_type):
         )
     else:
         plt.savefig(
-            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_tsne.pdf",
+            f"{args.save_path+task_type}/{args.dataset+'/figures'}/{args.dataset}_tsne_{args.target_column}.pdf",
             dpi=600,
             bbox_inches="tight",
             transparent=False,

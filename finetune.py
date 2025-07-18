@@ -63,7 +63,7 @@ def main():
         help="learning rate for the prediction layer (default: 0.001)",
     )
     parser.add_argument(
-        "--decay", type=float, default=0, help="weight decay (default: 0)"
+        "--decay", type=float, default=1e-7, help="weight decay (default: 0)"
     )
     parser.add_argument(
         "--num_layer",
@@ -75,7 +75,7 @@ def main():
         "--emb_dim", type=int, default=512, help="embedding dimensions (default: 512)"
     )
     parser.add_argument(
-        "--dropout_ratio", type=float, default=0.6, help="dropout ratio (default: 0.5)"
+        "--dropout_ratio", type=float, default=0.5, help="dropout ratio (default: 0.5)"
     )
     parser.add_argument(
         "--JK",
@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="clintox",
+        default="qm9",
         help="[bbbp, bace, sider, clintox, tox21, toxcast, hiv, muv, esol, freesolv, lipo, qm7, qm8, qm9]",
     )
     parser.add_argument(
@@ -140,13 +140,13 @@ def main():
     parser.add_argument(
         "--mask_node",
         type=bool,
-        default=True,
+        default=False,
         help="Mask node for pretrain and finetune",
     )
     parser.add_argument(
         "--mask_edge",
         type=bool,
-        default=False,
+        default=True,
         help="Mask edge for pretrain and finetune",
     )
     parser.add_argument(
@@ -157,8 +157,8 @@ def main():
     )
     parser.add_argument(
         "--mask_edge_ratio",
-        type=float,
-        default=0.5,
+        type=list,
+        default=[0.1, 0.2, 0.3, 0.4, 0.5],
         help="Ratio of removal edges",
     )
     parser.add_argument(
@@ -202,7 +202,7 @@ def main():
             mask_node=args.mask_node,
             mask_edge=args.mask_edge,
             mask_node_ratio=args.mask_node_ratio[i-1],
-            mask_edge_ratio=args.mask_edge_ratio,
+            mask_edge_ratio=args.mask_edge_ratio[i-1],
             fix_ratio=args.fix_ratio,
         )
         print(dataset[0])

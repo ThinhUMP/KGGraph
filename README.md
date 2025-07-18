@@ -1,5 +1,5 @@
 # KGG
-Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Predictions [(ChemRxiv)](https://chemrxiv.org/engage/chemrxiv/article-details/68088e84e561f77ed461ef2d)
+Knowledge-Guided Graph Self-Supervised Learning for Molecular Property Predictions [(ChemRxiv)](https://chemrxiv.org/engage/chemrxiv/article-details/68088e84e561f77ed461ef2d)
 
 ## Overview
 
@@ -11,6 +11,8 @@ Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Pr
 - **Plug‑and‑play compatibility** – Works out of the box with popular GNN backbones (GIN, GCN, GAT, GraphSAGE).  
 - **State‑of‑the‑art accuracy** – Consistently surpasses existing methods across diverse molecular property benchmarks, especially with noisy data.  
 - **Chemically interpretable embeddings** – t‑SNE and fingerprint analyses show clear, domain‑aligned clustering.  
+
+![Graphic Abstract](https://github.com/ThinhUMP/KGGraph/blob/review/Data/Image/graphic_abstract.png)
 
 
 ## Table of Contents
@@ -58,7 +60,7 @@ conda env create -f environment.yml
 
 ## Publication
 
-[SynTemp: Efficient Extraction of Graph-Based Reaction Rules from Large-Scale Reaction Databases](https://pubs.acs.org/doi/full/10.1021/acs.jcim.4c01795)
+[KGG: Knowledge-Guided Graph Self-Supervised Learning to Enhance Molecular Property Predictions](https://chemrxiv.org/engage/chemrxiv/article-details/68088e84e561f77ed461ef2d)
 
 
 ### Citation
@@ -73,6 +75,7 @@ conda env create -f environment.yml
 
 ## Contributing
 - [Van-Thinh TO](https://github.com/ThinhUMP)
+- [Tieu-Long PHAN](https://tieulongphan.github.io/)
 
 ## License
 

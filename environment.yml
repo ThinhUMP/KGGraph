@@ -7,7 +7,7 @@ dependencies:
   - rdkit
   - pip
   - pip:
-      - torch --index-url https://download.pytorch.org/whl/cu118
+      - torch==2.7.1+cu118 --index-url https://download.pytorch.org/whl/cu118
       - torchvision --index-url https://download.pytorch.org/whl/cu118
       - torchaudio --index-url https://download.pytorch.org/whl/cu118
       - pyg_lib -f https://data.pyg.org/whl/torch-2.7.0+cu118.html

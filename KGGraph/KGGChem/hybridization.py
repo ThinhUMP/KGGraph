@@ -10,7 +10,7 @@ from .atom_features import (
 HYBRIDIZATION = {
     (1, 0): [1, 0, 0, 1, 0],  # AX1E0 => s => Ex: Na in NaI
     (0, 0): [1, 0, 0, 0, 0],  # AX0E0 => s => Ex: Zn2+
-    (0, 1): [1, 0, 0, 1, 0],  # AX0E1 => s => Ex: H+
+    (0, 1): [1, 0, 0, 0, 1],  # AX0E1 => s => Ex: H-
     (1, 1): [1, 1, 0, 1, 1],  # AX1E1 => sp => Ex: N of HCN
     (2, 0): [1, 1, 0, 2, 0],  # AX2E0 => sp => Ex: C#C
     (0, 2): [1, 1, 0, 0, 2],  # AX0E2 => sp => Ex: Cr smiles: [Cr+3]
